@@ -9,7 +9,7 @@ This project is a simulation, which ultimately constructs a matrix representing 
 
 ### Preprocessing - Nanowire structure
 
-1. Given a Nanowire structure, an **Adjacency matrix** is constructed, which is used to determine the paths that the particles take in order to form a braid. In the program, ```nanowire-graph.py``` performs this preprocessing. It takes as input ```nanowire-structure.csv``` and outputs the adjacency matrix into ```nanowire-graph.csv``` and the nanowire vertices into ```nanowire-vertex.csv```.
+1. Given a Nanowire structure, an **Adjacency matrix** is constructed, which is used to determine the paths that the particles take in order to form a braid. In the program, ```nanowire-graph.py``` performs this preprocessing. It takes as input ```nanowire-structure.csv``` and outputs the adjacency matrix into ```nanowire-matrix.csv``` and the nanowire vertices into ```nanowire-vertex.csv```.
 
 2. **Representation of the Nanowire** must follow certain rules:
     - Sequence of the branches is **Anti-clockwise**
@@ -33,23 +33,25 @@ d,d'
 x21,x22
 ```
 
-4. One of the outputs of ```nanowire-graph.py``` is a sequence of vertices of the Nanowire, saved in ```nanowire-vertex.csv```. One of the sequence is ```m,a,b,c,f',d,c',e,a',e',b',d',f```.
+4. One of the outputs of ```nanowire-graph.py``` is a sequence of vertices of the Nanowire, saved in ```nanowire-vertex.csv```. One of the sequence is ```m,d',a',b',a,c,b,f',e,c',f,d,x2,e',x1```.
 
-5. The other output of ```nanowire-graph.py``` is the adjacency matrix of the Nanowire, saved in ```nanowire-graph.csv```. The matrix for the above sequence and the given nanowire structure is
+5. The other output of ```nanowire-graph.py``` is the adjacency matrix of the Nanowire, saved in ```nanowire-matrix.csv```. The matrix for the above sequence and the given nanowire structure is
 ```
-1,0,0,0,1,0,1,0,1,1,1,1,0
-0,1,0,0,0,0,0,0,1,0,0,0,0
-0,0,1,0,0,0,0,0,0,0,1,0,0
-0,0,0,1,0,0,1,0,0,0,0,0,0
-1,0,0,0,1,0,0,0,0,0,0,0,1
-0,0,0,0,0,1,0,0,0,0,0,1,0
-1,0,0,1,0,0,1,0,0,0,0,0,0
-0,0,0,0,0,0,0,1,0,1,0,0,0
-1,1,0,0,0,0,0,0,1,0,0,0,0
-1,0,0,0,0,0,0,1,0,1,0,0,0
-1,0,1,0,0,0,0,0,0,0,1,0,0
-1,0,0,0,0,1,0,0,0,0,0,1,0
-0,0,0,0,1,0,0,0,0,0,0,0,1
+1,0,0,0,0,0,0,0,0,0,0,0,1,0,1
+0,1,0,0,0,0,0,0,0,0,0,1,1,0,0
+0,0,1,0,1,0,0,0,0,0,0,0,0,0,1
+0,0,0,1,0,0,1,0,0,0,0,0,0,0,1
+0,0,1,0,1,0,0,0,0,0,0,0,0,0,0
+0,0,0,0,0,1,0,0,0,1,0,0,0,0,0
+0,0,0,1,0,0,1,0,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,1,0,0,1,0,0,0,1
+0,0,0,0,0,0,0,0,1,0,0,0,0,1,0
+0,0,0,0,0,1,0,0,0,1,0,0,1,0,0
+0,0,0,0,0,0,0,1,0,0,1,0,0,0,0
+0,1,0,0,0,0,0,0,0,0,0,1,0,0,0
+1,1,0,0,0,0,0,0,0,1,0,0,1,1,0
+0,0,0,0,0,0,0,0,1,0,0,0,1,1,0
+1,0,1,1,0,0,0,1,0,0,0,0,0,0,1
 ```
 
 ### Preprocessing - Braid sequence
@@ -76,6 +78,6 @@ x21,x22
 The files mentioned above are provided as arguments to the main file, ```particle-movement.py```:
 1. ```nanowire-structure.csv```
 2. ```nanowire-vertex.csv```
-3. ```nanowire-graph.csv```
+3. ```nanowire-matrix.csv```
 4. ```positions.csv```
 5. ```braid-sequence.csv```
