@@ -1,4 +1,5 @@
 import sys
+import route
 
 # File I/O
 def position_vacancies(arr):
@@ -24,6 +25,19 @@ def read_nanowire_structure(file):
                 row = line.split(',')
                 data.append(position_vacancies(row))
         file.close()
+        return data
+    except IOError:
+        raise
+
+def read_nanowire_vertices(file):
+    data = []
+    try:
+        fr = open(file,'r')
+        line = fr.readline()
+        row = line.split()
+        row = [e.strip() for e in row]
+        data = row
+        fr.close()
         return data
     except IOError:
         raise
@@ -59,8 +73,8 @@ def read_braid_sequence(file):
     except IOError:
         raise
 
-def print_op(pa,p1,p2,vg11,vg12,vg21,vg22):
-    line = "{},{},{},{},{},{},{}".format(pa,p1,p2,vg11,vg12,vg21,vg22)
+def print_op(par,pos,vg11,vg12,vg21,vg22):
+    line = "{},{},{},{},{},{}".format(par,pos,vg11,vg12,vg21,vg22)
     print(line)
 
 #
@@ -73,6 +87,7 @@ def initiate_nanowire(nanowire,positions):
                     tup[pos] = i
     return nanowire
 
+# *
 def move_particles(nanowire,sequence,positions):
     for tup in sequence:
         par1 = tup[0]-1
@@ -83,14 +98,20 @@ def move_particles(nanowire,sequence,positions):
 #
 def start():
     try:
-        nanowire_str = read_nanowire_structure(sys.argv[1])
+        nanowire_structure = read_nanowire_structure(sys.argv[1])
+        nanowire_vertex = read_nanowire_vertices(sys.argv[2])
+
+        nanowire_matrix = route.adjacency_matrix(sys.argv[3])
+        route.validate_matrix(nanowire_matrix)
+
         positions = read_particle_positions(sys.argv[4])
         sequence = read_braid_sequence(sys.argv[5])
 
-        nanowire = initiate_nanowire(nanowire_str,positions)
-        print(nanowire)
+        nanowire = initiate_nanowire(nanowire_structure,positions)
         # move_particles(nanowire,sequence,positions)
     except IOError as err:
+        print(err)
+    except SyntaxError as err:
         print(err)
 
 #

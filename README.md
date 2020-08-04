@@ -17,9 +17,9 @@ This project is a simulation, which ultimately constructs a matrix representing 
     - Naming Sequence of the positions is **Outward to inward**
     - Each intersection is followed by the **Voltage gates**
 
-![Double-X junction Nanowire](nanowire.png)
+![nanowire-2x](nanowire.png)
 
-3. A representation (```nanowire-structure.csv```) of the Nanowire above would be:
+3. This is a Double-X junction Nanowire. It would be represented in (```nanowire-structure.csv```) as:
 ```
 b,b'
 a,a'
@@ -54,9 +54,9 @@ x21,x22
 
 ### Preprocessing - Braid sequence
 
-![Braid pattern for 2-Qubit CNOT](braid-pattern.png)
+![braid-cnot](braid-pattern.png)
 
-1. Given a Braid pattern for a Quantum gate, it needs to be processed into a sequence of braids between 2 particles. These sequences, in turn, combine to form the braid pattern. For this Braiding pattern the braid sequence saved in ```braid-sequence.csv``` is:
+1. Given a Braid pattern for a Quantum gate, it needs to be processed into a sequence of braids between 2 particles. These sequences, in turn, combine to form the braid pattern. For this Braiding pattern, which is a 2-Qubit CNOT gate, the braid sequence saved in ```braid-sequence.csv``` is:
 ```
 3,4
 3,5

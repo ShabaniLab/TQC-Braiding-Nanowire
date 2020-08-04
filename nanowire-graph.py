@@ -1,6 +1,6 @@
 import sys
 
-intersection = 'i'
+intersection = 'x'
 state_1 = 1
 
 # Reading the Nanowire Structure
@@ -28,8 +28,7 @@ def read_nanowire_structure(file):
 
 # Nanowire Graph Vertices
 def extract_nanowire_vertices(structure):
-    vertices = [j for sub in structure for j in sub]
-    '''it = 1
+    it = 1
     vertices = []
     junction = []
     for i in range(len(structure)):
@@ -43,7 +42,7 @@ def extract_nanowire_vertices(structure):
             it += 1
         elif i==(len(structure)-1):
             vertices.extend(junction)
-            junction = []'''
+            junction = []
     return set(vertices)
 
 def print_nanowire_vertices(file,vertices):
@@ -57,24 +56,6 @@ def print_nanowire_vertices(file,vertices):
         raise
 
 # Nanowire Graph Adjacency matrix
-def construct_links(vertices,structure):
-    links = []
-    danglers = []
-    intermediate = None
-    for branch in structure:
-        if len(branch)>1:
-            links.append(branch)
-            danglers.extend([branch[1]])
-        else:
-            intermediate = branch[0]
-            for el in danglers:
-                links.append([el,intermediate])
-            danglers = []
-    if len(danglers)>0 and intermediate is not None:
-        for el in danglers:
-            links.append([el,intermediate])
-    return links
-
 def initialise_matrix(vertices):
     n = len(vertices)
     matrix = []
@@ -82,6 +63,26 @@ def initialise_matrix(vertices):
         row = [0 for j in range(n)]
         matrix.append(row)
     return matrix
+
+def construct_links(vertices,structure):
+    links = []
+    danglers = []
+    it = 1
+    for branch in structure:
+        if len(branch)>1:
+            links.append(branch)
+            danglers.extend([branch[1]])
+        else:
+            danglers.extend(branch[0])
+            intermediate = "{}{}".format(intersection,it)
+            it += 1
+            for el in danglers:
+                links.append([el,intermediate])
+            danglers = []
+    if len(danglers)>0:
+        for el in danglers:
+            links.append([el,intermediate])
+    return links
 
 def update_matrix(matrix,vertices,state,node1,node2):
     vertices = list(vertices)
