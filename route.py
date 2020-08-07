@@ -99,3 +99,24 @@ def start(matrix,start,end):
         print(err)
     except StopIteration as err:
         print(err)
+
+#
+def start_tml():
+    try:
+        matrix = adjacency_matrix(sys.argv[1])
+        validate_matrix(matrix)
+        matrix = transform_matrix(matrix)
+
+        path = []
+        start = int(sys.argv[2])
+        end = int(sys.argv[3])
+        parent = dijkstra(matrix, start, end)
+        get_path(matrix,parent,end,path)
+
+        print(path)
+    except SyntaxError as err:
+        print(err)
+    except StopIteration as err:
+        print(err)
+
+start_tml()

@@ -73,7 +73,11 @@ def read_braid_sequence(file):
     except IOError:
         raise
 
-def print_op(par,pos,vg11,vg12,vg21,vg22):
+def print_particle_movements(par,pos,vg11,vg12,vg21,vg22):
+    line = "{},{},{},{},{},{}".format(par,pos,vg11,vg12,vg21,vg22)
+    print(line)
+
+def print_particle_states(par,pos,vg11,vg12,vg21,vg22):
     line = "{},{},{},{},{},{}".format(par,pos,vg11,vg12,vg21,vg22)
     print(line)
 
@@ -100,13 +104,12 @@ def start():
     try:
         nanowire_structure = read_nanowire_structure(sys.argv[1])
         nanowire_vertex = read_nanowire_vertices(sys.argv[2])
-
         nanowire_matrix = route.adjacency_matrix(sys.argv[3])
         route.validate_matrix(nanowire_matrix)
 
-        positions = read_particle_positions(sys.argv[4])
-        sequence = read_braid_sequence(sys.argv[5])
-
+        sequence = read_braid_sequence(sys.argv[4])
+        positions = read_particle_positions(sys.argv[5])
+        
         nanowire = initiate_nanowire(nanowire_structure,positions)
         # move_particles(nanowire,sequence,positions)
     except IOError as err:

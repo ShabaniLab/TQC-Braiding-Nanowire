@@ -71,13 +71,42 @@ x21,x22
 
 ### Preprocessing - Initial Particle positions
 
-1. A file, ```positions.csv```, contains the initial positions of the particles on the Nanowire.
+A file, ```particle-positions.csv```, contains the initial positions of the particles on the Nanowire. In the above example, it is ```a,a',c,c',d,d'```.
 
 ### File arguments
 
-The files mentioned above are provided as arguments to the main file, ```particle-movement.py```:
+The files mentioned above are provided as arguments to the main file, ```tqc-compiler.py```:
 1. ```nanowire-structure.csv```
 2. ```nanowire-vertex.csv```
 3. ```nanowire-matrix.csv```
-4. ```positions.csv```
-5. ```braid-sequence.csv```
+4. ```braid-sequence.csv```
+5. ```particle-positions.csv```
+6. ```particle-movements.csv```
+7. ```particle-states.csv```
+
+### TQC Braiding Nanowire Algorithm
+
+#### Algorithm Rules
+
+1. **Braiding Concurrency limits** - there is a limit on the # concurrent braiding operations
+    - There is a layer of optimisation which can be
+2. **Braiding movements** - Every braiding operation puts the particles back in their respective final positions.
+    - There is a layer of optimisation possible here. The particles can be placed in an intermediate position, so long as it does not violate any rules, interfere with other braiding operations or is needed in subsequence braiding operations.
+3. **Nanowire State validity** - Every braiding operation MUST result in a valid Nanowire state. Validity can be generic or for the next braiding operation.
+    - Both 1. and 2. MUST satisfy 3. EVERY braiding operation, either optimised or not, concurrent or not, must result in a valid Nanowire state.
+4. **Atomic Braiding operation** - Every braid involves 2 particles, i.e., BOTH these particles needs to be moved in a braiding operation.
+    - As the state before the braiding is valid, there is no obstruction during braiding for any particle.
+5. **Particle-Zero mode isolation** - No two particles from different zero modes can occupy adjacent positions on the Nanowire during the braiding operation.
+    - After the braiding is completed, they can only occupy the valid final positions.
+
+#### Braiding steps
+
+1. Get Final Positions
+2. Validate Resulting State
+3. Perform Braiding
+    - Get Empty Positions - on adjacent empty branches
+    - Get Voltage Changes - if braiding involves particles from different zero modes
+    - Update Adjacency Matrix - Gate variation may create a disconnected graph
+    - Get Shortest Path - Dijkstra's
+    - Update Nanowire position
+    - Update Particle positions
