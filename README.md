@@ -89,24 +89,43 @@ The files mentioned above are provided as arguments to the main file, ```tqc-com
 #### Algorithm Rules
 
 1. **Braiding Concurrency limits** - there is a limit on the # concurrent braiding operations
-    - There is a layer of optimisation which can be
-2. **Braiding movements** - Every braiding operation puts the particles back in their respective final positions.
+    - There is a layer of optimisation, where more than one braiding optimisation can be performed simultaneously, depending on the nanowire structure.
+2. **Intermediate positions** - Every braiding operation puts the particles back in their respective final positions.
     - There is a layer of optimisation possible here. The particles can be placed in an intermediate position, so long as it does not violate any rules, interfere with other braiding operations or is needed in subsequence braiding operations.
 3. **Nanowire State validity** - Every braiding operation MUST result in a valid Nanowire state. Validity can be generic or for the next braiding operation.
     - Both 1. and 2. MUST satisfy 3. EVERY braiding operation, either optimised or not, concurrent or not, must result in a valid Nanowire state.
 4. **Atomic Braiding operation** - Every braid involves 2 particles, i.e., BOTH these particles needs to be moved in a braiding operation.
     - As the state before the braiding is valid, there is no obstruction during braiding for any particle.
 5. **Particle-Zero mode isolation** - No two particles from different zero modes can occupy adjacent positions on the Nanowire during the braiding operation.
+    - Also, when 2 particles from different zero-modes are being braided, their **non-participating** paired particle cannot be on the same side of a cut-off branch
     - After the braiding is completed, they can only occupy the valid final positions.
+6. **Fusion** - For fusion, the particles involved must be adjacent to each other.
 
 #### Braiding steps
 
-1. Get Final Positions
-2. Validate Resulting State
+#### Validation Phase
+
+1. **Get Final Positions** - retrieve the **expected final positions** for the participating particles.
+    - **Get Empty Positions** - on adjacent empty branches (returns both nearest and farthest locations on the branch)
+    - There can be **multiple** final positions, if there are more than one free branches.
+    - These positions are then **ranked** based on their
+        - Nanowire Validity score
+        - Number of steps
+        - If the positions are useful in further braiding
+2. **Validate Resulting State** - **Nanowire validation algorithm** which returns a ```score >= 0``` for the expected final positions. If ```score = 0```, then the state is **invalid**. If ```score > 0```, then the state is **valid**.
+    - Initially, ```score = 0```.
+    - If the resulting states have **at least 2** empty branches in each intersection, ```score += 1```.
+    - If the resulting states do not interfere in the movement of the 2nd particle involved in the braiding, ```score += 1```.
+    - If the resulting states do not interfere in the further braiding operations, ```score += 1```.
+
+#### Braiding Phase
+
 3. Perform Braiding
-    - Get Empty Positions - on adjacent empty branches
-    - Get Voltage Changes - if braiding involves particles from different zero modes
-    - Update Adjacency Matrix - Gate variation may create a disconnected graph
-    - Get Shortest Path - Dijkstra's
-    - Update Nanowire position
-    - Update Particle positions
+    - **Get Voltage Changes** - If the particles are from the same zero-mode, then voltage regulation is unnecessary. But, if braiding involves particles from different zero modes, perform necessary voltage gate changes. This may cut-off some branches.
+        - For every particle, based on given the final position, choose whether to **open or close** the gate voltages.
+        - Once the voltages are updated, the resultant isolated branches can be retrieved.
+    - **Retrieve Isolated branches** - Instead of actually updating the Adjacency matrix, retrieve the list of isolated branches and its positions involved in the movement of the particle.
+        - This is basically a subset of vertices from the original matrix
+    - **Get Shortest Path** - Dijkstra's algorithm gives the shortest path for a particle from it's current position to the given valid final position.
+    - **Update Nanowire position** - generate a sequence of Nanowire position state matrix for each step of the particle.
+    - **Update Particle positions** - generate a similar sequence for the particles.

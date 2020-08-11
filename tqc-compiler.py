@@ -1,7 +1,9 @@
 import sys
 import route
+import particle-braiding as braiding
 
 # File I/O
+#
 def position_vacancies(arr):
     nano = []
     for e in arr:
@@ -73,6 +75,7 @@ def read_braid_sequence(file):
     except IOError:
         raise
 
+#
 def print_particle_movements(par,pos,vg11,vg12,vg21,vg22):
     line = "{},{},{},{},{},{}".format(par,pos,vg11,vg12,vg21,vg22)
     print(line)
@@ -81,7 +84,7 @@ def print_particle_states(par,pos,vg11,vg12,vg21,vg22):
     line = "{},{},{},{},{},{}".format(par,pos,vg11,vg12,vg21,vg22)
     print(line)
 
-#
+# Initiating nanowire with given particle positions
 def initiate_nanowire(nanowire,positions):
     for i in range(len(positions)):
         pos = positions[i]
@@ -91,15 +94,7 @@ def initiate_nanowire(nanowire,positions):
                     tup[pos] = i
     return nanowire
 
-# *
-def move_particles(nanowire,sequence,positions):
-    for tup in sequence:
-        par1 = tup[0]-1
-        par2 = tup[1]-1
-        pos1 = positions[pa1]
-        pos2 = positions[pa2]
-
-#
+# TQC Nanowire Braiding algorithm
 def start():
     try:
         nanowire_structure = read_nanowire_structure(sys.argv[1])
@@ -109,9 +104,9 @@ def start():
 
         sequence = read_braid_sequence(sys.argv[4])
         positions = read_particle_positions(sys.argv[5])
-        
+
         nanowire = initiate_nanowire(nanowire_structure,positions)
-        # move_particles(nanowire,sequence,positions)
+        # braiding.braid_particles(nanowire,sequence,positions)
     except IOError as err:
         print(err)
     except SyntaxError as err:

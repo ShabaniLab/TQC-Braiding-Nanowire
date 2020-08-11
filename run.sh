@@ -13,6 +13,6 @@ file_particle_states="particle-states.csv"
 : > $file_nanowire_matrix
 python nanowire-graph.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matrix
 
-# : > $file_particle_movement
-# : > $file_particle_states
-# python tqc-compiler.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matrix $file_braid_sequence $file_position $file_particle_movement $file_particle_states
+: > $file_particle_movement
+: > $file_particle_states
+python tqc-compiler.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matrix $file_braid_sequence $file_position $file_particle_movement $file_particle_states
