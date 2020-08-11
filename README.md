@@ -101,31 +101,39 @@ The files mentioned above are provided as arguments to the main file, ```tqc-com
     - After the braiding is completed, they can only occupy the valid final positions.
 6. **Fusion** - For fusion, the particles involved must be adjacent to each other.
 
-#### Braiding steps
+#### Braiding Phases
 
-#### Validation Phase
+##### Validation Phase
 
-1. **Get Final Positions** - retrieve the **expected final positions** for the participating particles.
+1. **Get Final Positions** - Retrieve the **expected final positions** for the participating particles.
     - **Get Empty Positions** - on adjacent empty branches (returns both nearest and farthest locations on the branch)
     - There can be **multiple** final positions, if there are more than one free branches.
     - These positions are then **ranked** based on their
         - Nanowire Validity score
         - Number of steps
         - If the positions are useful in further braiding
-2. **Validate Resulting State** - **Nanowire validation algorithm** which returns a ```score >= 0``` for the expected final positions. If ```score = 0```, then the state is **invalid**. If ```score > 0```, then the state is **valid**.
+
+2. **Validate Resulting State** - **Nanowire validation algorithm** which returns a ```score (>= 0)``` for every expected final position.
+    - If ```score = 0```, then the state is **invalid** and the **braiding doesn't happen**. If ```score > 0```, then the state is **valid** and it's safe to continue with the braiding.
     - Initially, ```score = 0```.
     - If the resulting states have **at least 2** empty branches in each intersection, ```score += 1```.
     - If the resulting states do not interfere in the movement of the 2nd particle involved in the braiding, ```score += 1```.
     - If the resulting states do not interfere in the further braiding operations, ```score += 1```.
 
-#### Braiding Phase
+##### Braiding Phase
 
 3. Perform Braiding
     - **Get Voltage Changes** - If the particles are from the same zero-mode, then voltage regulation is unnecessary. But, if braiding involves particles from different zero modes, perform necessary voltage gate changes. This may cut-off some branches.
         - For every particle, based on given the final position, choose whether to **open or close** the gate voltages.
         - Once the voltages are updated, the resultant isolated branches can be retrieved.
     - **Retrieve Isolated branches** - Instead of actually updating the Adjacency matrix, retrieve the list of isolated branches and its positions involved in the movement of the particle.
-        - This is basically a subset of vertices from the original matrix
-    - **Get Shortest Path** - Dijkstra's algorithm gives the shortest path for a particle from it's current position to the given valid final position.
-    - **Update Nanowire position** - generate a sequence of Nanowire position state matrix for each step of the particle.
-    - **Update Particle positions** - generate a similar sequence for the particles.
+        - The isolated branch is a subset of vertices from the original set of vertices
+        - The resulting adjacency matrix, involving this subset of vertices, is a subset of the original matrix
+    - **Get Shortest Path** - Dijkstra's algorithm gives the shortest path for a particle from it's current (initial) position to the given (valid) final position.
+    - **Update Particle Positions** - Generate a sequence of position-voltage pair, for every step of the involved particles for every braiding operation
+
+#### Metrics
+
+4. **Nanowire State matrix** - Generate a Nanowire State matrix, which is a sequence of positions of all particles and the corresponding gate voltage values, capturing each movement for every particle.
+
+5. **Calculate Metrics** - Calculate metrics such as **Number of steps** (both within and between zero modes, and total), **Braiding Concurrency**, **Effective complexity**, etc.

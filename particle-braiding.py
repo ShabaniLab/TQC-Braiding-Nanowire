@@ -27,12 +27,8 @@ def retrieve_isolated_branches():
 def get_shortest_path():
     ;
 
-# Update Nanowire positions by generating a sequence of Nanowire position state matrix for each step of the particle.
-def update_nanowire_positions():
-    ;
-
 # Update Particle positions by generating a similar sequence for the particles.
-def update_particle_positions():
+def update_particle_movements():
     ;
 
 #
