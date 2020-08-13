@@ -82,7 +82,6 @@ The files mentioned above are provided as arguments to the main file, ```tqc-com
 4. ```braid-sequence.csv```
 5. ```particle-positions.csv```
 6. ```particle-movements.csv```
-7. ```particle-states.csv```
 
 ### TQC Braiding Nanowire Algorithm
 
@@ -103,45 +102,56 @@ The files mentioned above are provided as arguments to the main file, ```tqc-com
 
 #### Braiding Phases
 
-##### Validation Phase
+##### Validation phase
 
-1. **Get Final Positions** - Retrieve the **expected final positions** for the participating particles.
+1. **Get Final Positions** - Retrieve the **expected Final positions** for the participating particles, AFTER the Braiding operation is completed.
     - **Get Empty Positions** - on adjacent empty branches (returns both nearest and farthest locations on the branch)
     - There can be **multiple** final positions, if there are more than one free branches.
+    - If there are no empty branches available, then a ```NoEmptyPositionException``` exception is raised and ```braiding stops```
     - These positions are then **ranked** based on their
         - Nanowire Validity score
         - Number of steps
         - If the positions are useful in further braiding
 
-2. **Validate Resulting State** - **Nanowire validation algorithm** which returns a ```score (>= 0)``` for every expected final position.
-    - If ```score = 0```, then the state is **invalid** and the **braiding doesn't happen**. If ```score > 0```, then the state is **valid** and it's safe to continue with the braiding.
+2. **Get Intermediate Positions** - Retrieve the **potential Intermediate positions** for the participating particles, for the Braiding operation.
+    - If there are no empty branches available, then a ```NoEmptyPositionException``` exception is raised and ```braiding stops```
+    - Once validity is confirmed, move the particles to their intermediate positions
+    - 1st particle that moves gets the 1st empty branch (for now)
+    - Later, any rules/restrictions to move particles to certain branches can be specified
+
+3. **Validate Resulting State** - **Nanowire validation algorithm** which returns a ```score (>= 0)``` for every expected final position.
+    - If ```score = 0```, then the state is **invalid**, an ```InvalidNanowireStateException``` is raised and the **braiding stops**.
+    - If ```score > 0```, then the state is **valid** and it's safe to continue with the braiding.
     - Initially, ```score = 0```.
     - If the resulting states have **at least 2** empty branches in each intersection, ```score += 1```.
     - If the resulting states do not interfere in the movement of the 2nd particle involved in the braiding, ```score += 1```.
     - If the resulting states do not interfere in the further braiding operations, ```score += 1```.
 
-##### Braiding Phase
+##### Perform Braiding
 
-3. Perform Braiding
-    - **Get Voltage Changes** - If the particles are from the same zero-mode, then voltage regulation is unnecessary. But, if braiding involves particles from different zero modes, perform necessary voltage gate changes. This may cut-off some branches.
-        - For every particle, based on given the final position, choose whether to **open or close** the gate voltages.
-        - Once the voltages are updated, the resultant isolated branches can be retrieved.
-    - **Retrieve Isolated branches** - Instead of actually updating the Adjacency matrix, retrieve the list of isolated branches and its positions involved in the movement of the particle.
-        - The isolated branch is a subset of vertices from the original set of vertices
-        - The resulting adjacency matrix, involving this subset of vertices, is a subset of the original matrix
-    - **Get Shortest Path** - Dijkstra's algorithm gives the shortest path for a particle from it's current (initial) position to the given (valid) final position.
-    - **Update Particle Positions** - Generate a sequence of position-voltage pair, for every step of the involved particles for every braiding operation. It is updated in the file ```particle-movements.csv```, as shown below
+4. **Get Voltage Changes** - If the particles are from the same zero-mode, then voltage regulation is unnecessary. But, if braiding involves particles from different zero modes, perform necessary voltage gate changes. This may cut-off some branches.
+    - For every particle, based on given the final position, choose whether to **open or close** the gate voltages.
+    - Once the voltages are updated, the resultant isolated branches can be retrieved.
+
+5. **Retrieve Isolated branches** - Instead of actually updating the Adjacency matrix, retrieve the list of isolated branches and its positions involved in the movement of the particle.
+    - The isolated branch is a subset of vertices from the original set of vertices
+    - The resulting adjacency matrix, involving this subset of vertices, is a subset of the original matrix
+
+6. **Get Shortest Path** - Dijkstra's algorithm gives the shortest path for a particle from it's current (initial) position to the given (valid) final position.
+
+7. **Update Particle Positions** - Generate a sequence of position-voltage pair, for every step of the involved particles for every braiding operation. It is updated in the file ```particle-movements.csv```, as shown below:
 ```
-2,a'-i1-b,v11,v12,v21,v22
-1,a-a'-i1-f',v11,v12,v21,v22
-2,b-i1-a'-a,v11,v12,v21,v22
-1,f'-i1-a',v11,v12,v21,v22
+Particle,Path,V11,V12,V21,V22
+2,a'-b,O,O,O,O
+1,a-a'-f',O,O,O,O
+2,b-a'-a,O,O,O,O
+1,f'-a',O,O,O,O
 ```
 
 #### Metrics
 
-4. **Nanowire State matrix** - Generate a Nanowire State matrix, which is a sequence of positions of all particles and the corresponding gate voltage values, capturing each movement for every particle. The nanowire state matrix for the above example is show below.
+8. **Nanowire State matrix** - Generate a Nanowire State matrix, which is a sequence of positions of all particles and the corresponding gate voltage values, capturing each movement for every particle. The nanowire state matrix for the above example is show below.
 
 ![state-matrix](nanowire-state-matrix.png)
 
-5. **Calculate Metrics** - Calculate metrics such as **Number of steps** (both within and between zero modes, and total), **Braiding Concurrency**, **Effective complexity**, etc.
+9. **Other Metrics** - Calculate metrics such as **Number of steps** (both within and between zero modes, and total), **Braiding Concurrency**, **Effective complexity**, etc.
