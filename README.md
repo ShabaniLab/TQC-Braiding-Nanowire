@@ -54,6 +54,10 @@ x21,x22
 1,0,1,1,0,0,0,1,0,0,0,0,0,0,1
 ```
 
+Below is the graphical representation of the Nanowire...
+
+![nanowire-graph](nanowire-graph.png)
+
 ### Preprocessing - Braid sequence
 
 ![braid-cnot](braid-pattern.png)
