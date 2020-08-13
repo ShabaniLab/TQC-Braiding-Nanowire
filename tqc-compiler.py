@@ -1,9 +1,8 @@
 import sys
 import route
-import particle-braiding as braiding
+import braiding
 
 # File I/O
-#
 def position_vacancies(arr):
     nano = []
     for e in arr:
@@ -13,19 +12,25 @@ def position_vacancies(arr):
 
 def read_nanowire_structure(file):
     data = []
+    intersection = []
     try:
         file = open(file,'r')
         line = file.readline()
         if 'x' not in line:
             row = line.split(',')
-            data.append(position_vacancies(row))
+            branch = position_vacancies(row)
+            intersection.append(branch)
         while line:
             line = file.readline()
             if not line:
-                continue;
+                continue
             if 'x' not in line:
                 row = line.split(',')
-                data.append(position_vacancies(row))
+                branch = position_vacancies(row)
+                intersection.append(branch)
+            else:
+                data.append(intersection)
+                intersection = []
         file.close()
         return data
     except IOError:
@@ -75,12 +80,7 @@ def read_braid_sequence(file):
     except IOError:
         raise
 
-#
 def print_particle_movements(par,pos,vg11,vg12,vg21,vg22):
-    line = "{},{},{},{},{},{}".format(par,pos,vg11,vg12,vg21,vg22)
-    print(line)
-
-def print_particle_states(par,pos,vg11,vg12,vg21,vg22):
     line = "{},{},{},{},{},{}".format(par,pos,vg11,vg12,vg21,vg22)
     print(line)
 
@@ -88,10 +88,11 @@ def print_particle_states(par,pos,vg11,vg12,vg21,vg22):
 def initiate_nanowire(nanowire,positions):
     for i in range(len(positions)):
         pos = positions[i]
-        for branch in nanowire:
-            for tup in branch:
-                if list(tup.keys())[0]==pos:
-                    tup[pos] = i
+        for intersection in nanowire:
+            for branch in intersection:
+                for tup in branch:
+                    if list(tup.keys())[0]==pos:
+                        tup[pos] = (i+1)
     return nanowire
 
 # TQC Nanowire Braiding algorithm
@@ -106,7 +107,7 @@ def start():
         positions = read_particle_positions(sys.argv[5])
 
         nanowire = initiate_nanowire(nanowire_structure,positions)
-        # braiding.braid_particles(nanowire,sequence,positions)
+        braiding.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions)
     except IOError as err:
         print(err)
     except SyntaxError as err:
