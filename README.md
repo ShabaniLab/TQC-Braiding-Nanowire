@@ -130,10 +130,18 @@ The files mentioned above are provided as arguments to the main file, ```tqc-com
         - The isolated branch is a subset of vertices from the original set of vertices
         - The resulting adjacency matrix, involving this subset of vertices, is a subset of the original matrix
     - **Get Shortest Path** - Dijkstra's algorithm gives the shortest path for a particle from it's current (initial) position to the given (valid) final position.
-    - **Update Particle Positions** - Generate a sequence of position-voltage pair, for every step of the involved particles for every braiding operation
+    - **Update Particle Positions** - Generate a sequence of position-voltage pair, for every step of the involved particles for every braiding operation. It is updated in the file ```particle-movements.csv```, as shown below
+```
+2,a'-i1-b,v11,v12,v21,v22
+1,a-a'-i1-f',v11,v12,v21,v22
+2,b-i1-a'-a,v11,v12,v21,v22
+1,f'-i1-a',v11,v12,v21,v22
+```
 
 #### Metrics
 
-4. **Nanowire State matrix** - Generate a Nanowire State matrix, which is a sequence of positions of all particles and the corresponding gate voltage values, capturing each movement for every particle.
+4. **Nanowire State matrix** - Generate a Nanowire State matrix, which is a sequence of positions of all particles and the corresponding gate voltage values, capturing each movement for every particle. The nanowire state matrix for the above example is show below.
+
+![state-matrix](nanowire-state-matrix.png)
 
 5. **Calculate Metrics** - Calculate metrics such as **Number of steps** (both within and between zero modes, and total), **Braiding Concurrency**, **Effective complexity**, etc.

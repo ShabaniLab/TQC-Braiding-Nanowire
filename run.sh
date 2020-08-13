@@ -12,7 +12,7 @@ file_tqc_metrics="tqc-metrics.csv"
 
 # Constructing the Adjacency Matrix for the given Nanowire structure
 : > $file_nanowire_matrix
-python nanowire-graph.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matrix
+# python nanowire-graph.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matrix
 
 # TQC - performing braiding on the Nanowire
 : > $file_particle_movement
