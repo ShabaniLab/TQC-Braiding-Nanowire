@@ -91,18 +91,24 @@ The files mentioned above are provided as arguments to the main file, ```tqc-com
 
 #### Algorithm Rules
 
-1. **Braiding Concurrency limits** - there is a limit on the # concurrent braiding operations
-    - There is a layer of optimisation, where more than one braiding optimisation can be performed simultaneously, depending on the nanowire structure.
-2. **Intermediate positions** - Every braiding operation puts the particles back in their respective final positions.
-    - There is a layer of optimisation possible here. The particles can be placed in an intermediate position, so long as it does not violate any rules, interfere with other braiding operations or is needed in subsequence braiding operations.
-3. **Nanowire State validity** - Every braiding operation MUST result in a valid Nanowire state. Validity can be generic or for the next braiding operation.
-    - Both 1. and 2. MUST satisfy 3. EVERY braiding operation, either optimised or not, concurrent or not, must result in a valid Nanowire state.
-4. **Atomic Braiding operation** - Every braid involves 2 particles, i.e., BOTH these particles needs to be moved in a braiding operation.
-    - As the state before the braiding is valid, there is no obstruction during braiding for any particle.
-5. **Particle-Zero mode isolation** - No two particles from different zero modes can occupy adjacent positions on the Nanowire during the braiding operation.
-    - Also, when 2 particles from different zero-modes are being braided, their **non-participating** paired particle cannot be on the same side of a cut-off branch
+1. **Nanowire State validity** - Every braiding operation MUST result in a valid Nanowire state. Validity can be generic or for the next braiding operation.
+    - EVERY braiding operation, either optimized or not, concurrent or not, must result in a valid Nanowire state.
+    - So, the input and output of every braiding operation is a valid Nanowire state.
+2. **Atomic Braiding operation** - Every braid involves 2 particles, i.e., BOTH these particles needs to be moved in a braiding operation.
+        - As the state before the braiding is valid, there is no obstruction during braiding for any particle.
+3. **Particle-Zero mode isolation** - No two particles from different zero modes can occupy adjacent positions on the Nanowire during the braiding operation.
+    - Also, when 2 particles from different zero-modes are being braided, their **non-participating** paired zero-mode particles cannot be on the same crossing. This would involve voltage regulation.
     - After the braiding is completed, they can only occupy the valid final positions.
-6. **Fusion** - For fusion, the particles involved must be adjacent to each other.
+4. **Braiding Sequence** - The sequence of the braids must be strictly followed for the given gate and braiding pattern. Any random braiding sequence may lead to a different gate and hence would be disallowed.
+5. **Braiding Concurrency limits** - there is a limit on the # concurrent braiding operations
+    - There is a layer of optimization, where more than one braiding optimization can be performed simultaneously, depending on the nanowire structure.
+6. **Intermediate positions** - Every braiding operation puts the particles back in their respective final positions.
+    - There is a layer of optimization possible here. The particles can be placed in an intermediate position, so long as it does not violate any rules, interfere with other braiding operations or is needed in subsequence braiding operations.
+7. **Braiding rotation** - Mathematically, clockwise braiding results in a Matrix which is different than anti-clockwise braiding.
+    - If an anti-clockwise braiding of 2 particles involves movements in vertical-top followed by vertical-bottom branches, then a clockwise braiding would be the opposite.
+    - If an anti-clockwise braiding involves horizontal followed by vertical branches, then a clockwise braiding would (probably) be vertical followed by horizontal.
+    - The detail mechanics would still need to be worked out. This would essentially be another layer of upgrade on top of the current, basic one. The default would always be anti-clockwise.
+8. **Fusion** - For fusion, the particles involved must be adjacent to each other.
 
 #### Braiding Phases
 
