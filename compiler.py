@@ -1,6 +1,6 @@
 import sys
-import route
-import braiding
+import graph
+import braid
 
 # File I/O
 def position_vacancies(arr):
@@ -41,7 +41,7 @@ def read_nanowire_vertices(file):
     try:
         fr = open(file,'r')
         line = fr.readline()
-        row = line.split()
+        row = line.split(',')
         row = [e.strip() for e in row]
         data = row
         fr.close()
@@ -100,14 +100,14 @@ def start():
     try:
         nanowire_structure = read_nanowire_structure(sys.argv[1])
         nanowire_vertex = read_nanowire_vertices(sys.argv[2])
-        nanowire_matrix = route.adjacency_matrix(sys.argv[3])
-        route.validate_matrix(nanowire_matrix)
+        nanowire_matrix = graph.adjacency_matrix(sys.argv[3])
+        graph.validate_matrix(nanowire_matrix)
 
         sequence = read_braid_sequence(sys.argv[4])
         positions = read_particle_positions(sys.argv[5])
 
         nanowire = initiate_nanowire(nanowire_structure,positions)
-        braiding.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions)
+        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions)
     except IOError as err:
         print(err)
     except SyntaxError as err:

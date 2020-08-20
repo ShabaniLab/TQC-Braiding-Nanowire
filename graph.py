@@ -85,7 +85,7 @@ def dijkstra(graph, _s, _d):
     else:
         raise StopIteration("No known path between {} and {}".format(_s,_d))
 
-def start(matrix,start,end):
+def route(matrix,start,end):
     try:
         validate_matrix(matrix)
         matrix = transform_matrix(matrix)
@@ -101,7 +101,7 @@ def start(matrix,start,end):
         print(err)
 
 #
-def start_tml():
+def start():
     try:
         matrix = adjacency_matrix(sys.argv[1])
         validate_matrix(matrix)
@@ -119,4 +119,4 @@ def start_tml():
     except StopIteration as err:
         print(err)
 
-# start_tml()
+# start()
