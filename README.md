@@ -149,7 +149,7 @@ The files mentioned above are provided as arguments to the main file, ```tqc-com
 
 6. **Get Shortest Path** - Dijkstra's algorithm gives the shortest path for a particle from it's current (initial) position to the given (valid) final position.
 
-7. **Update Particle Positions** - Generate a sequence of position-voltage pair, for every step of the involved particles for every braiding operation. It is updated in the file ```particle-movements.csv```, as shown below:
+7. **Update Particle Positions** - Generate a sequence of position-voltage pair, for every step of the involved particles for every braiding operation. It is updated in the file ```particle-movements.csv```, as shown below (which is the ideal output format):
 ```
 Particle,Path,V11,V12,V21,V22
 2,a'-b,O,O,O,O
@@ -170,7 +170,7 @@ Particle,Path,V11,V12,V21,V22
 
 1. This is the basic implementation, so some of the rules haven't been included in the algorithm. These are rules 3 and 7.
 
-2. The output, for the given braiding sequence, is of the format:
+2. The output, for the given braiding sequence, is displayed below:
 ```
 Braiding particles (3, 4)
 4,c'-x2-m
