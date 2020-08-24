@@ -98,16 +98,19 @@ def initiate_nanowire(nanowire,positions):
 # TQC Nanowire Braiding algorithm
 def start():
     try:
+        # Preprocessing - Nanowire
         nanowire_structure = read_nanowire_structure(sys.argv[1])
         nanowire_vertex = read_nanowire_vertices(sys.argv[2])
         nanowire_matrix = graph.adjacency_matrix(sys.argv[3])
         graph.validate_matrix(nanowire_matrix)
 
+        # Preprocessing - Braiding sequence
         sequence = read_braid_sequence(sys.argv[4])
         positions = read_particle_positions(sys.argv[5])
 
+        # Braiding on Nanowire
         nanowire = initiate_nanowire(nanowire_structure,positions)
-        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions)
+        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions,sys.argv[6],sys.argv[7])
     except IOError as err:
         print(err)
     except SyntaxError as err:
