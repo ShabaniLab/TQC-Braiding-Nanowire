@@ -8,6 +8,7 @@ def update_particle_movements(file,par,path,vertices,v11,v12,v21,v22):
         line = "{},{}".format(par,'-'.join(vertices[v] for v in path))
         fw.write(line+'\n')
         fw.close()
+        print(line)
     except IOError as err:
         print(err)
 
@@ -18,6 +19,8 @@ def update_nanowire_state(file,positions,path,vertices,par,v11,v12,v21,v22):
         for p in path:
             pos_temp = copy.copy(positions)
             pos = vertices[p]
+            if pos == 'x1' or pos == 'x2':
+                continue
             pos_temp[par-1] = pos
             line = "{}".format(','.join(pos_temp))
             fw.write(line+'\n')

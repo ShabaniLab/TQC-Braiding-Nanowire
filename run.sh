@@ -17,7 +17,7 @@ file_tqc_metrics="tqc-metrics.csv"
 
 # TQC - performing braiding on the Nanowire
 echo "Particle,Path" > $file_particle_movement
-: > $file_nanowire_states
+echo "P1,P2,P3,P4,P5,P6" > $file_nanowire_states
 python compiler.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matrix $file_braid_sequence $file_particle_position $file_particle_movement $file_nanowire_states
 
 # Calculating metrics
