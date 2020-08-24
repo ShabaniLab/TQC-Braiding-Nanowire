@@ -165,3 +165,52 @@ Particle,Path,V11,V12,V21,V22
 ![state-matrix](nanowire-state-matrix.png)
 
 9. **Other Metrics** - Calculate metrics such as **Number of steps** (both within and between zero modes, and total), **Braiding Concurrency**, **Effective complexity**, etc.
+
+### Work Done
+
+1. This is the basic implementation, so some of the rules haven't been included in the algorithm. These are rules 3 and 7.
+
+2. The output, for the given braiding sequence, is of the format:
+```
+Braiding particles (3, 4)
+4,c'-x2-m
+3,c-c'-x2-e'
+4,m-x2-c'-c
+3,e'-x2-c'
+Braiding particles (3, 5)
+3,c'-x2-m
+6,d'-x2-e'
+5,d-d'-x2-c'
+3,m-x2-d'-d
+6,e'-x2-d'
+Braiding particles (1, 2)
+2,a'-x1-b'
+1,a-a'-x1-f'
+2,b'-x1-a'-a
+1,f'-x1-a'
+Braiding particles (4, 5)
+5,c'-x2-m
+4,c-c'-x2-e'
+5,m-x2-c'-c
+4,e'-x2-c'
+Braiding particles (3, 6)
+6,d'-x2-m
+3,d-d'-x2-e'
+6,m-x2-d'-d
+3,e'-x2-d'
+Braiding particles (4, 6)
+4,c'-x2-m
+3,d'-x2-e'
+6,d-d'-x2-c'
+4,m-x2-d'-d
+3,e'-x2-d'
+Braiding particles (5, 6)
+6,c'-x2-m
+5,c-c'-x2-e'
+6,m-x2-c'-c
+5,e'-x2-c'
+```
+
+3. The entire braiding operations are of 2 basic categories:
+    - The braiding involves 2 particles on the **same branch**. Sequences (3, 4), (1, 2), (4, 5), (3, 6) and (5, 6) belong to this category.
+    - The braiding involves 2 particles on the **different branches** AND one particle is on the **inner position** on one branch AND the other particle is on the **outer position** of the other branch AND another particle on the inner position on the latter branch is blocking the latter particle. Sequences (3, 5) and (4, 6) belong to this category.

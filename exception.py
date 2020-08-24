@@ -6,3 +6,7 @@ class NoEmptyPositionException(Exception):
 # When the resulting Nanowire state is Invalid => Braiding stops
 class InvalidNanowireStateException(Exception):
     pass
+
+# When the path is blocked by another particle
+class PathBlockedException(Exception):
+    pass
