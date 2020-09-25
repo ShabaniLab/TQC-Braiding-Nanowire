@@ -2,6 +2,7 @@ import sys
 import graph
 import braid
 
+################################################################################
 # File I/O
 def position_vacancies(arr):
     nano = []
@@ -80,10 +81,7 @@ def read_braid_sequence(file):
     except IOError:
         raise
 
-def print_particle_movements(par,pos,vg11,vg12,vg21,vg22):
-    line = "{},{},{},{},{},{}".format(par,pos,vg11,vg12,vg21,vg22)
-    print(line)
-
+################################################################################
 # Initiating nanowire with given particle positions
 def initiate_nanowire(nanowire,positions):
     for i in range(len(positions)):
@@ -95,6 +93,83 @@ def initiate_nanowire(nanowire,positions):
                         tup[pos] = (i+1)
     return nanowire
 
+# Initiating cutoff pair list for voltage changes
+def initiate_cutoff_voltage_pairs(nanowire):
+    cutoff_pairs = []
+    for intersection in nanowire:
+        v11 = []
+        v12 = []
+        c1 = []
+        c0 = []
+        c = 0
+        n = len(intersection)/2
+
+        # pairing opposite branches
+        for branch in intersection:
+            cb = []
+            for tup in branch:
+                if type(tup) is not dict:
+                    continue
+                pos = list(tup.keys())[0]
+                cb.append(pos)
+
+            c += 1
+            c = c%n
+            if c==1:
+                c1.append(cb)
+            elif c==0:
+                c0.append(cb)
+
+        # pairing positions from opposite branches
+        opposite = []
+        temp = get_opposite_pairs(c1)
+        opposite.extend(temp)
+        temp = get_opposite_pairs(c0)
+        opposite.extend(temp)
+        v11.extend(opposite)
+        v12.extend(opposite)
+
+        # pairing positions from adjacent branches
+        temp = get_adjacent_pairs(c1,c0)
+        v11.extend(temp)
+        temp = get_adjacent_pairs(c0,c1)
+        v12.extend(temp)
+
+        cutoff_pairs.append(v11)
+        cutoff_pairs.append(v12)
+
+    return cutoff_pairs
+
+def get_opposite_pairs(c):
+    opposite = []
+    bi = c[0]
+    bj = c[1]
+    for ti in bi:
+        for tj in bj:
+            pair = [ti,tj]
+            opposite.append(pair)
+    return opposite
+
+def get_adjacent_pairs(c1,c2):
+    adjacent = []
+
+    bi = c1[0]
+    bj = c2[1]
+    for ti in bi:
+        for tj in bj:
+            pair = [ti,tj]
+            adjacent.append(pair)
+
+    bi = c1[1]
+    bj = c2[0]
+    for ti in bi:
+        for tj in bj:
+            pair = [ti,tj]
+            adjacent.append(pair)
+
+    return adjacent
+
+################################################################################
 # TQC Nanowire Braiding algorithm
 def start():
     try:
@@ -110,7 +185,8 @@ def start():
 
         # Braiding on Nanowire
         nanowire = initiate_nanowire(nanowire_structure,positions)
-        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions,sys.argv[6],sys.argv[7])
+        cutoff_pairs = initiate_cutoff_voltage_pairs(nanowire_structure)
+        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions,cutoff_pairs,sys.argv[6],sys.argv[7])
     except IOError as err:
         print(err)
     except SyntaxError as err:
