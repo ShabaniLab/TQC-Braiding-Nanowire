@@ -11,7 +11,7 @@ v11 = v12 = v21 = v22 = 'O'
 ################################################################################
 ## Validation phase utility functions
 
-# Retrieves the expected final positions of the particles to be braided (basially the positions are swapped)
+# Retrieves the expected final positions of the particles to be braided (essentially the positions are swapped)
 def get_final_positions(positions,pair):
     final_positions = copy.copy(positions)
     p1 = pair[0]-1
@@ -139,8 +139,7 @@ def get_2nd_pair_sequence(pair,nanowire,vertices,positions,intermediate_position
 def braid_particles_same_branch(nanowire, vertices, matrix, pair, positions, file_mvmt, file_state):
     try:
         ## Initial Validation Phase
-        # Getting the expected final positions after the braiding operation and validating it
-        # before moving forward with the braiding operation itself
+        # Getting the expected final positions after the braiding operation and validating it before moving forward with the braiding operation
         final_positions = get_final_positions(positions,pair)
         f_nw = update_nanowire(nanowire,final_positions)
         msg = "Error while trying to braid {}: {} is an invalid state".format(pair,final_positions)

@@ -42,6 +42,7 @@ def validate_empty_branches(nanowire,min_free_branch,msg):
         raise exception.InvalidNanowireStateException(msg)
     return score
 
+# check if the path is not blocked
 def validate_path(path,positions,vertices,par):
     block = []
     for el in path:
@@ -55,6 +56,7 @@ def validate_path(path,positions,vertices,par):
         raise exception.PathBlockedException(msg)
     return block
 
+#  check if the pair is in the same branch
 def check_unibranch_validity(pair,positions,intersection):
     check = []
     for par in pair:
