@@ -7,6 +7,14 @@ class NoEmptyPositionException(Exception):
 class InvalidNanowireStateException(Exception):
     pass
 
+# When there are <2 empty branches in an intersection
+class NoEmptyBranchException(InvalidNanowireStateException):
+    pass
+
+# When Rule 3 is violated
+class MultiModalCrossingException(InvalidNanowireStateException):
+    pass
+
 # When the path is blocked by another particle
 class PathBlockedException(Exception):
     pass
