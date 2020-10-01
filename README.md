@@ -168,11 +168,13 @@ Particle,Path,V11,V12,V21,V22
 
 ### Work Done
 
-1. This is the basic implementation, so some of the rules haven't been included in the algorithm. These are rules 3 and 7.
+#### Stage 1
+
+1. This is the basic implementation, so some of the rules (3, 5, 6 and 7) haven't been included in the algorithm.
 
 2. The entire braiding operations are of 2 basic categories:
     - The braiding involves 2 particles on the **same branch**. Sequences (3, 4), (1, 2), (4, 5), (3, 6) and (5, 6) belong to this category.
-    - The braiding involves 2 particles on the **different branches** AND one particle is on the **inner position** on one branch AND the other particle is on the **outer position** of the other branch AND another particle on the inner position on the latter branch is blocking the latter particle. Sequences (3, 5) and (4, 6) belong to this category.
+    - The braiding involves 2 particles on the **different branches** AND one particle is on the **inner position** on one branch AND the other particle is on the **outer position** of the other branch AND another particle on the inner position on the latter branch is blocking the latter particle. Sequences (3, 5) and (4, 6) belong to this category. Voltage regulation is required ONLY in this case.
 
 3. The output, for the given braiding sequence, is displayed below (without the comments in ```particle-movements.csv```):
 ```
@@ -293,3 +295,147 @@ a',a,d',d,e',c
 a',a,d',d,e',c
 a',a,d',d,c',c
 ```
+
+#### Stage 2
+
+5. Incorporating Rule 3 with voltage regulations (for braiding in the 2nd category).
+
+6. In every braiding operation, I extract the particles which are isolated (1 in a branch).
+    - I then verify if these isolated particles are part of the same zero mode, or different. If they are part of the same zero mode, then no voltage regulation is needed.
+    - Otherwise, I check if the particles are part of the (expected) zero modes which might be formed after the braiding is completed. If so, then no voltage regulation is needed.
+    - If both the particles aren't part of either an existing zero mode or an expected zero mode, then the voltage gate between those adjacent branches need to be shut off.
+
+7. In the case when a braiding operation involves 5 steps - for sequences ```(3,5)``` and ```(4,6)``` - step 3 (which involves moving particle 5 to position of particle 3 and moving particle 6 to position of particle 4 respectively) requires a toggling of both voltage gate values in the respective intersection.
+    - In the 1st case, step 2 is moving particle 6: ```[d', e']```. The voltage gate values ```x21, x22``` for this are ```S, O```.
+    - In step 3, which is moving particle 5: ```[d, d', c']```, the voltage gate values ```x21, x22``` are ```O, S```.
+    - Following this, in steps 4 and 5, as there is no interference between 2 particles from different zero modes, no further voltage regulation is needed.
+
+8. I first generate a nested list of pairs of positions for which voltage gate shut is triggered. For gate ```x21```, the pairs are ```[['c', 'd'], ['c', "d'"], ["c'", 'd'], ["c'", "d'"], ['e', 'm'], ["e'", 'm']]```. So, if a pair of position of particles from different zero modes is in this list, then ```x21``` is triggered to shut. Similar is the case for other gates as well.
+
+9. Every time the nanowire structure is updated, the zero mode pairs are also updated. While braiding particles ```(3,5)``` the zero mode pairs are as follows: ```[(1, 2), (5, 6)], [(1, 2)], [(1, 2), (4, 5)], [(1, 2), (4, 5), (3, 6)]```
+
+10. In every braiding operation, after every successful intermediate braiding, the voltage gates are also updated. While braiding particles ```(3,5)``` the voltage gate values changes as follows: ```['O', 'O', 'O', 'O'], ['O', 'O', 'S', 'O'], ['O', 'O', 'O', 'S'], ['O', 'O', 'O', 'O'], ['O', 'O', 'O', 'O']```. 'O' means a gate is open and 'S' means it is shut. The gate array represents ```[x11,x12,x21,x22]``` in this order.
+
+11. The output with the voltage changes are as follows:
+    - Particle movements
+```
+Particle,Path,X11,X12,X21,X22
+4,c'-x2-m,O,O,O,O
+3,c-c'-x2-e',O,O,O,O
+4,m-x2-c'-c,O,O,O,O
+3,e'-x2-c',O,O,O,O
+3,c'-x2-m,O,O,O,O
+6,d'-x2-e',O,O,S,O
+5,d-d'-x2-c',O,O,O,S
+3,m-x2-d'-d,O,O,O,O
+6,e'-x2-d',O,O,O,O
+2,a'-x1-b',O,O,O,O
+1,a-a'-x1-f',O,O,O,O
+2,b'-x1-a'-a,O,O,O,O
+1,f'-x1-a',O,O,O,O
+5,c'-x2-m,O,O,O,O
+4,c-c'-x2-e',O,O,O,O
+5,m-x2-c'-c,O,O,O,O
+4,e'-x2-c',O,O,O,O
+6,d'-x2-m,O,O,O,O
+3,d-d'-x2-e',O,O,O,O
+6,m-x2-d'-d,O,O,O,O
+3,e'-x2-d',O,O,O,O
+4,c'-x2-m,O,O,O,O
+3,d'-x2-e',O,O,S,O
+6,d-d'-x2-c',O,O,O,S
+4,m-x2-d'-d,O,O,O,O
+3,e'-x2-d',O,O,O,O
+6,c'-x2-m,O,O,O,O
+5,c-c'-x2-e',O,O,O,O
+6,m-x2-c'-c,O,O,O,O
+5,e'-x2-c',O,O,O,O
+```
+
+    - Nanowire states
+```
+P1,P2,P3,P4,P5,P6,X11,X12,X21,X22
+a,a',c,c',d,d',O,O,O,O
+a,a',c,m,d,d',O,O,O,O
+a,a',c,m,d,d',O,O,O,O
+a,a',c',m,d,d',O,O,O,O
+a,a',e',m,d,d',O,O,O,O
+a,a',e',m,d,d',O,O,O,O
+a,a',e',c',d,d',O,O,O,O
+a,a',e',c,d,d',O,O,O,O
+a,a',e',c,d,d',O,O,O,O
+a,a',c',c,d,d',O,O,O,O
+a,a',c',c,d,d',O,O,O,O
+a,a',m,c,d,d',O,O,O,O
+a,a',m,c,d,d',O,O,S,O
+a,a',m,c,d,e',O,O,S,O
+a,a',m,c,d,e',O,O,O,S
+a,a',m,c,d',e',O,O,O,S
+a,a',m,c,c',e',O,O,O,S
+a,a',m,c,c',e',O,O,O,O
+a,a',d',c,c',e',O,O,O,O
+a,a',d,c,c',e',O,O,O,O
+a,a',d,c,c',e',O,O,O,O
+a,a',d,c,c',d',O,O,O,O
+a,a',d,c,c',d',O,O,O,O
+a,b',d,c,c',d',O,O,O,O
+a,b',d,c,c',d',O,O,O,O
+a',b',d,c,c',d',O,O,O,O
+f',b',d,c,c',d',O,O,O,O
+f',b',d,c,c',d',O,O,O,O
+f',a',d,c,c',d',O,O,O,O
+f',a,d,c,c',d',O,O,O,O
+f',a,d,c,c',d',O,O,O,O
+a',a,d,c,c',d',O,O,O,O
+a',a,d,c,c',d',O,O,O,O
+a',a,d,c,m,d',O,O,O,O
+a',a,d,c,m,d',O,O,O,O
+a',a,d,c',m,d',O,O,O,O
+a',a,d,e',m,d',O,O,O,O
+a',a,d,e',m,d',O,O,O,O
+a',a,d,e',c',d',O,O,O,O
+a',a,d,e',c,d',O,O,O,O
+a',a,d,e',c,d',O,O,O,O
+a',a,d,c',c,d',O,O,O,O
+a',a,d,c',c,d',O,O,O,O
+a',a,d,c',c,m,O,O,O,O
+a',a,d,c',c,m,O,O,O,O
+a',a,d',c',c,m,O,O,O,O
+a',a,e',c',c,m,O,O,O,O
+a',a,e',c',c,m,O,O,O,O
+a',a,e',c',c,d',O,O,O,O
+a',a,e',c',c,d,O,O,O,O
+a',a,e',c',c,d,O,O,O,O
+a',a,d',c',c,d,O,O,O,O
+a',a,d',c',c,d,O,O,O,O
+a',a,d',m,c,d,O,O,O,O
+a',a,d',m,c,d,O,O,S,O
+a',a,e',m,c,d,O,O,S,O
+a',a,e',m,c,d,O,O,O,S
+a',a,e',m,c,d',O,O,O,S
+a',a,e',m,c,c',O,O,O,S
+a',a,e',m,c,c',O,O,O,O
+a',a,e',d',c,c',O,O,O,O
+a',a,e',d,c,c',O,O,O,O
+a',a,e',d,c,c',O,O,O,O
+a',a,d',d,c,c',O,O,O,O
+a',a,d',d,c,c',O,O,O,O
+a',a,d',d,c,m,O,O,O,O
+a',a,d',d,c,m,O,O,O,O
+a',a,d',d,c',m,O,O,O,O
+a',a,d',d,e',m,O,O,O,O
+a',a,d',d,e',m,O,O,O,O
+a',a,d',d,e',c',O,O,O,O
+a',a,d',d,e',c,O,O,O,O
+a',a,d',d,e',c,O,O,O,O
+a',a,d',d,c',c,O,O,O,O
+```
+
+#### Stage 3
+
+12. Incorporating Rule 7
+
+#### Stage 4
+
+13. Incorporating Rule 5
+14. Incorporating Rule 6

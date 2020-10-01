@@ -5,10 +5,10 @@ def update_particle_movements(file,par,path,vertices,voltages):
     try:
         fw = open(file,'a')
         line = "{},{}".format(par,'-'.join(vertices[v] for v in path))
-        print(line)
         line = "{},{}".format(line,','.join(voltages))
         fw.write(line+'\n')
         fw.close()
+        print(line)
     except IOError as err:
         print(err)
 

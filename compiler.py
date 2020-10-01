@@ -93,7 +93,7 @@ def initiate_nanowire(nanowire,positions):
                         tup[pos] = (i+1)
     return nanowire
 
-# Initiating cutoff pair list for voltage changes
+# Initiating list of opposite positions pair for voltage gates
 def initiate_cutoff_voltage_pairs(nanowire):
     cutoff_pairs = []
     for intersection in nanowire:
@@ -103,6 +103,7 @@ def initiate_cutoff_voltage_pairs(nanowire):
         c0 = []
         c = 0
         n = len(intersection)/2
+        flag = 1
 
         # pairing opposite branches
         for branch in intersection:
@@ -120,19 +121,21 @@ def initiate_cutoff_voltage_pairs(nanowire):
             elif c==0:
                 c0.append(cb)
 
-        # pairing positions from opposite branches
+        # pairing positions from opposite cutoff branches
         opposite = []
-        temp = get_opposite_pairs(c1)
+        temp = get_opposite_cutoff_pairs(c1)
         opposite.extend(temp)
-        temp = get_opposite_pairs(c0)
+        temp = get_opposite_cutoff_pairs(c0)
         opposite.extend(temp)
-        v11.extend(opposite)
-        v12.extend(opposite)
+        # v11.extend(opposite)
+        # v12.extend(opposite)
 
-        # pairing positions from adjacent branches
-        temp = get_adjacent_pairs(c1,c0)
+        # pairing positions from adjacent cutoff branches
+        flag = 1
+        temp = get_adjacent_cutoff_pairs(c1,c0,flag)
         v11.extend(temp)
-        temp = get_adjacent_pairs(c0,c1)
+        flag = 2
+        temp = get_adjacent_cutoff_pairs(c0,c1,flag)
         v12.extend(temp)
 
         cutoff_pairs.append(v11)
@@ -140,7 +143,7 @@ def initiate_cutoff_voltage_pairs(nanowire):
 
     return cutoff_pairs
 
-def get_opposite_pairs(c):
+def get_opposite_cutoff_pairs(c):
     opposite = []
     bi = c[0]
     bj = c[1]
@@ -150,18 +153,26 @@ def get_opposite_pairs(c):
             opposite.append(pair)
     return opposite
 
-def get_adjacent_pairs(c1,c2):
+def get_adjacent_cutoff_pairs(c1,c2,flag):
     adjacent = []
 
     bi = c1[0]
-    bj = c2[1]
+    if flag is 1:
+        bj = c2[1]
+    elif flag is 2:
+        bj = c2[0]
+
     for ti in bi:
         for tj in bj:
             pair = [ti,tj]
             adjacent.append(pair)
 
     bi = c1[1]
-    bj = c2[0]
+    if flag is 1:
+        bj = c2[0]
+    elif flag is 2:
+        bj = c2[1]
+
     for ti in bi:
         for tj in bj:
             pair = [ti,tj]
