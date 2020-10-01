@@ -425,8 +425,29 @@ a',a,d',d,e',c,O,O,O,O
 a',a,d',d,c',c,O,O,O,O
 ```
 
-12. Incorporating Rule 7 - Braiding Direction
-    - Here, the particle movement occurs in the opposite (clockwise) direction
+12. Incorporating Rule 7 - Braiding Direction. Here, the particle movement occurs in the opposite (clockwise) direction
+
+13. This rule was implemented by changing the format of the ```braid-sequence.csv``` file.
+    - It was originally of the format:
+```
+3,4
+3,5
+1,2
+4,5
+3,6
+4,6
+5,6
+```
+    - I changed this format by adding a bit which indicates the direction of braiding rotation next to the pair or particles. ```1``` represents clockwise braiding and ```0``` represents counter-clockwise braiding (which is the default one). The new format and the corresponding output is as follows:
+```
+3,4,1
+3,5,1
+1,2,1
+4,5,1
+3,6,1
+4,6,1
+5,6,1
+```
     - Below is the Particle movements output for clockwise braiding. For braiding between ```(3,5)```, after the 1st step, the positions are as follows: ```['a', "a'", "e'", 'c', 'd', 'm']```. The pair ```["e'", 'm']``` represents the particles ```[3,6]``` and ```["e'", 'd']``` represents ```[3,5]```, BOTH of which do NOT belong to a zero mode. Therefore, the gates ```[X21,X22]``` must be shut, to preserve Rule 3.
     - As a result, this blocks the movement of particle 6. Hence, this braiding cannot proceed in the clockwise direction with the given initial positions.
 
@@ -448,3 +469,4 @@ The Particle (6) with Path [d',x2,m] is blocked by Voltage Gate ['x21']
 ### Stage 4
 14. Incorporating Rule 5 - Braiding Concurrency
 15. Incorporating Rule 6 - Intermediate positions
+16. Preprocessing - Generating Braid sequence

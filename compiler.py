@@ -63,12 +63,14 @@ def read_particle_positions(file):
 
 def read_braid_sequence(file):
     data = []
+    dir = []
     try:
         file = open(file,'r')
         line = file.readline()
         row = line.split(',')
         tup = (int(row[0].strip()),int(row[1].strip()))
         data.append(tup)
+        dir.append(int(row[2].strip()))
         while line:
             line = file.readline()
             if not line:
@@ -76,8 +78,9 @@ def read_braid_sequence(file):
             row = line.split(',')
             tup = (int(row[0].strip()),int(row[1].strip()))
             data.append(tup)
+            dir.append(int(row[2].strip()))
         file.close()
-        return data
+        return data, dir
     except IOError:
         raise
 
@@ -231,14 +234,14 @@ def start():
         graph.validate_matrix(nanowire_matrix)
 
         # Preprocessing - Braiding sequence
-        sequence = read_braid_sequence(sys.argv[4])
+        sequence, direction = read_braid_sequence(sys.argv[4])
         positions = read_particle_positions(sys.argv[5])
 
         # Braiding on Nanowire
         nanowire = initiate_nanowire(nanowire_structure,positions)
         cutoff_pairs = initiate_cutoff_voltage_pairs_adj(nanowire_structure)
         cutoff_pairs_opp = initiate_cutoff_voltage_pairs_opp(nanowire_structure)
-        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions,cutoff_pairs,cutoff_pairs_opp,sys.argv[6],sys.argv[7])
+        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,direction,positions,cutoff_pairs,cutoff_pairs_opp,sys.argv[6],sys.argv[7])
     except IOError as err:
         print(err)
     except SyntaxError as err:
