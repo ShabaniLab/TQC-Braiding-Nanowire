@@ -77,19 +77,9 @@ Given a Braid pattern for a Quantum gate, it needs to be processed into a sequen
 
 A file, ```particle-positions.csv```, contains the initial positions of the particles on the Nanowire. In the above example, it is ```a,a',c,c',d,d'```.
 
-### File arguments
-
-The files mentioned above are provided as arguments to the main file, ```tqc-compiler.py```:
-1. ```nanowire-structure.csv```
-2. ```nanowire-vertex.csv```
-3. ```nanowire-matrix.csv```
-4. ```braid-sequence.csv```
-5. ```particle-positions.csv```
-6. ```particle-movements.csv```
-
 ### TQC Braiding Nanowire Algorithm
 
-#### Algorithm Rules
+### Algorithm - Rules
 
 1. **Nanowire State validity** - Every braiding operation MUST result in a valid Nanowire state. Validity can be generic or for the next braiding operation.
     - EVERY braiding operation, either optimized or not, concurrent or not, must result in a valid Nanowire state.
@@ -110,9 +100,7 @@ The files mentioned above are provided as arguments to the main file, ```tqc-com
     - The detail mechanics would still need to be worked out. This would essentially be another layer of upgrade on top of the current, basic one. The default would always be anti-clockwise.
 8. **Fusion** - For fusion, the particles involved must be adjacent to each other.
 
-#### Braiding Phases
-
-##### Validation phase
+### Algorithm - Validation phase
 
 1. **Get Final Positions** - Retrieve the **expected Final positions** for the participating particles, AFTER the Braiding operation is completed.
     - **Get Empty Positions** - on adjacent empty branches (returns both nearest and farthest locations on the branch)
@@ -137,7 +125,7 @@ The files mentioned above are provided as arguments to the main file, ```tqc-com
     - If the resulting states do not interfere in the movement of the 2nd particle involved in the braiding, ```score += 1```.
     - If the resulting states do not interfere in the further braiding operations, ```score += 1```.
 
-##### Perform Braiding
+### Algorithm - Braiding Phases
 
 4. **Get Voltage Changes** - If the particles are from the same zero-mode, then voltage regulation is unnecessary. But, if braiding involves particles from different zero modes, perform necessary voltage gate changes. This may cut-off some branches.
     - For every particle, based on given the final position, choose whether to **open or close** the gate voltages.
@@ -158,7 +146,7 @@ Particle,Path,V11,V12,V21,V22
 1,f'-a',O,O,O,O
 ```
 
-#### Metrics
+### Metrics
 
 8. **Nanowire State matrix** - Generate a Nanowire State matrix, which is a sequence of positions of all particles and the corresponding gate voltage values, capturing each movement for every particle. The nanowire state matrix for the above example is show below.
 
@@ -168,7 +156,7 @@ Particle,Path,V11,V12,V21,V22
 
 ### Work Done
 
-#### Stage 1
+### Stage 1
 
 1. This is the basic implementation, so some of the rules (3, 5, 6 and 7) haven't been included in the algorithm.
 
@@ -296,7 +284,7 @@ a',a,d',d,e',c
 a',a,d',d,c',c
 ```
 
-#### Stage 2
+### Stage 2
 
 5. Incorporating Rule 3 with voltage regulations (for braiding in the 2nd category).
 
@@ -319,33 +307,39 @@ a',a,d',d,c',c
 11. The output with the voltage changes are as follows:
     - Particle movements
 ```
-Particle,Path,X11,X12,X21,X22
+----- Braiding particles (3, 4) -----
 4,c'-x2-m,O,O,O,O
 3,c-c'-x2-e',O,O,O,O
 4,m-x2-c'-c,O,O,O,O
 3,e'-x2-c',O,O,O,O
+----- Braiding particles (3, 5) -----
 3,c'-x2-m,O,O,O,O
 6,d'-x2-e',O,O,S,O
 5,d-d'-x2-c',O,O,O,S
 3,m-x2-d'-d,O,O,O,O
 6,e'-x2-d',O,O,O,O
+----- Braiding particles (1, 2) -----
 2,a'-x1-b',O,O,O,O
 1,a-a'-x1-f',O,O,O,O
 2,b'-x1-a'-a,O,O,O,O
 1,f'-x1-a',O,O,O,O
+----- Braiding particles (4, 5) -----
 5,c'-x2-m,O,O,O,O
 4,c-c'-x2-e',O,O,O,O
 5,m-x2-c'-c,O,O,O,O
 4,e'-x2-c',O,O,O,O
+----- Braiding particles (3, 6) -----
 6,d'-x2-m,O,O,O,O
 3,d-d'-x2-e',O,O,O,O
 6,m-x2-d'-d,O,O,O,O
 3,e'-x2-d',O,O,O,O
+----- Braiding particles (4, 6) -----
 4,c'-x2-m,O,O,O,O
 3,d'-x2-e',O,O,S,O
 6,d-d'-x2-c',O,O,O,S
 4,m-x2-d'-d,O,O,O,O
 3,e'-x2-d',O,O,O,O
+----- Braiding particles (5, 6) -----
 6,c'-x2-m,O,O,O,O
 5,c-c'-x2-e',O,O,O,O
 6,m-x2-c'-c,O,O,O,O
@@ -431,11 +425,11 @@ a',a,d',d,e',c,O,O,O,O
 a',a,d',d,c',c,O,O,O,O
 ```
 
-#### Stage 3
+### Stage 3
 
 12. Incorporating Rule 7
 
-#### Stage 4
+### Stage 4
 
 13. Incorporating Rule 5
 14. Incorporating Rule 6
