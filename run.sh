@@ -4,16 +4,21 @@
 file_nanowire_str="nanowire-structure.csv"
 file_nanowire_vertex="nanowire-vertices.csv"
 file_nanowire_matrix="nanowire-matrix.csv"
+file_braid_data="circuit-config.csv"
 file_braid_sequence="braid-sequence.csv"
 file_particle_position="particle-positions.csv"
 file_particle_movement="particle-movements.csv"
 file_nanowire_states="nanowire-states.csv"
 file_tqc_metrics="tqc-metrics.csv"
 
+# Preprocessing - Nanowire
 # Constructing the Adjacency Matrix for the given Nanowire structure
 : > $file_nanowire_vertex
 : > $file_nanowire_matrix
 python nanowire-graph.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matrix
+
+# Preprocessing - Braid sequence
+# python braid-generate.py $file_braid_data > $file_braid_sequence
 
 # TQC - performing braiding on the Nanowire
 echo "Particle,Path,X11,X12,X21,X22" > $file_particle_movement

@@ -306,161 +306,161 @@ a',a,d',d,c',c
 
 11. The output with the voltage changes are as follows:
     - Particle movements
-```
------ Braiding particles (3, 4) -----
-4,c'-x2-m,O,O,O,O
-3,c-c'-x2-e',O,O,O,O
-4,m-x2-c'-c,O,O,O,O
-3,e'-x2-c',O,O,O,O
------ Braiding particles (3, 5) -----
-3,c'-x2-m,O,O,O,O
-6,d'-x2-e',O,O,S,O
-5,d-d'-x2-c',O,O,O,S
-3,m-x2-d'-d,O,O,O,O
-6,e'-x2-d',O,O,O,O
------ Braiding particles (1, 2) -----
-2,a'-x1-b',O,O,O,O
-1,a-a'-x1-f',O,O,O,O
-2,b'-x1-a'-a,O,O,O,O
-1,f'-x1-a',O,O,O,O
------ Braiding particles (4, 5) -----
-5,c'-x2-m,O,O,O,O
-4,c-c'-x2-e',O,O,O,O
-5,m-x2-c'-c,O,O,O,O
-4,e'-x2-c',O,O,O,O
------ Braiding particles (3, 6) -----
-6,d'-x2-m,O,O,O,O
-3,d-d'-x2-e',O,O,O,O
-6,m-x2-d'-d,O,O,O,O
-3,e'-x2-d',O,O,O,O
------ Braiding particles (4, 6) -----
-4,c'-x2-m,O,O,O,O
-3,d'-x2-e',O,O,S,O
-6,d-d'-x2-c',O,O,O,S
-4,m-x2-d'-d,O,O,O,O
-3,e'-x2-d',O,O,O,O
------ Braiding particles (5, 6) -----
-6,c'-x2-m,O,O,O,O
-5,c-c'-x2-e',O,O,O,O
-6,m-x2-c'-c,O,O,O,O
-5,e'-x2-c',O,O,O,O
-```
+    ```
+    ----- Braiding particles (3, 4) -----
+    4,c'-x2-m,O,O,O,O
+    3,c-c'-x2-e',O,O,O,O
+    4,m-x2-c'-c,O,O,O,O
+    3,e'-x2-c',O,O,O,O
+    ----- Braiding particles (3, 5) -----
+    3,c'-x2-m,O,O,O,O
+    6,d'-x2-e',O,O,S,O
+    5,d-d'-x2-c',O,O,O,S
+    3,m-x2-d'-d,O,O,O,O
+    6,e'-x2-d',O,O,O,O
+    ----- Braiding particles (1, 2) -----
+    2,a'-x1-b',O,O,O,O
+    1,a-a'-x1-f',O,O,O,O
+    2,b'-x1-a'-a,O,O,O,O
+    1,f'-x1-a',O,O,O,O
+    ----- Braiding particles (4, 5) -----
+    5,c'-x2-m,O,O,O,O
+    4,c-c'-x2-e',O,O,O,O
+    5,m-x2-c'-c,O,O,O,O
+    4,e'-x2-c',O,O,O,O
+    ----- Braiding particles (3, 6) -----
+    6,d'-x2-m,O,O,O,O
+    3,d-d'-x2-e',O,O,O,O
+    6,m-x2-d'-d,O,O,O,O
+    3,e'-x2-d',O,O,O,O
+    ----- Braiding particles (4, 6) -----
+    4,c'-x2-m,O,O,O,O
+    3,d'-x2-e',O,O,S,O
+    6,d-d'-x2-c',O,O,O,S
+    4,m-x2-d'-d,O,O,O,O
+    3,e'-x2-d',O,O,O,O
+    ----- Braiding particles (5, 6) -----
+    6,c'-x2-m,O,O,O,O
+    5,c-c'-x2-e',O,O,O,O
+    6,m-x2-c'-c,O,O,O,O
+    5,e'-x2-c',O,O,O,O
+    ```
 
     - Nanowire states
-```
-P1,P2,P3,P4,P5,P6,X11,X12,X21,X22
-a,a',c,c',d,d',O,O,O,O
-a,a',c,m,d,d',O,O,O,O
-a,a',c,m,d,d',O,O,O,O
-a,a',c',m,d,d',O,O,O,O
-a,a',e',m,d,d',O,O,O,O
-a,a',e',m,d,d',O,O,O,O
-a,a',e',c',d,d',O,O,O,O
-a,a',e',c,d,d',O,O,O,O
-a,a',e',c,d,d',O,O,O,O
-a,a',c',c,d,d',O,O,O,O
-a,a',c',c,d,d',O,O,O,O
-a,a',m,c,d,d',O,O,O,O
-a,a',m,c,d,d',O,O,S,O
-a,a',m,c,d,e',O,O,S,O
-a,a',m,c,d,e',O,O,O,S
-a,a',m,c,d',e',O,O,O,S
-a,a',m,c,c',e',O,O,O,S
-a,a',m,c,c',e',O,O,O,O
-a,a',d',c,c',e',O,O,O,O
-a,a',d,c,c',e',O,O,O,O
-a,a',d,c,c',e',O,O,O,O
-a,a',d,c,c',d',O,O,O,O
-a,a',d,c,c',d',O,O,O,O
-a,b',d,c,c',d',O,O,O,O
-a,b',d,c,c',d',O,O,O,O
-a',b',d,c,c',d',O,O,O,O
-f',b',d,c,c',d',O,O,O,O
-f',b',d,c,c',d',O,O,O,O
-f',a',d,c,c',d',O,O,O,O
-f',a,d,c,c',d',O,O,O,O
-f',a,d,c,c',d',O,O,O,O
-a',a,d,c,c',d',O,O,O,O
-a',a,d,c,c',d',O,O,O,O
-a',a,d,c,m,d',O,O,O,O
-a',a,d,c,m,d',O,O,O,O
-a',a,d,c',m,d',O,O,O,O
-a',a,d,e',m,d',O,O,O,O
-a',a,d,e',m,d',O,O,O,O
-a',a,d,e',c',d',O,O,O,O
-a',a,d,e',c,d',O,O,O,O
-a',a,d,e',c,d',O,O,O,O
-a',a,d,c',c,d',O,O,O,O
-a',a,d,c',c,d',O,O,O,O
-a',a,d,c',c,m,O,O,O,O
-a',a,d,c',c,m,O,O,O,O
-a',a,d',c',c,m,O,O,O,O
-a',a,e',c',c,m,O,O,O,O
-a',a,e',c',c,m,O,O,O,O
-a',a,e',c',c,d',O,O,O,O
-a',a,e',c',c,d,O,O,O,O
-a',a,e',c',c,d,O,O,O,O
-a',a,d',c',c,d,O,O,O,O
-a',a,d',c',c,d,O,O,O,O
-a',a,d',m,c,d,O,O,O,O
-a',a,d',m,c,d,O,O,S,O
-a',a,e',m,c,d,O,O,S,O
-a',a,e',m,c,d,O,O,O,S
-a',a,e',m,c,d',O,O,O,S
-a',a,e',m,c,c',O,O,O,S
-a',a,e',m,c,c',O,O,O,O
-a',a,e',d',c,c',O,O,O,O
-a',a,e',d,c,c',O,O,O,O
-a',a,e',d,c,c',O,O,O,O
-a',a,d',d,c,c',O,O,O,O
-a',a,d',d,c,c',O,O,O,O
-a',a,d',d,c,m,O,O,O,O
-a',a,d',d,c,m,O,O,O,O
-a',a,d',d,c',m,O,O,O,O
-a',a,d',d,e',m,O,O,O,O
-a',a,d',d,e',m,O,O,O,O
-a',a,d',d,e',c',O,O,O,O
-a',a,d',d,e',c,O,O,O,O
-a',a,d',d,e',c,O,O,O,O
-a',a,d',d,c',c,O,O,O,O
-```
+    ```
+    P1,P2,P3,P4,P5,P6,X11,X12,X21,X22
+    a,a',c,c',d,d',O,O,O,O
+    a,a',c,m,d,d',O,O,O,O
+    a,a',c,m,d,d',O,O,O,O
+    a,a',c',m,d,d',O,O,O,O
+    a,a',e',m,d,d',O,O,O,O
+    a,a',e',m,d,d',O,O,O,O
+    a,a',e',c',d,d',O,O,O,O
+    a,a',e',c,d,d',O,O,O,O
+    a,a',e',c,d,d',O,O,O,O
+    a,a',c',c,d,d',O,O,O,O
+    a,a',c',c,d,d',O,O,O,O
+    a,a',m,c,d,d',O,O,O,O
+    a,a',m,c,d,d',O,O,S,O
+    a,a',m,c,d,e',O,O,S,O
+    a,a',m,c,d,e',O,O,O,S
+    a,a',m,c,d',e',O,O,O,S
+    a,a',m,c,c',e',O,O,O,S
+    a,a',m,c,c',e',O,O,O,O
+    a,a',d',c,c',e',O,O,O,O
+    a,a',d,c,c',e',O,O,O,O
+    a,a',d,c,c',e',O,O,O,O
+    a,a',d,c,c',d',O,O,O,O
+    a,a',d,c,c',d',O,O,O,O
+    a,b',d,c,c',d',O,O,O,O
+    a,b',d,c,c',d',O,O,O,O
+    a',b',d,c,c',d',O,O,O,O
+    f',b',d,c,c',d',O,O,O,O
+    f',b',d,c,c',d',O,O,O,O
+    f',a',d,c,c',d',O,O,O,O
+    f',a,d,c,c',d',O,O,O,O
+    f',a,d,c,c',d',O,O,O,O
+    a',a,d,c,c',d',O,O,O,O
+    a',a,d,c,c',d',O,O,O,O
+    a',a,d,c,m,d',O,O,O,O
+    a',a,d,c,m,d',O,O,O,O
+    a',a,d,c',m,d',O,O,O,O
+    a',a,d,e',m,d',O,O,O,O
+    a',a,d,e',m,d',O,O,O,O
+    a',a,d,e',c',d',O,O,O,O
+    a',a,d,e',c,d',O,O,O,O
+    a',a,d,e',c,d',O,O,O,O
+    a',a,d,c',c,d',O,O,O,O
+    a',a,d,c',c,d',O,O,O,O
+    a',a,d,c',c,m,O,O,O,O
+    a',a,d,c',c,m,O,O,O,O
+    a',a,d',c',c,m,O,O,O,O
+    a',a,e',c',c,m,O,O,O,O
+    a',a,e',c',c,m,O,O,O,O
+    a',a,e',c',c,d',O,O,O,O
+    a',a,e',c',c,d,O,O,O,O
+    a',a,e',c',c,d,O,O,O,O
+    a',a,d',c',c,d,O,O,O,O
+    a',a,d',c',c,d,O,O,O,O
+    a',a,d',m,c,d,O,O,O,O
+    a',a,d',m,c,d,O,O,S,O
+    a',a,e',m,c,d,O,O,S,O
+    a',a,e',m,c,d,O,O,O,S
+    a',a,e',m,c,d',O,O,O,S
+    a',a,e',m,c,c',O,O,O,S
+    a',a,e',m,c,c',O,O,O,O
+    a',a,e',d',c,c',O,O,O,O
+    a',a,e',d,c,c',O,O,O,O
+    a',a,e',d,c,c',O,O,O,O
+    a',a,d',d,c,c',O,O,O,O
+    a',a,d',d,c,c',O,O,O,O
+    a',a,d',d,c,m,O,O,O,O
+    a',a,d',d,c,m,O,O,O,O
+    a',a,d',d,c',m,O,O,O,O
+    a',a,d',d,e',m,O,O,O,O
+    a',a,d',d,e',m,O,O,O,O
+    a',a,d',d,e',c',O,O,O,O
+    a',a,d',d,e',c,O,O,O,O
+    a',a,d',d,e',c,O,O,O,O
+    a',a,d',d,c',c,O,O,O,O
+    ```
 
 12. Incorporating Rule 7 - Braiding Direction. Here, the particle movement occurs in the opposite (clockwise) direction
 
 13. This rule was implemented by changing the format of the ```braid-sequence.csv``` file.
     - It was originally of the format:
-```
-3,4
-3,5
-1,2
-4,5
-3,6
-4,6
-5,6
-```
+    ```
+    3,4
+    3,5
+    1,2
+    4,5
+    3,6
+    4,6
+    5,6
+    ```
     - I changed this format by adding a bit which indicates the direction of braiding rotation next to the pair or particles. ```1``` represents clockwise braiding and ```0``` represents counter-clockwise braiding (which is the default one). The new format and the corresponding output is as follows:
-```
-3,4,1
-3,5,1
-1,2,1
-4,5,1
-3,6,1
-4,6,1
-5,6,1
-```
+    ```
+    3,4,1
+    3,5,1
+    1,2,1
+    4,5,1
+    3,6,1
+    4,6,1
+    5,6,1
+    ```
     - Below is the Particle movements output for clockwise braiding. For braiding between ```(3,5)```, after the 1st step, the positions are as follows: ```['a', "a'", "e'", 'c', 'd', 'm']```. The pair ```["e'", 'm']``` represents the particles ```[3,6]``` and ```["e'", 'd']``` represents ```[3,5]```, BOTH of which do NOT belong to a zero mode. Therefore, the gates ```[X21,X22]``` must be shut, to preserve Rule 3.
     - As a result, this blocks the movement of particle 6. Hence, this braiding cannot proceed in the clockwise direction with the given initial positions.
 
-```
------ Braiding particles (3, 4) -----
-4,c'-x2-e',O,O,O,O
-3,c-c'-x2-m,O,O,O,O
-4,e'-x2-c'-c,O,O,O,O
-3,m-x2-c',O,O,O,O
------ Braiding particles (3, 5) -----
-3,c'-x2-e',O,O,O,O
-The Particle (6) with Path [d',x2,m] is blocked by Voltage Gate ['x21']
-```
+    ```
+    ----- Braiding particles (3, 4) -----
+    4,c'-x2-e',O,O,O,O
+    3,c-c'-x2-m,O,O,O,O
+    4,e'-x2-c'-c,O,O,O,O
+    3,m-x2-c',O,O,O,O
+    ----- Braiding particles (3, 5) -----
+    3,c'-x2-e',O,O,O,O
+    The Particle (6) with Path [d',x2,m] is blocked by Voltage Gate ['x21']
+    ```
 
 ### Stage 3
 
