@@ -88,30 +88,49 @@ def validate_path_particle(path,positions,vertices,par):
     return block
 
 # Checks if a shut voltage gate blocks the path
-def validate_path_gates(par,path,vertices,voltages,cutoff_pairs):
+def validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
     p1 = vertices[path[0]]
     pn = vertices[path[len(path)-1]]
     pair = [p1,pn]
+    gates = []
+
+    flag1 = verify_cutoff_pair(cutoff_pairs,pair,voltages)
+    gate1 = get_voltage_gate_values(flag1)
+    if gate1 is not None:
+        gates.append(gate1)
+    else:
+        flag2 = verify_cutoff_pair(cutoff_pairs_opp,pair,voltages)
+        gate2 = get_voltage_gate_values(flag2)
+        if gate2 is not None:
+            gates.append(gate2)
+
+    if flag1>=0 or flag2>=0:
+        route = [vertices[e] for e in path]
+        msg = "The Particle ({}) with Path [{}] is blocked by Voltage Gate {}".format(par,','.join(route),gates)
+        raise exception.PathBlockedException(msg)
+    return True
+
+def verify_cutoff_pair(cutoff,pair,voltages):
     flag = -1
-    for i in range(len(cutoff_pairs)):
-        pairs = cutoff_pairs[i]
+    for i in range(len(cutoff)):
+        pairs = cutoff[i]
         if pair in pairs or list(reversed(pair)) in pairs:
             if voltages[i] is 'S':
                 flag = i
-                break
+                return flag
+    return flag
 
-    if flag>=0:
-        route = [vertices[e] for e in path]
+def get_voltage_gate_values(flag):
+    gate = None
+    if flag is 0:
         gate = 'x11'
-        if flag is 1:
-            gate = 'x12'
-        elif flag is 2:
-            gate = 'x21'
-        elif flag is 3:
-            gate = 'x22'
-        msg = "The Particle ({}) with Path [{}] is blocked by Voltage Gate ({})".format(par,','.join(route),gate)
-        raise exception.PathBlockedException(msg)
-    return True
+    elif flag is 1:
+        gate = 'x12'
+    elif flag is 2:
+        gate = 'x21'
+    elif flag is 3:
+        gate = 'x22'
+    return gate
 
 # Check if the pair is in the same branch
 def check_unibranch_validity(pair,positions,intersection):

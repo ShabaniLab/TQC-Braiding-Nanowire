@@ -17,6 +17,7 @@ positions_old = []
 gate_index = -1
 gate_flag = False
 gate_flag_ex = False
+flag_dir = False
 
 ################################################################################
 ## Utility functions
@@ -125,17 +126,19 @@ def get_empty_positions(nanowire,intersection):
     positions = []
     temp = []
     for branch in intersection:
-        if len(temp)>1:
-            positions.extend(temp)
-            temp = []
+        val = True
         for tup in branch:
             if type(tup) is not dict:
                 continue
-            if list(tup.values())[0]!=0:
-                temp = []
-                break
-            else:
-                temp.append(list(tup.keys())[0])
+            if list(tup.values())[0] is not 0:
+                val = False
+            temp.append(list(tup.keys())[0])
+        if val is False:
+            temp = []
+            val = True
+        if len(temp)>0:
+            positions.extend(temp)
+            temp = []
 
     if len(temp)>0:
         positions.extend(temp)
@@ -293,7 +296,7 @@ def get_2nd_pair_sequence(pair,nanowire,vertices,positions,intermediate_position
     # return list(reversed(list(pair)))
     return list(pair)
 
-def braid_particles_same_branch(nanowire, vertices, matrix, pair, positions, cutoff_pairs, file_mvmt, file_state):
+def braid_particles_same_branch(nanowire, vertices, matrix, pair, positions, cutoff_pairs, cutoff_pairs_opp, file_mvmt, file_state):
     try:
         update_zero_modes(nanowire)
 
@@ -319,6 +322,8 @@ def braid_particles_same_branch(nanowire, vertices, matrix, pair, positions, cut
             p_steps = 10
 
             inter_positions = get_intermediate_positions(nanowire,pos_start)
+            if flag_dir is True:
+                inter_positions = list(reversed(inter_positions))
 
             # getting the best intermediate positions
             for pos in inter_positions:
@@ -346,7 +351,7 @@ def braid_particles_same_branch(nanowire, vertices, matrix, pair, positions, cut
                     nanowire = copy.deepcopy(f_nw)
                     update_zero_modes(nanowire)
                     update_voltages(positions,cutoff_pairs)
-                    if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs):
+                    if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
                         metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
                         metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
 
@@ -364,7 +369,7 @@ def braid_particles_same_branch(nanowire, vertices, matrix, pair, positions, cut
                 nanowire = copy.deepcopy(f_nw)
                 update_zero_modes(nanowire)
                 update_voltages(positions,cutoff_pairs)
-                if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs):
+                if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
                     metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
                     metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
 
@@ -395,7 +400,7 @@ def get_particles_list(nanowire,pair,positions):
         particles.append(pair[0])
     return particles
 
-def braid_particles_diff_branch(nanowire, vertices, matrix, pair, positions, cutoff_pairs, file_mvmt, file_state):
+def braid_particles_diff_branch(nanowire, vertices, matrix, pair, positions, cutoff_pairs, cutoff_pairs_opp, file_mvmt, file_state):
     try:
         particles = get_particles_list(nanowire,pair,positions)
         update_zero_modes(nanowire)
@@ -422,6 +427,8 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, positions, cut
             p_steps = 10
 
             inter_positions = get_intermediate_positions(nanowire,pos_start)
+            if flag_dir is True:
+                inter_positions = list(reversed(inter_positions))
 
             # getting the best intermediate positions
             for pos in inter_positions:
@@ -449,7 +456,7 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, positions, cut
                     nanowire = copy.deepcopy(f_nw)
                     update_zero_modes(nanowire)
                     update_voltages(positions,cutoff_pairs)
-                    if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs):
+                    if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
                         metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
                         metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
 
@@ -465,7 +472,7 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, positions, cut
             nanowire = copy.deepcopy(f_nw)
             update_zero_modes(nanowire)
             update_voltages(positions,cutoff_pairs)
-            if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs):
+            if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
                 metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
                 metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
 
@@ -484,7 +491,7 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, positions, cut
                 nanowire = copy.deepcopy(f_nw)
                 update_zero_modes(nanowire)
                 update_voltages(positions,cutoff_pairs)
-                if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs):
+                if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
                     metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
                     metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
 
@@ -499,7 +506,7 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, positions, cut
 
 ################################################################################
 
-def braid_particles(nanowire, vertices, matrix, sequence, positions, cutoff_pairs, file_mvmt, file_state):
+def braid_particles(nanowire, vertices, matrix, sequence, positions, cutoff_pairs, cutoff_pairs_opp, file_mvmt, file_state):
     try:
         for pair in sequence:
             print("----- Braiding particles {} -----".format(pair))
@@ -508,9 +515,9 @@ def braid_particles(nanowire, vertices, matrix, sequence, positions, cutoff_pair
             intersection = get_intersection(nanowire,positions[pair[0]-1])
             condition = validation.check_unibranch_validity(pair,positions,intersection)
             if condition:
-                nanowire,positions = braid_particles_same_branch(nanowire, vertices, matrix, pair, positions, cutoff_pairs, file_mvmt, file_state)
+                nanowire,positions = braid_particles_same_branch(nanowire, vertices, matrix, pair, positions, cutoff_pairs, cutoff_pairs_opp, file_mvmt, file_state)
             else:
-                nanowire,positions = braid_particles_diff_branch(nanowire, vertices, matrix, pair, positions, cutoff_pairs, file_mvmt, file_state)
+                nanowire,positions = braid_particles_diff_branch(nanowire, vertices, matrix, pair, positions, cutoff_pairs, cutoff_pairs_opp, file_mvmt, file_state)
 
     except exception.NoEmptyPositionException as err:
         print(err)

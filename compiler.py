@@ -93,8 +93,8 @@ def initiate_nanowire(nanowire,positions):
                         tup[pos] = (i+1)
     return nanowire
 
-# Initiating list of opposite positions pair for voltage gates
-def initiate_cutoff_voltage_pairs(nanowire):
+# Initiating list of ADJACENT positions pair for voltage gates
+def initiate_cutoff_voltage_pairs_adj(nanowire):
     cutoff_pairs = []
     for intersection in nanowire:
         v11 = []
@@ -122,13 +122,14 @@ def initiate_cutoff_voltage_pairs(nanowire):
                 c0.append(cb)
 
         # pairing positions from opposite cutoff branches
-        opposite = []
-        temp = get_opposite_cutoff_pairs(c1)
-        opposite.extend(temp)
-        temp = get_opposite_cutoff_pairs(c0)
-        opposite.extend(temp)
-        # v11.extend(opposite)
-        # v12.extend(opposite)
+        # opposite = []
+        # opposite.extend(get_opposite_cutoff_pairs(c1))
+        # opposite.extend(get_opposite_cutoff_pairs(c0))
+        # o11.extend(opposite)
+        # o12.extend(opposite)
+        # print(o11)
+        # cutoff_pairs_opp.append(o11)
+        # cutoff_pairs_opp.append(o12)
 
         # pairing positions from adjacent cutoff branches
         flag = 1
@@ -142,6 +143,45 @@ def initiate_cutoff_voltage_pairs(nanowire):
         cutoff_pairs.append(v12)
 
     return cutoff_pairs
+
+# Initiating list of OPPOSITE positions pair for voltage gates
+def initiate_cutoff_voltage_pairs_opp(nanowire):
+    cutoff_pairs_opp = []
+    for intersection in nanowire:
+        o11 = v11 = []
+        o12 = v12 = []
+        c1 = []
+        c0 = []
+        c = 0
+        n = len(intersection)/2
+        flag = 1
+
+        # pairing opposite branches
+        for branch in intersection:
+            cb = []
+            for tup in branch:
+                if type(tup) is not dict:
+                    continue
+                pos = list(tup.keys())[0]
+                cb.append(pos)
+
+            c += 1
+            c = c%n
+            if c==1:
+                c1.append(cb)
+            elif c==0:
+                c0.append(cb)
+
+        # pairing positions from opposite cutoff branches
+        opposite = []
+        opposite.extend(get_opposite_cutoff_pairs(c1))
+        opposite.extend(get_opposite_cutoff_pairs(c0))
+        o11.extend(opposite)
+        o12.extend(opposite)
+        cutoff_pairs_opp.append(o11)
+        cutoff_pairs_opp.append(o12)
+
+    return cutoff_pairs_opp
 
 def get_opposite_cutoff_pairs(c):
     opposite = []
@@ -196,8 +236,9 @@ def start():
 
         # Braiding on Nanowire
         nanowire = initiate_nanowire(nanowire_structure,positions)
-        cutoff_pairs = initiate_cutoff_voltage_pairs(nanowire_structure)
-        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions,cutoff_pairs,sys.argv[6],sys.argv[7])
+        cutoff_pairs = initiate_cutoff_voltage_pairs_adj(nanowire_structure)
+        cutoff_pairs_opp = initiate_cutoff_voltage_pairs_opp(nanowire_structure)
+        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,positions,cutoff_pairs,cutoff_pairs_opp,sys.argv[6],sys.argv[7])
     except IOError as err:
         print(err)
     except SyntaxError as err:
