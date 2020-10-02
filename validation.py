@@ -1,10 +1,11 @@
+import utility
 import exception
 
 ################################################################################
 ## Validation phase
 
 # Nanowire Validation Algorithm which returns a score
-def validate_nanowire_state(nanowire,positions,voltages,type,msg):
+def validate_nanowire_state(nanowire,positions,positions_single,voltages,cutoff_pairs,cutoff_pairs_opp,type,msg):
     try:
         min_free_branch = 0
         if type==2:
@@ -13,7 +14,7 @@ def validate_nanowire_state(nanowire,positions,voltages,type,msg):
             min_free_branch = 2
 
         score = validate_empty_branches(nanowire,min_free_branch,msg)
-        validate_multi_modal_crossing(nanowire,voltages,msg)
+        validate_multi_modal_crossing(positions,positions_single,voltages,cutoff_pairs,cutoff_pairs_opp,msg)
         return score
     except exception.InvalidNanowireStateException:
         raise
@@ -47,30 +48,14 @@ def validate_empty_branches(nanowire,min_free_branch,msg):
     return score
 
 # *Check if resulting nanowire violates Rule 3 - Particle-Zero mode isolation
-def validate_multi_modal_crossing(nanowire,voltages,msg):
-    score = 1
-    if score==0:
-        raise exception.MultiModalCrossingException(msg)
-
-# if the pair is on different branches
-# def get_adjacent_zmode(nanowire):
-#     for intersection in nanowire:
-#     b1 = b2 = 0
-#     for i in range(len(intersection)):
-#         branch = intersection[i]
-#         for tup in branch:
-#             if list(tup.values())[0]==pair[0]:
-#                 b1 = i
-#
-#     for i in range(len(intersection)):
-#         branch = intersection[i]
-#         for tup in branch:
-#             if list(tup.values())[0]==pair[1]:
-#                 b2 = i
-#
-#     if abs(b1-b2)<=1 or abs(b1-b2)==3:
-#         return True
-#     return False
+def validate_multi_modal_crossing(positions,positions_single,voltages,cutoff_pairs,cutoff_pairs_opp,msg):
+    perm = utility.get_permutations(positions_single,2)
+    for pair in perm:
+        flag1 = utility.check_particle_pair_zmode(pair,positions,positions_single,None)
+        flag2 = verify_cutoff_pair(cutoff_pairs,pair,voltages)
+        flag3 = verify_cutoff_pair(cutoff_pairs_opp,pair,voltages)
+        if flag1 is False and (flag2 is True or flag3 is True):
+            raise exception.MultiModalCrossingException(msg)
 
 # Checks if any other particle blocks the path
 def validate_path_particle(path,positions,vertices,par):
@@ -110,6 +95,7 @@ def validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp
         raise exception.PathBlockedException(msg)
     return True
 
+# Returns [0-4] if the pair is in the cutoff_pair
 def verify_cutoff_pair(cutoff,pair,voltages):
     flag = -1
     for i in range(len(cutoff)):
@@ -120,6 +106,7 @@ def verify_cutoff_pair(cutoff,pair,voltages):
                 return flag
     return flag
 
+# For output format
 def get_voltage_gate_values(flag):
     gate = None
     if flag is 0:
@@ -148,5 +135,3 @@ def check_unibranch_validity(pair,positions,intersection):
     if check[0]==check[1]:
         return True
     return False
-
-# def validate_multi_modal_adjcacency():
