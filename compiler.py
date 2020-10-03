@@ -151,8 +151,8 @@ def initiate_cutoff_voltage_pairs_adj(nanowire):
 def initiate_cutoff_voltage_pairs_opp(nanowire):
     cutoff_pairs_opp = []
     for intersection in nanowire:
-        o11 = v11 = []
-        o12 = v12 = []
+        o11 = []
+        o12 = []
         c1 = []
         c0 = []
         c = 0
