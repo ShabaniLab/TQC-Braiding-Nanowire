@@ -20,4 +20,12 @@ Particle,Path,X11,X12,X21,X22
 3,d-d'-x2-e',O,O,O,O
 6,m-x2-d'-d,O,O,O,O
 3,e'-x2-d',O,O,O,O
-4,c'-x2-e',O,O,O,O
+4,c'-x2-m,O,O,O,O
+3,d'-x2-e',O,O,S,O
+6,d-d'-x2-c',O,O,O,S
+4,m-x2-d'-d,O,O,O,O
+3,e'-x2-d',O,O,O,O
+6,c'-x2-m,O,O,O,O
+5,c-c'-x2-e',O,O,O,O
+6,m-x2-c'-c,O,O,O,O
+5,e'-x2-c',O,O,O,O

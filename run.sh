@@ -4,6 +4,7 @@
 file_nanowire_str="nanowire-structure.csv"
 file_nanowire_vertex="nanowire-vertices.csv"
 file_nanowire_matrix="nanowire-matrix.csv"
+file_nanowire_positions="nanowire-positions.csv"
 file_braid_data="circuit-config.csv"
 file_braid_sequence="braid-sequence.csv"
 file_particle_position="particle-positions.csv"
@@ -23,4 +24,9 @@ python nanowire-graph.py $file_nanowire_str $file_nanowire_vertex $file_nanowire
 # TQC - performing braiding on the Nanowire
 echo "Particle,Path,X11,X12,X21,X22" > $file_particle_movement
 echo "P1,P2,P3,P4,P5,P6,X11,X12,X21,X22" > $file_nanowire_states
+echo "----- x ----- x ----- x ----- x ----- x ----- x ----- x ----- x ----- x -----"
 python compiler.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matrix $file_braid_sequence $file_particle_position $file_particle_movement $file_nanowire_states
+echo "----- x ----- x ----- x ----- x ----- x ----- x ----- x ----- x ----- x -----"
+
+# Nanowire movement and Braiding animation
+python animation.py $file_nanowire_matrix $file_nanowire_vertex $file_nanowire_positions $file_nanowire_states

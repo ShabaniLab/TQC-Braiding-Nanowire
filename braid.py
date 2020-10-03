@@ -248,6 +248,7 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, dir, positions
 
 def braid_particles(nanowire, vertices, matrix, sequence, direction, positions, cutoff_pairs, cutoff_pairs_opp, file_mvmt, file_state):
     try:
+        msg = "----- Braiding completed -----"
         for i in range(len(sequence)):
             pair = sequence[i]
             dir = direction[i]
@@ -263,7 +264,12 @@ def braid_particles(nanowire, vertices, matrix, sequence, direction, positions, 
 
     except exception.NoEmptyPositionException as err:
         print(err)
+        msg = "----- Braiding interrupted -----"
     except exception.InvalidNanowireStateException as err:
         print(err)
+        msg = "----- Braiding interrupted -----"
     except exception.PathBlockedException as err:
         print(err)
+        msg = "----- Braiding interrupted -----"
+    finally:
+        print(msg)

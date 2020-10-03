@@ -286,7 +286,7 @@ a',a,d',d,c',c
 
 ### Stage 2
 
-5. Incorporating Rule 3 with voltage regulations (for braiding in the 2nd category).
+5. Rule 3 with voltage regulations (for braiding in the 2nd category).
 
 6. In every braiding operation, I extract the particles which are isolated (1 in a branch).
     - I then verify if these isolated particles are part of the same zero mode, or different. If they are part of the same zero mode, then no voltage regulation is needed.
@@ -425,7 +425,7 @@ a',a,d',d,c',c
     a',a,d',d,c',c,O,O,O,O
     ```
 
-12. Incorporating Rule 7 - Braiding Direction. Here, the particle movement occurs in the opposite (clockwise) direction
+12. Rule 7 - Braiding Direction. Here, the particle movement occurs in the opposite (clockwise) direction
 
 13. This rule was implemented by changing the format of the ```braid-sequence.csv``` file.
     - It was originally of the format:
@@ -466,7 +466,16 @@ a',a,d',d,c',c
 
 13. Optimization - Data and class structure
 
+14. Nanowire movement and Braiding animation
+    - Used Python Networkx library to create the Nanowire graph network
+    - Animated the particle movements
+
 ### Stage 4
-14. Incorporating Rule 5 - Braiding Concurrency
-15. Incorporating Rule 6 - Intermediate positions
-16. Preprocessing - Generating Braid sequence
+
+15. Rule 5 - Braiding Concurrency
+16. Rule 6 - Intermediate positions
+
+### Stage 5
+
+17. Preprocessing - Generating Braid sequence
+18. Measurement - Fusion
