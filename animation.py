@@ -143,6 +143,12 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
         empty = list(set(nds)-set(particles))
         label_par = {pos:particles.index(pos)+1 for pos in particles}
         label_empty = {pos:pos for pos in empty}
+        par = None
+        pos1 = None
+        pos2 = None
+        title = None
+        if index is 0:
+            title = "TQC Braiding Nanowire - 2 Qubit CNOT"
         index += 1
         index = index%len(states)
 
@@ -190,13 +196,32 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
             labels_old = labels
         if mapping:
             nx.relabel_nodes(G, mapping, copy=True)
+            if len(mapping.keys()) is 2:
+                for k in mapping.keys():
+                    if isinstance(k,int):
+                        par = k
+                    if isinstance(k,str):
+                        pos2 = k
+                    if isinstance(mapping[k],str):
+                        pos1 = mapping[k]
 
-        title = "TQC Braiding Nanowire - 2 Qubit CNOT"
-        ax.set_title(title, fontweight="bold")
+        # Output
+        if par is not None:
+            title = "Braiding particle {}".format(par)
+            if pos1 is not None and pos2 is not None:
+                title = "Braiding particle ({}): ({}) to ({})".format(par,pos1,pos2)
+            for i in range(len(gates)):
+                volt = gates[i]
+                if volt is 'S':
+                    key,gate = get_voltage_gate_labels(i)
+                    title = "{}\nVoltage Gate {} is SHUT".format(title,gate)
+        if title is not None:
+            print(title)
+            ax.set_title(title,fontweight="bold")
 
     fig, ax = plt.subplots()
     ani = anima.FuncAnimation(fig, update, frames=len(states), interval=750, fargs=(index))
-    # ani.save('tqc-cnot.html', writer='imagemagick')
+    ani.save('tqc-cnot.html', writer='imagemagick')
     plt.show()
 
 # returns voltage node labels
