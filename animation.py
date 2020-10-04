@@ -131,10 +131,13 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
 
     positions = {**pos_par, **pos_volt}
     edge_color_par_base = plt.cm.Paired
+    edge_color_par_active = plt.cm.Pastel1
     edge_color_volt_base = plt.cm.GnBu
     edge_color_volt_active = plt.cm.Spectral
     node_color_base = '#A2D290'
-    node_color_active = '#FF8787'
+    node_color_active = '#CC6699'
+    node_color_base_volt = "#DDFFCC"
+    node_color_active_volt = '#990000'
     par = 0
 
     def update(index):
@@ -161,6 +164,8 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
         ## Nanowire Voltage gates
         edges_volt_open = []
         edges_volt_shut = []
+        nodes_volt_open = []
+        nodes_volt_shut = []
         label_gates = dict()
         for i in range(len(gates)):
             key,lbl = get_voltage_gate_labels(i)
@@ -170,8 +175,14 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
             else:
                 edges_volt_shut.append(edges_volt_pairs[i])
                 label_gates[key] = lbl
+        for ed in edges_volt_open:
+            nodes_volt_open.extend(list(ed))
+        for ed in edges_volt_shut:
+            nodes_volt_shut.extend(list(ed))
         weights_volt_open = weights_volt[:len(edges_volt_open)]
         weights_volt_shut = weights_volt[:len(edges_volt_shut)]
+        nx.draw_networkx_nodes(G, positions, node_color=node_color_base_volt, nodelist=nodes_volt_open, node_size=200, alpha=0.5)
+        nx.draw_networkx_nodes(G, positions, node_color=node_color_active_volt, nodelist=nodes_volt_shut, node_size=200, alpha=0.5)
         nx.draw_networkx_edges(G, positions, edgelist=edges_volt_open, style='solid', width=weights_volt_open, edge_color=weights_volt_open, edge_cmap=edge_color_volt_base)
         nx.draw_networkx_edges(G, positions, edgelist=edges_volt_shut, style='solid', width=weights_volt_shut, edge_color=weights_volt_shut, edge_cmap=edge_color_volt_active)
 
@@ -209,18 +220,29 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
         if par is not None:
             title = "Braiding particle {}".format(par)
             if pos1 is not None and pos2 is not None:
-                title = "Braiding particle ({}): ({}) to ({})".format(par,pos1,pos2)
-            for i in range(len(gates)):
-                volt = gates[i]
-                if volt is 'S':
-                    key,gate = get_voltage_gate_labels(i)
-                    title = "{}\nVoltage Gate {} is SHUT".format(title,gate)
+                title = "Braiding particle ({}): {} to {}".format(par,pos1,pos2)
+        for i in range(len(gates)):
+            volt = gates[i]
+            if volt is 'S':
+                key,gate = get_voltage_gate_labels(i)
+                gt = "Voltage Gate {} is SHUT".format(gate)
+                if title is None:
+                    title = gt
+                else:
+                    title = "{}\n{}".format(title,gt)
+                break
+
+        # display
+        if pos1 is not None and pos2 is not None:
+            e = [(pos1,pos2,{'weight':BASE_WEIGHT})]
+            w = weights_volt[:len(e)]
+            nx.draw_networkx_edges(G, positions, edgelist=e, style='solid', width=w, edge_color=w, edge_cmap=edge_color_par_active)
         if title is not None:
             print(title)
             ax.set_title(title,fontweight="bold")
 
     fig, ax = plt.subplots()
-    ani = anima.FuncAnimation(fig, update, frames=len(states), interval=750, fargs=(index))
+    ani = anima.FuncAnimation(fig, update, frames=len(states), interval=500, fargs=(index))
     ani.save('tqc-cnot.html', writer='imagemagick')
     plt.show()
 
@@ -230,22 +252,17 @@ def get_voltage_gate_labels(flag):
     gate = None
     if flag is 0:
         key = 'x11'
-        gate = 'x11'
+        gate = 'Vg11'
     elif flag is 1:
         key = 'x13'
-        gate = 'x12'
+        gate = 'Vg12'
     elif flag is 2:
         key = 'x21'
-        gate = 'x21'
+        gate = 'Vg21'
     elif flag is 3:
         key = 'x23'
-        gate = 'x22'
+        gate = 'Vg22'
     return key, gate
-
-# adds voltage node labels
-def voltage_labels():
-    nodes = ['x11','x12','x13','x14','x21','x22','x23','x24']
-    return nodes
 
 ################################################################################
 def start():
