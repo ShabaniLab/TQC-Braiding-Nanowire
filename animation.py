@@ -4,6 +4,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import matplotlib.animation as anima
 
+labels_old = None
+
 ################################################################################
 # File I/O
 
@@ -126,8 +128,6 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
         edges_volt.append((node_volts[i],node_volts[i+1],{'weight':BASE_WEIGHT}))
     G.add_edges_from(edges_volt)
     weights_volt = [float((1+abs(BASE_WEIGHT))**2) for x in range(len(edges_volt_pairs))]
-    # nodes = voltage_labels()
-    # G = nx.relabel_nodes(G, lambda x: nodes[x])
 
     positions = {**pos_par, **pos_volt}
     edge_color_par_base = plt.cm.Paired
@@ -150,6 +150,7 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
         nx.draw_networkx_edges(G, positions, edgelist=edges_par, style='solid', width=weights_par, edge_color=weights_par, edge_cmap=edge_color_par_base)
         nx.draw_networkx_nodes(G, positions, node_color=node_color_base, nodelist=empty, node_size=500, alpha=0.8)
         nx.draw_networkx_nodes(G, positions, node_color=node_color_active, nodelist=particles, node_size=500, alpha=0.8)
+        nx.draw_networkx_labels(G,positions, font_size=10, font_family='sans-serif', ax=ax)
 
         ## Nanowire Voltage gates
         edges_volt_open = []
@@ -159,6 +160,7 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
             key,lbl = get_voltage_gate_labels(i)
             if gates[i] is 'O':
                 edges_volt_open.append(edges_volt_pairs[i])
+                label_gates[key] = ''
             else:
                 edges_volt_shut.append(edges_volt_pairs[i])
                 label_gates[key] = lbl
@@ -167,16 +169,34 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
         nx.draw_networkx_edges(G, positions, edgelist=edges_volt_open, style='solid', width=weights_volt_open, edge_color=weights_volt_open, edge_cmap=edge_color_volt_base)
         nx.draw_networkx_edges(G, positions, edgelist=edges_volt_shut, style='solid', width=weights_volt_shut, edge_color=weights_volt_shut, edge_cmap=edge_color_volt_active)
 
+        # relabling nodes
         labels = {**label_empty, **label_par, **label_gates}
-        nx.draw_networkx_labels(G,positions, labels=labels, font_size=10, font_family='sans-serif', ax=ax)
-        # nx.relabel_nodes(G, lambda x: labels[x])
+        mapping = dict()
+        global labels_old
+        if labels_old is None:
+            labels_old = labels
+            mapping = labels
+            for n in G.nodes():
+                if n in mapping.keys() and n is mapping[n]:
+                    mapping.pop(n)
+        else:
+            for k in labels_old.keys():
+                key = labels_old[k]
+                val = labels[k]
+                if key is '' or val is '':
+                    continue
+                if key is not val:
+                    mapping[key] = val
+            labels_old = labels
+        if mapping:
+            nx.relabel_nodes(G, mapping, copy=True)
 
         title = "TQC Braiding Nanowire - 2 Qubit CNOT"
         ax.set_title(title, fontweight="bold")
 
     fig, ax = plt.subplots()
     ani = anima.FuncAnimation(fig, update, frames=len(states), interval=750, fargs=(index))
-    ani.save('tqc-cnot.html', writer='imagemagick')
+    # ani.save('tqc-cnot.html', writer='imagemagick')
     plt.show()
 
 # returns voltage node labels
