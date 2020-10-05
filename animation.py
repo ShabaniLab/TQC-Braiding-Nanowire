@@ -243,8 +243,8 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
 
     fig, ax = plt.subplots()
     ani = anima.FuncAnimation(fig, update, frames=len(states), interval=500, fargs=(index))
-    ani.save('tqc-cnot.html', writer='imagemagick')
-    plt.show()
+    ani.save('tqc-cnot.gif', writer='imagemagick')
+    # plt.show()
 
 # returns voltage node labels
 def get_voltage_gate_labels(flag):
