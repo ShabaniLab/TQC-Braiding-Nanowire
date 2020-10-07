@@ -29,6 +29,7 @@ def braid_particles_same_branch(nanowire, vertices, matrix, pair, dir, positions
     try:
         utility.update_zero_modes(nanowire)
         voltages = utility.get_voltages()
+        pair0 = copy.copy(pair)
         TYPE_FINAL = 1
         TYPE_INTER = 2
 
@@ -86,8 +87,8 @@ def braid_particles_same_branch(nanowire, vertices, matrix, pair, dir, positions
                     utility.update_zero_modes(nanowire)
                     voltages = utility.update_voltages(positions,cutoff_pairs)
                     if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
-                        metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
-                        metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
+                        metrics.update_particle_movements(file_mvmt,pair0,par,path,vertices,voltages)
+                        metrics.update_nanowire_state(file_state,pair0,positions,path,vertices,par,voltages)
 
         # Now, move the particles from their intermediate positions to their respective final positions
         p_pair = get_2nd_pair_sequence(pair,nanowire,vertices,positions,intermediate_positions,final_positions)
@@ -104,8 +105,8 @@ def braid_particles_same_branch(nanowire, vertices, matrix, pair, dir, positions
                 utility.update_zero_modes(nanowire)
                 voltages = utility.update_voltages(positions,cutoff_pairs)
                 if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
-                    metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
-                    metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
+                    metrics.update_particle_movements(file_mvmt,pair0,par,path,vertices,voltages)
+                    metrics.update_nanowire_state(file_state,pair0,positions,path,vertices,par,voltages)
 
         return nanowire, positions
 
@@ -139,6 +140,7 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, dir, positions
         particles = get_particles_list(nanowire,pair,positions)
         utility.update_zero_modes(nanowire)
         voltages = utility.get_voltages()
+        pair0 = copy.copy(pair)
         TYPE_FINAL = 1
         TYPE_INTER = 2
 
@@ -197,8 +199,8 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, dir, positions
                     utility.update_zero_modes(nanowire)
                     voltages = utility.update_voltages(positions,cutoff_pairs)
                     if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
-                        metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
-                        metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
+                        metrics.update_particle_movements(file_mvmt,pair0,par,path,vertices,voltages)
+                        metrics.update_nanowire_state(file_state,pair0,positions,path,vertices,par,voltages)
 
         # moving 2nd particle in the given pair
         par = particles[2]
@@ -213,8 +215,8 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, dir, positions
             utility.update_zero_modes(nanowire)
             voltages = utility.update_voltages(positions,cutoff_pairs)
             if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
-                metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
-                metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
+                metrics.update_particle_movements(file_mvmt,pair0,par,path,vertices,voltages)
+                metrics.update_nanowire_state(file_state,pair0,positions,path,vertices,par,voltages)
 
         # moving the 2 particles back to their respective positions
         # p_pair = get_2nd_pair_sequence(pair,nanowire,vertices,positions,intermediate_positions,final_positions)
@@ -232,8 +234,8 @@ def braid_particles_diff_branch(nanowire, vertices, matrix, pair, dir, positions
                 utility.update_zero_modes(nanowire)
                 voltages = utility.update_voltages(positions,cutoff_pairs)
                 if validation.validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
-                    metrics.update_particle_movements(file_mvmt,par,path,vertices,voltages)
-                    metrics.update_nanowire_state(file_state,positions,path,vertices,par,voltages)
+                    metrics.update_particle_movements(file_mvmt,pair0,par,path,vertices,voltages)
+                    metrics.update_nanowire_state(file_state,pair0,positions,path,vertices,par,voltages)
 
         return nanowire, positions
 

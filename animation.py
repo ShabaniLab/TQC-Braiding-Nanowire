@@ -141,8 +141,11 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
     par = 0
 
     def update(index):
-        particles = states[index][:6]
-        gates = states[index][6:]
+        i1 = 2
+        par_no = 6
+        pair = states[index][:i1]
+        particles = states[index][i1:i1+par_no]
+        gates = states[index][i1+par_no:]
         empty = list(set(nds)-set(particles))
         label_par = {pos:particles.index(pos)+1 for pos in particles}
         label_empty = {pos:pos for pos in empty}
@@ -217,19 +220,19 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
                         pos1 = mapping[k]
 
         # Output
-        if par is not None:
-            title = "Braiding particle {}".format(par)
-            if pos1 is not None and pos2 is not None:
-                title = "Braiding particle ({}): {} to {}".format(par,pos1,pos2)
+        if pair is not None:
+            title = "Braiding particles ({},{})".format(int(pair[0]),int(pair[1]))
+            if par is not None and pos1 is not None and pos2 is not None:
+                title = "{}\nMoving ({}) from {} to {}".format(title,par,pos1,pos2)
         for i in range(len(gates)):
             volt = gates[i]
             if volt is 'S':
                 key,gate = get_voltage_gate_labels(i)
                 gt = "Voltage Gate {} is SHUT".format(gate)
-                if title is None:
-                    title = gt
-                else:
+                if par is None:
                     title = "{}\n{}".format(title,gt)
+                else:
+                    title = "{}: {}".format(title,gt)
                 break
 
         # display
