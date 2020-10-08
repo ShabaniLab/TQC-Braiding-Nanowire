@@ -291,7 +291,7 @@ def get_voltage_gate_labels(flag):
     return key, gate
 
 ################################################################################
-# Braid animation
+# Braid pattern animation
 
 def braid_particle_positions(sequence,positions):
     par_n = len(positions[0])
@@ -303,35 +303,43 @@ def braid_particle_positions(sequence,positions):
     time = [(i+1) for i in range(pos_n)]
 
     fig, ax = plt.subplots()
-    braid1, = ax.plot(positions[0],time)
-    braid2, = ax.plot(positions[1],time)
-    braid3, = ax.plot(positions[2],time)
-    braid4, = ax.plot(positions[3],time)
-    braid5, = ax.plot(positions[4],time)
-    braid6, = ax.plot(positions[5],time)
-    def update(index,ax2,sequence,positions,time,braid1,braid2,braid3,braid4,braid5,braid6):
-        braid1.set_data(positions[0][:index+1],time[:index+1])
-        braid2.set_data(positions[1][:index+1],time[:index+1])
-        braid3.set_data(positions[2][:index+1],time[:index+1])
-        braid4.set_data(positions[3][:index+1],time[:index+1])
-        braid5.set_data(positions[4][:index+1],time[:index+1])
-        braid6.set_data(positions[5][:index+1],time[:index+1])
+    braid1, = ax.plot(time,positions[0])
+    braid2, = ax.plot(time,positions[1])
+    braid3, = ax.plot(time,positions[2])
+    braid4, = ax.plot(time,positions[3])
+    braid5, = ax.plot(time,positions[4])
+    braid6, = ax.plot(time,positions[5])
+    def update(index,ax,sequence,positions,time,braid1,braid2,braid3,braid4,braid5,braid6):
+        braid1.set_data(time[:index+1],positions[0][:index+1])
+        braid2.set_data(time[:index+1],positions[1][:index+1])
+        braid3.set_data(time[:index+1],positions[2][:index+1])
+        braid4.set_data(time[:index+1],positions[3][:index+1])
+        braid5.set_data(time[:index+1],positions[4][:index+1])
+        braid6.set_data(time[:index+1],positions[5][:index+1])
+
+        # plot
+        if index==pos_n-1:
+            ax2=ax.twinx()
+            ax2.set_yticklabels(pos_final)
+            ax2.yaxis.set_ticks(np.arange(1, 3*par_n, 3))
+            ax2.set_ylabel('Final Particle Braid positions')
+            ax2.set_ylim(ax.get_xlim())
+
+        # title
+        title = None
         if index <= 1:
-            ax2.set_xlabel('TQC - CNOT Braid Pattern',fontweight='bold')
+            title = 'TQC - CNOT Braid Pattern'
         else:
-            ax2.set_xlabel('Braiding Particles ({},{})'.format(int(sequence[index][0]),int(sequence[index][1])),fontweight='bold')
+            title = 'Braiding Particles ({},{})'.format(int(sequence[index][0]),int(sequence[index][1]))
+        ax.set_title(title,fontweight="bold")
         return [braid1,braid2,braid3,braid4,braid5,braid6]
 
     ax.grid()
-    ax.set_ylabel('Time')
-    ax.set_xlabel('Particles - Initial positions')
-    ax.set_xticklabels(pos_initial)
-    ax2=ax.twiny()
-    ax2.set_xticklabels(pos_final)
-    ax2.xaxis.set_ticks(np.arange(0, len(positions), 1))
-    ax2.set_xlim(ax.get_xlim())
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Initial Particle Braid positions')
+    ax.set_yticklabels(pos_initial)
 
-    ani = anima.FuncAnimation(fig, update, frames=pos_n, interval=1000, fargs=(ax2,sequence,positions,time,braid1,braid2,braid3,braid4,braid5,braid6))
+    ani = anima.FuncAnimation(fig, update, frames=pos_n, interval=1000, fargs=(ax,sequence,positions,time,braid1,braid2,braid3,braid4,braid5,braid6))
     ani.save('cnot-braid.gif', writer='imagemagick')
     # plt.show()
 
