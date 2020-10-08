@@ -128,9 +128,14 @@ def create_network_graph(attributes,matrix):
     return G
 
 # Nanowire network animation
-def nanowire_network_graph(G, pos_par, pos_volt, states):
+def nanowire_network_graph(G, pos_par, pos_volt, states, seq):
     BASE_WEIGHT = 1
     index = 0
+    sequence = [seq[0]]
+    for el in seq:
+        if el not in sequence:
+            sequence.append(el)
+    n_seq = len(sequence)
 
     # Nanowire network graph - positions
     for node1, node2, weight in list(G.edges(data=True)):
@@ -242,6 +247,19 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
                     if isinstance(mapping[k],str):
                         pos1 = mapping[k]
 
+        # Updating Braid table
+        if par is not None:
+            row = sequence.index(pair)
+            braid_table[(row+1, 0)].get_text().set_color('red')
+            braid_table[(row+1, 1)].get_text().set_color('red')
+            braid_table[(row+1, 0)].get_text().set_fontweight('bold')
+            braid_table[(row+1, 1)].get_text().set_fontweight('bold')
+            if row>0:
+                braid_table[(row, 0)].get_text().set_color('black')
+                braid_table[(row, 1)].get_text().set_color('black')
+                braid_table[(row, 0)].get_text().set_fontweight('regular')
+                braid_table[(row, 1)].get_text().set_fontweight('regular')
+
         # Output
         if pair is not None:
             title = "Braiding particles ({},{})".format(int(pair[0]),int(pair[1]))
@@ -267,9 +285,23 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
             print(title)
             ax.set_title(title,fontweight="bold")
 
-    fig, ax = plt.subplots()
-    ani = anima.FuncAnimation(fig, update, frames=len(states), interval=1000, fargs=(index))
-    ani.save('tqc-cnot.gif', writer='imagemagick')
+    fig = plt.figure(figsize=(12, 6))
+    ax2 = fig.add_subplot(122)
+    ax = fig.add_subplot(121)
+    heading = ("Particle 1", "Particle 2")
+    braid_table = ax2.table(cellText=sequence,colLabels=heading,loc='center',cellLoc='center')
+    braid_table.scale(1,2)
+    # braid_table.set_fontsize(16)
+    for i in range(n_seq):
+        for j in range(len(sequence[i])):
+            if i==0:
+                braid_table[(i, j)].get_text().set_fontweight('bold')
+            braid_table[(i+1, j)].get_text().set_color('gray')
+    ax2.set_title("Braid table",fontweight="bold")
+    ax2.axis('off')
+
+    ani = anima.FuncAnimation(fig, update, frames=len(states), interval=500, fargs=(index))
+    ani.save('tqc-cnot-table.gif', writer='imagemagick')
     # plt.show()
 
 # returns voltage node labels
@@ -294,6 +326,12 @@ def get_voltage_gate_labels(flag):
 # Braid pattern animation
 
 def braid_particle_positions(sequence,positions):
+    index = 0
+    seq = [sequence[0]]
+    for el in sequence:
+        if el not in seq:
+            seq.append(el)
+    n_seq = len(seq)
     par_n = len(positions[0])
     pos_n = len(positions)
     pos_initial = positions[0]
@@ -302,14 +340,33 @@ def braid_particle_positions(sequence,positions):
     positions = a.transpose()
     time = [(i+1) for i in range(pos_n)]
 
-    fig, ax = plt.subplots()
+    fig = plt.figure(figsize=(12, 6))
+    ax2 = fig.add_subplot(122)
+    ax = fig.add_subplot(121)
+    ax.grid()
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Initial Particle Braid positions')
+    ax.set_yticklabels(pos_initial)
     braid1, = ax.plot(time,positions[0])
     braid2, = ax.plot(time,positions[1])
     braid3, = ax.plot(time,positions[2])
     braid4, = ax.plot(time,positions[3])
     braid5, = ax.plot(time,positions[4])
     braid6, = ax.plot(time,positions[5])
-    def update(index,ax,sequence,positions,time,braid1,braid2,braid3,braid4,braid5,braid6):
+
+    heading = ("Particle 1", "Particle 2")
+    braid_table = ax2.table(cellText=seq,colLabels=heading,loc='center',cellLoc='center')
+    braid_table.scale(1,2)
+    # braid_table.set_fontsize(16)
+    for i in range(n_seq):
+        for j in range(len(seq[i])):
+            if i==0:
+                braid_table[(i, j)].get_text().set_fontweight('bold')
+            braid_table[(i+1, j)].get_text().set_color('gray')
+    ax2.set_title("Braid table",fontweight="bold")
+    ax2.axis('off')
+
+    def update(index,ax,braid_table,positions,time,braid1,braid2,braid3,braid4,braid5,braid6):
         braid1.set_data(time[:index+1],positions[0][:index+1])
         braid2.set_data(time[:index+1],positions[1][:index+1])
         braid3.set_data(time[:index+1],positions[2][:index+1])
@@ -325,6 +382,19 @@ def braid_particle_positions(sequence,positions):
             ax2.set_ylabel('Final Particle Braid positions')
             ax2.set_ylim(ax.get_xlim())
 
+        # Updating Braid table
+        row = int(index/2)
+        if row>0:
+            braid_table[(row, 0)].get_text().set_color('red')
+            braid_table[(row, 1)].get_text().set_color('red')
+            braid_table[(row, 0)].get_text().set_fontweight('bold')
+            braid_table[(row, 1)].get_text().set_fontweight('bold')
+        if row>1:
+            braid_table[(row-1, 0)].get_text().set_color('black')
+            braid_table[(row-1, 1)].get_text().set_color('black')
+            braid_table[(row-1, 0)].get_text().set_fontweight('regular')
+            braid_table[(row-1, 1)].get_text().set_fontweight('regular')
+
         # title
         title = None
         if index <= 1:
@@ -332,15 +402,13 @@ def braid_particle_positions(sequence,positions):
         else:
             title = 'Braiding Particles ({},{})'.format(int(sequence[index][0]),int(sequence[index][1]))
         ax.set_title(title,fontweight="bold")
+
+        index += 1
+        index = index % pos_n
         return [braid1,braid2,braid3,braid4,braid5,braid6]
 
-    ax.grid()
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Initial Particle Braid positions')
-    ax.set_yticklabels(pos_initial)
-
-    ani = anima.FuncAnimation(fig, update, frames=pos_n, interval=1000, fargs=(ax,sequence,positions,time,braid1,braid2,braid3,braid4,braid5,braid6))
-    ani.save('cnot-braid.gif', writer='imagemagick')
+    ani = anima.FuncAnimation(fig, update, frames=pos_n, interval=1000, fargs=(ax,braid_table,positions,time,braid1,braid2,braid3,braid4,braid5,braid6))
+    ani.save('cnot-braid-table.gif', writer='imagemagick')
     # plt.show()
 
 ################################################################################
@@ -355,7 +423,7 @@ def start():
 
         states = read_nanowire_state(sys.argv[5])
         graph = create_network_graph(vertices,np.array(matrix))
-        nanowire_network_graph(graph,pos_par,pos_volt,states)
+        nanowire_network_graph(graph,pos_par,pos_volt,states,sequence)
     except IOError as err:
         print(err)
 
