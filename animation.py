@@ -74,6 +74,29 @@ def read_nanowire_positions(file):
     except IOError as err:
         raise
 
+# Reading Braid particle positions
+def read_braid_par_pos(file):
+    sequence = []
+    braid_pos = []
+    try:
+        fr = open(file,'r')
+        line = fr.readline()
+        line = line.strip()
+        heading = line.split(',')
+        while line:
+            line = fr.readline()
+            if line:
+                line = line.strip()
+                row = line.split(',')
+                sequence.append(row[:2])
+                sequence.append(row[:2])
+                braid_pos.append(row[2:])
+                braid_pos.append(row[2:])
+        fr.close()
+        return sequence,braid_pos
+    except IOError as err:
+        raise
+
 # Reading the Nanowire states
 def read_nanowire_state(file):
     states = []
@@ -95,7 +118,7 @@ def read_nanowire_state(file):
         raise
 
 ################################################################################
-# Nanowire Graph Network
+# Nanowire Graph Network animation
 
 # Creating Nanowire network graph
 def create_network_graph(attributes,matrix):
@@ -245,7 +268,7 @@ def nanowire_network_graph(G, pos_par, pos_volt, states):
             ax.set_title(title,fontweight="bold")
 
     fig, ax = plt.subplots()
-    ani = anima.FuncAnimation(fig, update, frames=len(states), interval=500, fargs=(index))
+    ani = anima.FuncAnimation(fig, update, frames=len(states), interval=1000, fargs=(index))
     ani.save('tqc-cnot.gif', writer='imagemagick')
     # plt.show()
 
@@ -268,13 +291,61 @@ def get_voltage_gate_labels(flag):
     return key, gate
 
 ################################################################################
+# Braid animation
+
+def braid_particle_positions(sequence,positions):
+    par_n = len(positions[0])
+    pos_n = len(positions)
+    pos_initial = positions[0]
+    pos_final = positions[pos_n-1]
+    a = np.array(positions)
+    positions = a.transpose()
+    time = [(i+1) for i in range(pos_n)]
+
+    fig, ax = plt.subplots()
+    braid1, = ax.plot(positions[0],time)
+    braid2, = ax.plot(positions[1],time)
+    braid3, = ax.plot(positions[2],time)
+    braid4, = ax.plot(positions[3],time)
+    braid5, = ax.plot(positions[4],time)
+    braid6, = ax.plot(positions[5],time)
+    def update(index,ax2,sequence,positions,time,braid1,braid2,braid3,braid4,braid5,braid6):
+        braid1.set_data(positions[0][:index+1],time[:index+1])
+        braid2.set_data(positions[1][:index+1],time[:index+1])
+        braid3.set_data(positions[2][:index+1],time[:index+1])
+        braid4.set_data(positions[3][:index+1],time[:index+1])
+        braid5.set_data(positions[4][:index+1],time[:index+1])
+        braid6.set_data(positions[5][:index+1],time[:index+1])
+        if index <= 1:
+            ax2.set_xlabel('TQC - CNOT Braid Pattern',fontweight='bold')
+        else:
+            ax2.set_xlabel('Braiding Particles ({},{})'.format(int(sequence[index][0]),int(sequence[index][1])),fontweight='bold')
+        return [braid1,braid2,braid3,braid4,braid5,braid6]
+
+    ax.grid()
+    ax.set_ylabel('Time')
+    ax.set_xlabel('Particles - Initial positions')
+    ax.set_xticklabels(pos_initial)
+    ax2=ax.twiny()
+    ax2.set_xticklabels(pos_final)
+    ax2.xaxis.set_ticks(np.arange(0, len(positions), 1))
+    ax2.set_xlim(ax.get_xlim())
+
+    ani = anima.FuncAnimation(fig, update, frames=pos_n, interval=1000, fargs=(ax2,sequence,positions,time,braid1,braid2,braid3,braid4,braid5,braid6))
+    ani.save('cnot-braid.gif', writer='imagemagick')
+    # plt.show()
+
+################################################################################
 def start():
     try:
+        sequence,braid_pos = read_braid_par_pos(sys.argv[4])
+        braid_particle_positions(sequence,braid_pos)
+
         matrix = read_nanowire_matrix(sys.argv[1])
         vertices = read_nanowire_vertices(sys.argv[2])
         pos_par, pos_volt = read_nanowire_positions(sys.argv[3])
 
-        states = read_nanowire_state(sys.argv[4])
+        states = read_nanowire_state(sys.argv[5])
         graph = create_network_graph(vertices,np.array(matrix))
         nanowire_network_graph(graph,pos_par,pos_volt,states)
     except IOError as err:

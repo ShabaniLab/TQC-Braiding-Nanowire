@@ -241,7 +241,7 @@ def start():
         nanowire = initiate_nanowire(nanowire_structure,positions)
         cutoff_pairs = initiate_cutoff_voltage_pairs_adj(nanowire_structure)
         cutoff_pairs_opp = initiate_cutoff_voltage_pairs_opp(nanowire_structure)
-        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,direction,positions,cutoff_pairs,cutoff_pairs_opp,sys.argv[6],sys.argv[7])
+        braid.braid_particles(nanowire,nanowire_vertex,nanowire_matrix,sequence,direction,positions,cutoff_pairs,cutoff_pairs_opp,sys.argv[6],sys.argv[7],sys.argv[8])
     except IOError as err:
         print(err)
     except SyntaxError as err:

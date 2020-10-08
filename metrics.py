@@ -28,3 +28,15 @@ def update_nanowire_state(file,pair,positions,path,vertices,par,voltages):
         fw.close()
     except IOError as err:
         print(err)
+
+# Update Braid particles positions
+def update_particle_line_positions(file,pair,positions):
+    try:
+        fw = open(file,'a')
+        pos = copy.copy(positions)
+        newpos = [str(e) for e in positions]
+        line = "{},{},{}".format(str(pair[0]),str(pair[1]),','.join(newpos))
+        fw.write(line+'\n')
+        fw.close()
+    except IOError as err:
+        print(err)

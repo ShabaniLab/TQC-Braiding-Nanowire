@@ -20,6 +20,18 @@ gate_flag_ex = False
 ################################################################################
 ## Utility functions
 
+# Particle locations in the braiding pattern
+def get_par_braid_pos(n):
+    line_pos = [(i+1) for i in range(n)]
+    return line_pos
+
+# Update Particle locations in the braiding pattern
+def update_par_braid_pos(positions,pair):
+    pos1 = pair[0]-1
+    pos2 = pair[1]-1
+    positions[pos1], positions[pos2] = positions[pos2], positions[pos1]
+    return positions
+
 # Return voltages
 def get_voltages():
     return voltages
