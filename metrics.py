@@ -1,6 +1,10 @@
+"""
+TQC Braiding Nanowire Algorithm - Output
+"""
+
 import copy
 
-# Update Particle positions by generating a similar sequence for the particles.
+# 1. Update Particle positions by generating a similar sequence for the particles.
 def update_particle_movements(file,pair,par,path,vertices,voltages):
     try:
         fw = open(file,'a')
@@ -12,7 +16,7 @@ def update_particle_movements(file,pair,par,path,vertices,voltages):
     except IOError as err:
         print(err)
 
-# Update Nanowire state matrix
+# 2. Update Nanowire state matrix
 def update_nanowire_state(file,pair,positions,path,vertices,par,voltages):
     try:
         fw = open(file,'a')
@@ -29,7 +33,7 @@ def update_nanowire_state(file,pair,positions,path,vertices,par,voltages):
     except IOError as err:
         print(err)
 
-# Update Braid particles positions
+# 3. Update Braid particles positions
 def update_particle_line_positions(file,pair,positions):
     try:
         fw = open(file,'a')
@@ -37,6 +41,16 @@ def update_particle_line_positions(file,pair,positions):
         newpos = [str(e) for e in positions]
         line = "{},{},{}".format(str(pair[0]),str(pair[1]),','.join(newpos))
         fw.write(line+'\n')
+        fw.close()
+    except IOError as err:
+        print(err)
+
+# 4. Update Final particle positions
+def update_final_particle_positions(file,positions):
+    try:
+        fw = open(file,'a')
+        line = ','.join(positions)
+        fw.write(line)
         fw.close()
     except IOError as err:
         print(err)

@@ -1,9 +1,23 @@
+"""
+This is the Preprocessing - Nanowire
+
+A. Parsing
+    1. Reading the Nanowire Structure
+
+B. Generating
+    1. Nanowire Graph Vertices
+    2. Nanowire Graph Adjacency matrix
+"""
+
 import sys
 
 intersection = 'x'
 state_1 = 1
 
-# Reading the Nanowire Structure
+################################################################################
+# A.
+################################################################################
+# 1.
 def read_nanowire_structure(file):
     data = []
     try:
@@ -26,7 +40,10 @@ def read_nanowire_structure(file):
     except IOError:
         raise
 
-# Nanowire Graph Vertices
+################################################################################
+# B.
+################################################################################
+# 1.
 def extract_nanowire_vertices(structure):
     it = 1
     vertices = []
@@ -55,7 +72,7 @@ def print_nanowire_vertices(file,vertices):
     except IOError:
         raise
 
-# Nanowire Graph Adjacency matrix
+# 2.
 def initialise_matrix(vertices):
     n = len(vertices)
     matrix = []
@@ -114,7 +131,7 @@ def print_adj_matrix(file,matrix):
     except IOError:
         raise
 
-#
+################################################################################
 def start():
     try:
         nanowire_structure = read_nanowire_structure(sys.argv[1])
@@ -125,5 +142,4 @@ def start():
     except IOError as err:
         print(err)
 
-#
 start()

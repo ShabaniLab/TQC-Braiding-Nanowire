@@ -1,10 +1,11 @@
+"""
+TQC Braiding Nanowire Algorithm - Validation phase
+"""
+
 import utility
 import exception
 
-################################################################################
-## Validation phase
-
-# Nanowire Validation Algorithm which returns a score
+# 1. Nanowire Validation Algorithm which returns a score
 def validate_nanowire_state(nanowire,positions,positions_single,voltages,cutoff_pairs,cutoff_pairs_opp,type,msg):
     try:
         min_free_branch = 0
@@ -19,7 +20,7 @@ def validate_nanowire_state(nanowire,positions,positions_single,voltages,cutoff_
     except exception.InvalidNanowireStateException:
         raise
 
-# Checks if there are at least 2 empty branches in every intersection
+# 2. Checks if there are at least 2 empty branches in every intersection
 def validate_empty_branches(nanowire,min_free_branch,msg):
     score = 0
     valid = False
@@ -47,7 +48,7 @@ def validate_empty_branches(nanowire,min_free_branch,msg):
         raise exception.NoEmptyBranchException(msg)
     return score
 
-# *Check if resulting nanowire violates Rule 3 - Particle-Zero mode isolation
+# 3. *Check if resulting nanowire violates Rule 3 - Particle-Zero mode isolation
 def validate_multi_modal_crossing(positions,positions_single,voltages,cutoff_pairs,cutoff_pairs_opp,msg):
     perm = utility.get_permutations(positions_single,2)
     for pair in perm:
@@ -57,7 +58,7 @@ def validate_multi_modal_crossing(positions,positions_single,voltages,cutoff_pai
         if flag1 is False and (flag2 is True or flag3 is True):
             raise exception.MultiModalCrossingException(msg)
 
-# Checks if any other particle blocks the path
+# 4. Checks if any other particle blocks the path
 def validate_path_particle(path,positions,vertices,par):
     block = []
     for el in path:
@@ -72,7 +73,7 @@ def validate_path_particle(path,positions,vertices,par):
         raise exception.PathBlockedException(msg)
     return block
 
-# Checks if a shut voltage gate blocks the path
+# 5. Checks if a shut voltage gate blocks the path
 def validate_path_gates(par,path,vertices,voltages,cutoff_pairs,cutoff_pairs_opp):
     p1 = vertices[path[0]]
     pn = vertices[path[len(path)-1]]
@@ -119,7 +120,7 @@ def get_voltage_gate_values(flag):
         gate = 'x22'
     return gate
 
-# Check if the pair is in the same branch
+# 6. Check if the pair is in the same branch
 def check_unibranch_validity(pair,positions,intersection):
     check = []
     for par in pair:

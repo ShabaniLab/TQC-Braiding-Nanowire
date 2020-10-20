@@ -1,3 +1,7 @@
+"""
+Animation - Braiding and Nanowire movements
+"""
+
 import sys
 import numpy as np
 import networkx as nx
@@ -427,5 +431,4 @@ def start():
     except IOError as err:
         print(err)
 
-#
 start()
