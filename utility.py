@@ -1,3 +1,7 @@
+"""
+TQC Braiding Nanowire Algorithm - Utility functions
+"""
+
 import copy
 import graph
 import exception
@@ -16,9 +20,6 @@ positions_old = []
 gate_index = -1
 gate_flag = False
 gate_flag_ex = False
-
-################################################################################
-## Utility functions
 
 # Particle locations in the braiding pattern
 def get_par_braid_pos(n):

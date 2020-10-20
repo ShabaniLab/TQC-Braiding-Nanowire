@@ -1,9 +1,14 @@
 # TQC Nanowire Compiler
 
 ## About
-In Topological Quantum Computing, quasiparticles such as Majorana fermions are braided in a specific pattern to obtain single- or multi-Qubit Quantum gates. Serial or concurrent combinations of braid sequences between 2 particles represent these braid patterns. Each of these braid sequences correspond to a set of movements of these particles on a Nanowire.
+In Topological Quantum Computing, quasiparticles such as Majorana fermions are braided in a specific pattern to obtain single- or multi-qubit Quantum gates. Serial or concurrent combinations of braid sequences between 2 quasiparticles forms the braid pattern. Each of these braid sequences correspond to a set of movements of these particles on a Nanowire.
 
-This project is a simulation, which ultimately constructs a matrix representing movements of these particles on a Nanowire, thereby forming braids.
+This project is a simulation, which ultimately constructs a matrix representing movements of these particles on a Nanowire, thereby forming braids resulting in Quantum gates.
+
+### Instructions to run
+
+1. ```pip install -r requirements.txt```
+2. ```./run.sh```
 
 ## TQC Nanowire Compiler
 
@@ -146,13 +151,13 @@ Particle,Path,V11,V12,V21,V22
 1,f'-a',O,O,O,O
 ```
 
-### Metrics
+### Output
 
 8. **Nanowire State matrix** - Generate a Nanowire State matrix, which is a sequence of positions of all particles and the corresponding gate voltage values, capturing each movement for every particle. The nanowire state matrix for the above example is show below.
 
 ![state-matrix](nanowire-state-matrix.png)
 
-9. **Other Metrics** - Calculate metrics such as **Number of steps** (both within and between zero modes, and total), **Braiding Concurrency**, **Effective complexity**, etc.
+9. **Metrics** - Calculate metrics such as **Number of steps** (both within and between zero modes, and total), **Braiding Concurrency**, **Effective complexity**, etc.
 
 ### Work Done
 
@@ -205,83 +210,26 @@ Braiding particles (5, 6)
 5,e'-x2-c'
 ```
 
-4. The Nanowire state matrix for the above braiding sequence is (in ```nanowire-states.csv```):
+4. The Nanowire state matrix for the braiding sequence ```(3,5)``` is (in ```nanowire-states.csv```):
 ```
 P1,P2,P3,P4,P5,P6
-a,a',c,c',d,d'
-a,a',c,m,d,d'
-a,a',c,m,d,d'
-a,a',c',m,d,d'
-a,a',e',m,d,d'
-a,a',e',m,d,d'
-a,a',e',c',d,d'
-a,a',e',c,d,d'
-a,a',e',c,d,d'
 a,a',c',c,d,d'
-a,a',c',c,d,d'
+a,a',x2,c,d,d'
 a,a',m,c,d,d'
 a,a',m,c,d,d'
+a,a',m,c,d,x2
 a,a',m,c,d,e'
 a,a',m,c,d,e'
 a,a',m,c,d',e'
+a,a',m,c,x2,e'
 a,a',m,c,c',e'
 a,a',m,c,c',e'
+a,a',x2,c,c',e'
 a,a',d',c,c',e'
 a,a',d,c,c',e'
 a,a',d,c,c',e'
+a,a',d,c,c',x2
 a,a',d,c,c',d'
-a,a',d,c,c',d'
-a,b',d,c,c',d'
-a,b',d,c,c',d'
-a',b',d,c,c',d'
-f',b',d,c,c',d'
-f',b',d,c,c',d'
-f',a',d,c,c',d'
-f',a,d,c,c',d'
-f',a,d,c,c',d'
-a',a,d,c,c',d'
-a',a,d,c,c',d'
-a',a,d,c,m,d'
-a',a,d,c,m,d'
-a',a,d,c',m,d'
-a',a,d,e',m,d'
-a',a,d,e',m,d'
-a',a,d,e',c',d'
-a',a,d,e',c,d'
-a',a,d,e',c,d'
-a',a,d,c',c,d'
-a',a,d,c',c,d'
-a',a,d,c',c,m
-a',a,d,c',c,m
-a',a,d',c',c,m
-a',a,e',c',c,m
-a',a,e',c',c,m
-a',a,e',c',c,d'
-a',a,e',c',c,d
-a',a,e',c',c,d
-a',a,d',c',c,d
-a',a,d',c',c,d
-a',a,d',m,c,d
-a',a,d',m,c,d
-a',a,e',m,c,d
-a',a,e',m,c,d
-a',a,e',m,c,d'
-a',a,e',m,c,c'
-a',a,e',m,c,c'
-a',a,e',d',c,c'
-a',a,e',d,c,c'
-a',a,e',d,c,c'
-a',a,d',d,c,c'
-a',a,d',d,c,c'
-a',a,d',d,c,m
-a',a,d',d,c,m
-a',a,d',d,c',m
-a',a,d',d,e',m
-a',a,d',d,e',m
-a',a,d',d,e',c'
-a',a,d',d,e',c
-a',a,d',d,e',c
-a',a,d',d,c',c
 ```
 
 ### Stage 2
@@ -305,7 +253,7 @@ a',a,d',d,c',c
 10. In every braiding operation, after every successful intermediate braiding, the voltage gates are also updated. While braiding particles ```(3,5)``` the voltage gate values changes as follows: ```['O', 'O', 'O', 'O'], ['O', 'O', 'S', 'O'], ['O', 'O', 'O', 'S'], ['O', 'O', 'O', 'O'], ['O', 'O', 'O', 'O']```. 'O' means a gate is open and 'S' means it is shut. The gate array represents ```[x11,x12,x21,x22]``` in this order.
 
 11. The output with the voltage changes are as follows:
-    - Particle movements
+    - Particle movements:
     ```
     ----- Braiding particles (3, 4) -----
     4,c'-x2-m,O,O,O,O
@@ -346,83 +294,26 @@ a',a,d',d,c',c
     5,e'-x2-c',O,O,O,O
     ```
 
-    - Nanowire states
+    - Nanowire states:
     ```
-    P1,P2,P3,P4,P5,P6,X11,X12,X21,X22
-    a,a',c,c',d,d',O,O,O,O
-    a,a',c,m,d,d',O,O,O,O
-    a,a',c,m,d,d',O,O,O,O
-    a,a',c',m,d,d',O,O,O,O
-    a,a',e',m,d,d',O,O,O,O
-    a,a',e',m,d,d',O,O,O,O
-    a,a',e',c',d,d',O,O,O,O
-    a,a',e',c,d,d',O,O,O,O
-    a,a',e',c,d,d',O,O,O,O
+    P1,P2,P3,P4,P5,P6,Vg11,Vg12,Vg21,Vg22
     a,a',c',c,d,d',O,O,O,O
-    a,a',c',c,d,d',O,O,O,O
+    a,a',x2,c,d,d',O,O,O,O
     a,a',m,c,d,d',O,O,O,O
     a,a',m,c,d,d',O,O,S,O
+    a,a',m,c,d,x2,O,O,S,O
     a,a',m,c,d,e',O,O,S,O
     a,a',m,c,d,e',O,O,O,S
     a,a',m,c,d',e',O,O,O,S
+    a,a',m,c,x2,e',O,O,O,S
     a,a',m,c,c',e',O,O,O,S
     a,a',m,c,c',e',O,O,O,O
+    a,a',x2,c,c',e',O,O,O,O
     a,a',d',c,c',e',O,O,O,O
     a,a',d,c,c',e',O,O,O,O
     a,a',d,c,c',e',O,O,O,O
+    a,a',d,c,c',x2,O,O,O,O
     a,a',d,c,c',d',O,O,O,O
-    a,a',d,c,c',d',O,O,O,O
-    a,b',d,c,c',d',O,O,O,O
-    a,b',d,c,c',d',O,O,O,O
-    a',b',d,c,c',d',O,O,O,O
-    f',b',d,c,c',d',O,O,O,O
-    f',b',d,c,c',d',O,O,O,O
-    f',a',d,c,c',d',O,O,O,O
-    f',a,d,c,c',d',O,O,O,O
-    f',a,d,c,c',d',O,O,O,O
-    a',a,d,c,c',d',O,O,O,O
-    a',a,d,c,c',d',O,O,O,O
-    a',a,d,c,m,d',O,O,O,O
-    a',a,d,c,m,d',O,O,O,O
-    a',a,d,c',m,d',O,O,O,O
-    a',a,d,e',m,d',O,O,O,O
-    a',a,d,e',m,d',O,O,O,O
-    a',a,d,e',c',d',O,O,O,O
-    a',a,d,e',c,d',O,O,O,O
-    a',a,d,e',c,d',O,O,O,O
-    a',a,d,c',c,d',O,O,O,O
-    a',a,d,c',c,d',O,O,O,O
-    a',a,d,c',c,m,O,O,O,O
-    a',a,d,c',c,m,O,O,O,O
-    a',a,d',c',c,m,O,O,O,O
-    a',a,e',c',c,m,O,O,O,O
-    a',a,e',c',c,m,O,O,O,O
-    a',a,e',c',c,d',O,O,O,O
-    a',a,e',c',c,d,O,O,O,O
-    a',a,e',c',c,d,O,O,O,O
-    a',a,d',c',c,d,O,O,O,O
-    a',a,d',c',c,d,O,O,O,O
-    a',a,d',m,c,d,O,O,O,O
-    a',a,d',m,c,d,O,O,S,O
-    a',a,e',m,c,d,O,O,S,O
-    a',a,e',m,c,d,O,O,O,S
-    a',a,e',m,c,d',O,O,O,S
-    a',a,e',m,c,c',O,O,O,S
-    a',a,e',m,c,c',O,O,O,O
-    a',a,e',d',c,c',O,O,O,O
-    a',a,e',d,c,c',O,O,O,O
-    a',a,e',d,c,c',O,O,O,O
-    a',a,d',d,c,c',O,O,O,O
-    a',a,d',d,c,c',O,O,O,O
-    a',a,d',d,c,m,O,O,O,O
-    a',a,d',d,c,m,O,O,O,O
-    a',a,d',d,c',m,O,O,O,O
-    a',a,d',d,e',m,O,O,O,O
-    a',a,d',d,e',m,O,O,O,O
-    a',a,d',d,e',c',O,O,O,O
-    a',a,d',d,e',c,O,O,O,O
-    a',a,d',d,e',c,O,O,O,O
-    a',a,d',d,c',c,O,O,O,O
     ```
 
 12. Rule 7 - Braiding Direction. Here, the particle movement occurs in the opposite (clockwise) direction
@@ -464,18 +355,22 @@ a',a,d',d,c',c
 
 ### Stage 3
 
-13. Optimization - Data and class structure
+13. Animation - Used Python's Networkx and Pyplot libraries to create animations of the whole CNOT Braiding algorithm
+    - Nanowire movement
+    ![nanowire-animation](tqc-cnot-table.gif)
 
-14. Nanowire movement and Braiding animation
-    - Used Python Networkx library to create the Nanowire graph network
-    - Animated the particle movements
+    - Braiding animation
+    ![braid-animation](cnot-braid-table.gif)
 
 ### Stage 4
 
-15. Rule 5 - Braiding Concurrency
-16. Rule 6 - Intermediate positions
+14. Documentation and README
+15. Measurement - Fusion
 
 ### Stage 5
 
+16. Redesign Compiler architecture
+
+### Stage 6
+
 17. Preprocessing - Generating Braid sequence
-18. Measurement - Fusion
