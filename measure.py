@@ -108,10 +108,9 @@ def measure_particles(pairs,rules,channel):
 
 # 7. Print it into a file
 def save_measurements(chl, qb):
-    line = "{},{},{}".format(chl[0],chl[1],chl[2])
     if qb:
-        line = "{},{},{}".format(line,qb[0],qb[1])
-    print(line)
+        line = "{},{},{},{},{}".format(chl[0],chl[1],chl[2],qb[0],qb[1])
+        print(line)
 
 # 8. Start
 def start():

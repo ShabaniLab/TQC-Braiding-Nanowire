@@ -48,7 +48,7 @@ python compiler.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matri
 # Files
 file_tqc_fusion_rules="fusion-rules.csv"
 file_tqc_fusion_channel="fusion-channel.csv"
-file_tqc_measurements="tqc-measurements.csv"
+file_tqc_measurements="tqc-cnot-fusion.csv"
 
 # Performing measurements
 echo "----- x ----- x ----- x ----- x ----- x ----- x ----- x ----- x ----- x -----"
