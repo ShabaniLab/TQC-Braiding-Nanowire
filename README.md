@@ -365,12 +365,66 @@ a,a',d,c,c',d'
 ### Stage 4
 
 14. Documentation and README
+
 15. Measurement - Fusion
 
-### Stage 5
+    - Firstly, the Fusion rules are important here, which varies between particle types - Majorana, Fibonacci, etc. The Fusion rules for this project are listed in ```fusion-rules.csv``` as shown below. ```o, x, 1``` represent the anyonic quasiparticles, fermions and vacuum respectively.
+    ```
+    P1,P2,Res
+    o,o,1
+    o,o,x
+    1,o,o
+    o,1,o
+    1,1,1
+    1,x,x
+    x,1,x
+    x,x,1
+    x,o,o
+    ```
 
-16. Redesign Compiler architecture
+    - Secondly, the Fusuon channels for anyons is as shown in the figure below.
+    ![tqc-cnot-fusion-channels](tqc-cnot-fusion-channels.png)
+    The corresponding table is in ```fusion-channel.csv``` as below. The 1st 2 columns represent the 2 qubits and the next (last) 3 columns, the channels, as shown in the figure.
+    ```
+    Q1,Q2,a,b,c
+    0,0,1,1,1
+    1,0,x,x,1
+    0,1,1,x,x
+    1,1,x,1,x
+    ```
+
+    - Thirdly, The final positions of the particles AFTER braiding is stored and they are paired based on their adjacency positions from the Nanowire Matrix graph. In this case the final positions are ```a',a,d',d,c',c```. And the zero mode pairs are ```(a', a)```, ```(d', d)```, ```(c', c)```.
+
+    - Finally, measurement happens according to the fusion rules listed earlier. The output is listed in ```tqc-cnot-fusion.csv```. The 1st 3 columns are the channels which we get when measured, and the corresponding Qubit pairs.
+    ```
+    Pair1,Pair2,Pair3,Qubit1,Qtubi2
+    x,1,x,1,1
+    x,x,1,1,0
+    1,x,x,0,1
+    1,x,x,0,1
+    x,x,1,1,0
+    x,x,1,1,0
+    x,1,x,1,1
+    1,x,x,0,1
+    x,x,1,1,0
+    x,1,x,1,1
+    x,1,x,1,1
+    x,1,x,1,1
+    ```
+
+    - With this stage, the entire Topological Quantum Braiding is complete, from Particle Initialization to Braiding to Measurements.
+
+16. Fusion - Animation
+
+### Stage 5 - Universal Gate set
+
+17. Hadamard (1 Qubit)
+18. X (1 Qubit)
 
 ### Stage 6
 
-17. Preprocessing - Generating Braid sequence
+19. Redesign Compiler architecture
+
+### Stage 7
+
+20. Preprocessing - Generating Braid sequence for a given circuit
