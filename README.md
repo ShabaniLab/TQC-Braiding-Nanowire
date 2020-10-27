@@ -383,7 +383,7 @@ a,a',d,c,c',d'
     ```
 
     - Secondly, the Fusuon channels for anyons is as shown in the figure below.
-    ![tqc-cnot-fusion-channels](cnot/tqc-fusion-channels.png)
+    ![tqc-fusion-channels](cnot/tqc-cnot-fusion-channels.png)
     The corresponding table is in ```fusion-channel.csv``` as below. The 1st 2 columns represent the 2 qubits and the next (last) 3 columns, the channels, as shown in the figure.
     ```
     Q1,Q2,a,b,c
@@ -414,15 +414,13 @@ a,a',d,c,c',d'
 
     - With this stage, the entire Topological Quantum Braiding is complete, from Particle Initialization to Braiding to Measurements.
 
-16. Fusion - Animation
-
 ### Stage 5 - Universal Gate set
 
-17. ![Hadamard (1 Qubit)](hadamard/README.md)
-18. ![Pauli-X (1 Qubit)](pauli-x/README.md)
-19. ![Phase S (1 qubit)](phase-s/README.md)
+16. ![Hadamard (1 Qubit)](hadamard/README.md)
+17. ![Pauli-X (1 Qubit)](pauli-x/README.md)
+18. ![Phase S (1 qubit)](phase-s/README.md)
 
 ### Stage 6
 
-20. Redesign Compiler architecture
-21. Preprocessing - Generating Braid sequence for a given circuit
+19. Redesign Compiler architecture
+20. Preprocessing - Generating Braid sequence for a given circuit
