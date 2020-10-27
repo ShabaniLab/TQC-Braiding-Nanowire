@@ -186,7 +186,7 @@ def nanowire_network_graph(G, pos_par, pos_volt, states, seq):
         pos2 = None
         title = None
         if index is 0:
-            title = "TQC Braiding Nanowire - 1 Qubit Pauli-X"
+            title = "TQC Braiding Nanowire - 1 Qubit Phase-S"
         index += 1
         index = index%len(states)
 
@@ -305,7 +305,7 @@ def nanowire_network_graph(G, pos_par, pos_volt, states, seq):
     ax2.axis('off')
 
     ani = anima.FuncAnimation(fig, update, frames=len(states), interval=500, fargs=(index))
-    ani.save('pauli-x-nanowire-table.gif', writer='imagemagick')
+    ani.save('phase-s-nanowire-table.gif', writer='imagemagick')
     # plt.show()
 
 # returns voltage node labels
@@ -378,7 +378,7 @@ def braid_particle_positions(sequence,positions):
         if index==pos_n-1:
             ax2=ax.twinx()
             ax2.set_yticklabels(pos_final)
-            ax2.yaxis.set_ticks(np.arange(1, 2*par_n, 2.5*2/3))
+            ax2.yaxis.set_ticks(np.arange(1, 2*par_n, 1.5*2/3))
             ax2.set_ylabel('Final Particle Braid positions')
             ax2.set_ylim(ax.get_xlim())
 
@@ -398,7 +398,7 @@ def braid_particle_positions(sequence,positions):
         # title
         title = None
         if index <= 1:
-            title = 'TQC - Pauli-X Braid Pattern'
+            title = 'TQC - Phase-S Braid Pattern'
         else:
             title = 'Braiding Particles ({},{})'.format(int(sequence[index][0]),int(sequence[index][1]))
         ax.set_title(title,fontweight="bold")
@@ -408,7 +408,7 @@ def braid_particle_positions(sequence,positions):
         return [braid1,braid2,braid3,braid4]
 
     ani = anima.FuncAnimation(fig, update, frames=pos_n, interval=1000, fargs=(ax,braid_table,positions,time,braid1,braid2,braid3,braid4))
-    ani.save('pauli-x-braid-table.gif', writer='imagemagick')
+    ani.save('phase-s-braid-table.gif', writer='imagemagick')
     # plt.show()
 
 ################################################################################

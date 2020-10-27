@@ -48,7 +48,7 @@ python compiler.py $file_nanowire_str $file_nanowire_vertex $file_nanowire_matri
 # Files
 file_tqc_fusion_rules="fusion-rules.csv"
 file_tqc_fusion_channel="fusion-channel.csv"
-file_tqc_measurements="tqc-pauli-x-fusion.csv"
+file_tqc_measurements="tqc-phase-s-fusion.csv"
 
 # Performing measurements
 echo "Measuring Anyons..."
@@ -61,7 +61,7 @@ python measure.py $file_particle_position $file_tqc_fusion_rules $file_tqc_fusio
 file_nanowire_positions="nanowire-positions.csv"
 
 # Nanowire movement and Braiding animation
-# echo "Performing Pauli-X Braid pattern and Nanowire movement animations..."
+# echo "Performing Phase-S Braid pattern and Nanowire movement animations..."
 # python animation.py $file_nanowire_matrix $file_nanowire_vertex $file_nanowire_positions $file_particle_braid_pos $file_nanowire_states
 
 echo "----- x ----- x ----- x ----- x ----- x ----- x ----- x ----- x ----- x -----"
