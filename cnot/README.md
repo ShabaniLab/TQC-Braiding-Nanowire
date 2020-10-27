@@ -357,7 +357,7 @@ a,a',d,c,c',d'
 
 13. Animation - Used Python's Networkx and Pyplot libraries to create animations of the whole CNOT Braiding algorithm
     - Nanowire movement
-    ![nanowire-animation](tqc-cnot-table.gif)
+    ![nanowire-animation](cnot-nanowire-table.gif)
 
     - Braiding animation
     ![braid-animation](cnot-braid-table.gif)
