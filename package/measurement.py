@@ -63,20 +63,30 @@ def read_fusion_rules(file):
     except IOError:
         raise
 
-def read_fusion_channels(file):
+def read_fusion_channels(file, qubits):
     """Read Fusion Channels"""
     channels = {}
+    N = 5
+    if qubits == 2:
+        N = 5
+    elif qubits == 1:
+        N = 3
     try:
         fr = open(file,'r')
         line = fr.readline().strip()
         while line:
             line = fr.readline().strip()
             row = line.split(',')
-            if len(row) < 5:
+            if len(row) < N:
                 continue
-            key = "{}-{}-{}".format(row[2], row[3], row[4])
-            val = (row[0], row[1])
-            channels[key] = val
+            if N == 5:
+                key = "{}-{}-{}".format(row[2], row[3], row[4])
+                val = (row[0], row[1])
+                channels[key] = val
+            elif N == 3:
+                key = "{}-{}".format(row[1], row[2])
+                val = (row[0],)
+                channels[key] = val
         fr.close()
         return channels
     except IOError:
@@ -118,5 +128,8 @@ def measure_particles(pairs,rules,channel):
 def save_measurements(chl, qb):
     """Print it into a file"""
     if qb:
-        line = "{},{},{},{},{}".format(chl[0],chl[1],chl[2],qb[0],qb[1])
+        line = ""
+        chl_lst = ','.join([str(e) for e in chl])
+        qb_lst = ','.join([str(e) for e in qb])
+        line = "{},{}".format(chl_lst, qb_lst)
         print(line)

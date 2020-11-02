@@ -59,6 +59,7 @@ class Animation:
         self.states = None
         self.sequence = None
         self.positions = None
+        self.par_n = 0
         self.graph = None
 
     def initiate_file_io(self, argv):
@@ -187,6 +188,7 @@ class Animation:
             file_read.close()
             self.sequence = sequence
             self.positions = braid_pos
+            self.par_n = len(braid_pos[0])
         except IOError:
             raise IOError
 
@@ -203,7 +205,6 @@ class Animation:
             if el not in seq:
                 seq.append(el)
         n_seq = len(seq)
-        par_n = len(positions[0])
         pos_n = len(positions)
         pos_initial = positions[0]
         pos_final = positions[pos_n-1]
@@ -220,7 +221,7 @@ class Animation:
         ax.set_yticklabels(pos_initial)
 
         braid_list = []
-        for i in range(par_n):
+        for i in range(self.par_n):
             braid, = ax.plot(time, positions[i])
             braid_list.append(braid)
 
@@ -246,7 +247,17 @@ class Animation:
             if index==pos_n-1:
                 ax2=ax.twinx()
                 ax2.set_yticklabels(pos_final)
-                ax2.yaxis.set_ticks(np.arange(1, 3*par_n, 3))
+                if self.par_n == 6:
+                    ax2.yaxis.set_ticks(np.arange(1, 3*self.par_n, 3))
+                elif self.par_n == 4:
+                    factor = 1.5
+                    if self.gate.lower() == 'hadamard':
+                        factor = 3.499
+                    elif self.gate.lower() == 'pauli-x':
+                        factor = 2.5
+                    elif self.gate.lower() == 'phase-s':
+                        factor = 1.5
+                    ax2.yaxis.set_ticks(np.arange(1, 2*self.par_n, factor*2/3))
                 ax2.set_ylabel('Final Particle positions')
                 ax2.set_ylim(ax.get_xlim())
 
@@ -339,10 +350,9 @@ class Animation:
 
         def update_nanowire(index):
             i1 = 2
-            par_no = 6
             pair = self.states[index][:i1]
-            particles = self.states[index][i1:i1+par_no]
-            gates = self.states[index][i1+par_no:]
+            particles = self.states[index][i1:i1+self.par_n]
+            gates = self.states[index][i1+self.par_n:]
             empty = list(set(nds)-set(particles))
             label_par = {pos:particles.index(pos)+1 for pos in particles}
             label_empty = {pos:pos for pos in empty}
@@ -471,7 +481,6 @@ class Animation:
                 nx.draw_networkx_edges(G, positions, style='solid',
                 edgelist=e,  width=w, edge_color=w, edge_cmap=edge_color_par_active)
             if title is not None:
-                print(title)
                 ax.set_title(title, fontweight="bold")
 
         fig = plt.figure(figsize=(12, 6))
