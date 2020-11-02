@@ -55,9 +55,10 @@ echo "##########################################################################
 file_tqc_fusion_rules="fusion-rules.csv"
 file_tqc_fusion_channel="fusion-channel.csv"
 file_tqc_measurements="tqc-fusion.csv"
+qubits="2"
 
 echo "Measurement (Fusion) started..."
-python tqc-algorithm-measure.py ./outputs/$file_particle_position_nanowire ./inputs/$file_tqc_fusion_rules ./inputs/$file_tqc_fusion_channel ./outputs/$file_nanowire_matrix ./outputs/$file_nanowire_vertex >> ./outputs/$file_tqc_measurements
+python tqc-algorithm-measure.py ./outputs/$file_particle_position_nanowire ./inputs/$file_tqc_fusion_rules ./inputs/$file_tqc_fusion_channel ./outputs/$file_nanowire_matrix ./outputs/$file_nanowire_vertex $qubits  >> ./outputs/$file_tqc_measurements
 echo "Measurement (Fusion) completed..."
 
 echo ""
