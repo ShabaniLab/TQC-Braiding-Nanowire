@@ -46,7 +46,7 @@ class Animation:
 
     ################################################################################
     # Initialization
-    def __init__(self, gate):
+    def __init__(self, gate, output):
         """
         i. Initializes required variables
         gate - string
@@ -61,6 +61,7 @@ class Animation:
         self.positions = None
         self.par_n = 0
         self.graph = None
+        self.output = output
 
     def initiate_file_io(self, argv):
         """
@@ -291,7 +292,7 @@ class Animation:
         ani = anima.FuncAnimation(fig, update_braid, frames=pos_n, interval=1000,
                                   fargs=(ax, braid_table, positions, time, braid_list))
         fn = '{}-braid-table.gif'.format(self.gate)
-        ani.save('./outputs/'+fn, writer='imagemagick')
+        ani.save(self.output+'/'+fn, writer='imagemagick')
 
     ################################################################################
     # B. Particle movements animation using Networkx
@@ -501,7 +502,7 @@ class Animation:
 
         ani = anima.FuncAnimation(fig, update_nanowire, frames=len(self.states), interval=500)
         fn = '{}-nanowire-table.gif'.format(self.gate)
-        ani.save('./outputs/'+fn, writer='imagemagick')
+        ani.save(self.output+'/'+fn, writer='imagemagick')
 
 def get_voltage_gate_labels(flag):
     """

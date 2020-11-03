@@ -6,7 +6,7 @@ from package.animation import Animation
 
 if __name__ == '__main__':
     try:
-        anima = Animation(sys.argv[6])
+        anima = Animation(sys.argv[6], sys.argv[7])
         anima.initiate_file_io(sys.argv)
         print('Animating braid...')
         anima.animate_braid()

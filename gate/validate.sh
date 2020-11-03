@@ -1,22 +1,30 @@
 #!/bin/sh
 
-MSG_NO="Error: Please provide a valid"
+MSG_NO="Error: Please provide valid"
 RET_TRUE=1
 RET_FALSE=0
 
 ###########################################################################
+validate_inputs_dir() {
+    if [ ! -d $1 ]
+    then
+        return $RET_FALSE
+    fi
+    return $RET_TRUE
+}
+
 validate_circuit_config() {
-    key_gate="gate"
-    key_particles="particles"
-    key_qubits="qubits"
-    key_voltages="voltages"
+    KEY_GATE="gate"
+    KEY_PARTICLES="particles"
+    KEY_QUBITS="qubits"
+    KEY_VOLTAGES="voltages"
     gate=""
     qubits=""
     particles=""
     voltages=""
 
     # Checks if the file exists
-    if [ ! -f $2/$1 ];
+    if [ ! -f $1/$2 ];
     then
         return $RET_FALSE
     fi
@@ -24,20 +32,20 @@ validate_circuit_config() {
     # Reads the config data from file
     while IFS= read -r line
     do
-        if [[ $line == *"$key_gate"* ]];
+        if [[ $line == *"$KEY_GATE"* ]];
         then
             gate=$(echo $line| cut -d'=' -f 2)
-        elif [[ $line == *"$key_particles"* ]];
+        elif [[ $line == *"$KEY_PARTICLES"* ]];
         then
             particles=$(echo $line| cut -d'=' -f 2)
-        elif [[ $line == *"$key_qubits"* ]];
+        elif [[ $line == *"$KEY_QUBITS"* ]];
         then
             qubits=$(echo $line| cut -d'=' -f 2)
-        elif [[ $line == *"$key_voltages"* ]];
+        elif [[ $line == *"$KEY_VOLTAGES"* ]];
         then
             voltages=$(echo $line| cut -d'=' -f 2)
         fi
-    done < $2/$1
+    done < $1/$2
 
     # Checks if there are all the required config data
     if [ -z $gate ] || [ -z $qubits ] || [ -z $particles ] || [ -z $voltages ];
@@ -48,7 +56,7 @@ validate_circuit_config() {
 }
 
 validate_nanowire_structure() {
-    if [ ! -f $2/$1 ];
+    if [ ! -f $1/$2 ];
     then
         return $RET_FALSE
     fi
@@ -56,7 +64,7 @@ validate_nanowire_structure() {
 }
 
 validate_nanowire_positions() {
-    if [ ! -f $2/$1 ];
+    if [ ! -f $1/$2 ];
     then
         return $RET_FALSE
     fi
@@ -64,7 +72,7 @@ validate_nanowire_positions() {
 }
 
 validate_initial_positions() {
-    if [ ! -f $2/$1 ];
+    if [ ! -f $1/$2 ];
     then
         return $RET_FALSE
     fi
@@ -72,7 +80,7 @@ validate_initial_positions() {
 }
 
 validate_braid_sequence() {
-    if [ ! -f $2/$1 ];
+    if [ ! -f $1/$2 ];
     then
         return $RET_FALSE
     fi
@@ -80,7 +88,7 @@ validate_braid_sequence() {
 }
 
 validate_fusion_rules() {
-    if [ ! -f $2/$1 ];
+    if [ ! -f $1/$2 ];
     then
         return $RET_FALSE
     fi
@@ -88,7 +96,7 @@ validate_fusion_rules() {
 }
 
 validate_fusion_channels() {
-    if [ ! -f $2/$1 ];
+    if [ ! -f $1/$2 ];
     then
         return $RET_FALSE
     fi
@@ -96,59 +104,67 @@ validate_fusion_channels() {
 }
 
 ###########################################################################
-validate_circuit_config $1 $8
+validate_inputs_dir $8
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
-    echo "\033[0;31m${MSG_NO} ${1}\033[0m"
+    echo "\033[0;31m${MSG_NO} \033[0;33m${8}\033[0m"
     exit $RET_FALSE
 fi
 
-validate_nanowire_structure $2 $8
+validate_circuit_config $8 $1
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
-    echo "\033[0;31m${MSG_NO} ${2}\033[0m"
+    echo "\033[0;31m${MSG_NO} \033[0;33m${1}\033[0m"
     exit $RET_FALSE
 fi
 
-validate_nanowire_positions $3 $8
+validate_nanowire_structure $8 $2
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
-    echo "\033[0;31m${MSG_NO} ${3}\033[0m"
+    echo "\033[0;31m${MSG_NO} \033[0;33m${2}\033[0m"
     exit $RET_FALSE
 fi
 
-validate_initial_positions $4 $8
+validate_nanowire_positions $8 $3
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
-    echo "\033[0;31m${MSG_NO} ${4}\033[0m"
+    echo "\033[0;31m${MSG_NO} \033[0;33m${3}\033[0m"
     exit $RET_FALSE
 fi
 
-validate_braid_sequence $5 $8
+validate_initial_positions $8 $4
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
-    echo "\033[0;31m${MSG_NO} ${5}\033[0m"
+    echo "\033[0;31m${MSG_NO} \033[0;33m${4}\033[0m"
     exit $RET_FALSE
 fi
 
-validate_fusion_rules $6 $8
+validate_braid_sequence $8 $5
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
-    echo "\033[0;31m${MSG_NO} ${6}\033[0m"
+    echo "\033[0;31m${MSG_NO} \033[0;33m${5}\033[0m"
     exit $RET_FALSE
 fi
 
-validate_fusion_channels $7 $8
+validate_fusion_rules $8 $6
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
-    echo "\033[0;31m${MSG_NO} ${7}\033[0m"
+    echo "\033[0;31m${MSG_NO} \033[0;33m${6}\033[0m"
+    exit $RET_FALSE
+fi
+
+validate_fusion_channels $8 $7
+ret=$?
+if [ "$ret" -eq $RET_FALSE ];
+then
+    echo "\033[0;31m${MSG_NO} \033[0;33m${7}\033[0m"
     exit $RET_FALSE
 fi
 
