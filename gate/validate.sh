@@ -16,7 +16,7 @@ validate_circuit_config() {
     voltages=""
 
     # Checks if the file exists
-    if [ ! -f ./inputs/$1 ];
+    if [ ! -f $2/$1 ];
     then
         return $RET_FALSE
     fi
@@ -37,7 +37,7 @@ validate_circuit_config() {
         then
             voltages=$(echo $line| cut -d'=' -f 2)
         fi
-    done < ./inputs/$1
+    done < $2/$1
 
     # Checks if there are all the required config data
     if [ -z $gate ] || [ -z $qubits ] || [ -z $particles ] || [ -z $voltages ];
@@ -48,7 +48,7 @@ validate_circuit_config() {
 }
 
 validate_nanowire_structure() {
-    if [ ! -f ./inputs/$1 ];
+    if [ ! -f $2/$1 ];
     then
         return $RET_FALSE
     fi
@@ -56,7 +56,7 @@ validate_nanowire_structure() {
 }
 
 validate_nanowire_positions() {
-    if [ ! -f ./inputs/$1 ];
+    if [ ! -f $2/$1 ];
     then
         return $RET_FALSE
     fi
@@ -64,7 +64,7 @@ validate_nanowire_positions() {
 }
 
 validate_initial_positions() {
-    if [ ! -f ./inputs/$1 ];
+    if [ ! -f $2/$1 ];
     then
         return $RET_FALSE
     fi
@@ -72,7 +72,7 @@ validate_initial_positions() {
 }
 
 validate_braid_sequence() {
-    if [ ! -f ./inputs/$1 ];
+    if [ ! -f $2/$1 ];
     then
         return $RET_FALSE
     fi
@@ -80,7 +80,7 @@ validate_braid_sequence() {
 }
 
 validate_fusion_rules() {
-    if [ ! -f ./inputs/$1 ];
+    if [ ! -f $2/$1 ];
     then
         return $RET_FALSE
     fi
@@ -88,7 +88,7 @@ validate_fusion_rules() {
 }
 
 validate_fusion_channels() {
-    if [ ! -f ./inputs/$1 ];
+    if [ ! -f $2/$1 ];
     then
         return $RET_FALSE
     fi
@@ -96,7 +96,7 @@ validate_fusion_channels() {
 }
 
 ###########################################################################
-validate_circuit_config $1
+validate_circuit_config $1 $8
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
@@ -104,7 +104,7 @@ then
     exit $RET_FALSE
 fi
 
-validate_nanowire_structure $2
+validate_nanowire_structure $2 $8
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
@@ -112,7 +112,7 @@ then
     exit $RET_FALSE
 fi
 
-validate_nanowire_positions $3
+validate_nanowire_positions $3 $8
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
@@ -120,7 +120,7 @@ then
     exit $RET_FALSE
 fi
 
-validate_initial_positions $4
+validate_initial_positions $4 $8
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
@@ -128,7 +128,7 @@ then
     exit $RET_FALSE
 fi
 
-validate_braid_sequence $5
+validate_braid_sequence $5 $8
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
@@ -136,7 +136,7 @@ then
     exit $RET_FALSE
 fi
 
-validate_fusion_rules $6
+validate_fusion_rules $6 $8
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then
@@ -144,7 +144,7 @@ then
     exit $RET_FALSE
 fi
 
-validate_fusion_channels $7
+validate_fusion_channels $7 $8
 ret=$?
 if [ "$ret" -eq $RET_FALSE ];
 then

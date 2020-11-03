@@ -17,7 +17,16 @@ qubits=""
 particles=""
 voltages=""
 RET_FALSE=0
+MSG_NO_INPUT="Error: Please provide an inputs dir as an argument"
 
+# Checks for an inputs dir
+if [ -z $1 ];
+then
+    echo "\033[0;31m${MSG_NO_INPUT}\033[0m"
+    exit
+fi
+
+# Validates the contents of the files of the inputs dir
 ./validate.sh \
     $file_circuit_config\
     $file_nanowire_str\
@@ -25,13 +34,15 @@ RET_FALSE=0
     $file_initial_positions\
     $file_braid_sequence\
     $file_tqc_fusion_rules\
-    $file_tqc_fusion_channel
+    $file_tqc_fusion_channel\
+    $1
 check=$?
 if [ "$check" -eq $RET_FALSE ];
 then
     exit $RET_FALSE
 fi
 
+# Creates a new outputs dir
 rm -r outputs
 mkdir ./outputs
 
@@ -51,10 +62,10 @@ do
     then
         voltages=$(echo $line| cut -d'=' -f 2)
     fi
-done < ./inputs/$file_circuit_config
+done < $1/$file_circuit_config
 
 echo "\033[0;37m###########################################################################\033[0m"
-echo "\033[0;37m       Constructing a \033[1;36m${qubits}\033[0m\033[0;37m-qubit(s) \033[1;36m${gate}\033[0m\033[0;37m gate, with \033[1;36m${particles}\033[0m\033[0;37m quasi-particles     \033[0m"
+echo "\033[0;37m    Constructing a \033[1;36m${qubits}\033[0m\033[0;37m-qubit(s) \033[1;36m${gate}\033[0m\033[0;37m gate by braiding \033[1;36m${particles}\033[0m\033[0;37m quasi-particles\033[0m"
 echo "\033[0;37m###########################################################################\033[0m"
 
 echo ""
@@ -70,7 +81,7 @@ echo "Nanowire preprocessing started..."
 : > ./outputs/$file_nanowire_vertex
 : > ./outputs/$file_nanowire_matrix
 python tqc-preprocess-nanowire.py\
-    ./inputs/$file_nanowire_str\
+    $1/$file_nanowire_str\
     ./outputs/$file_nanowire_vertex\
     ./outputs/$file_nanowire_matrix
 echo "Nanowire preprocessing completed..."
@@ -84,7 +95,7 @@ file_particle_position_nanowire="particle-positions-nanowire.csv"
 
 echo "Braid generation preprocessing started..."
 # python tqc-preprocess-braid.py $file_circuit_config
-cat ./inputs/$file_initial_positions > ./outputs/$file_particle_position_nanowire
+cat $1/$file_initial_positions > ./outputs/$file_particle_position_nanowire
 echo "Braid generation preprocessing completed..."
 
 echo ""
@@ -140,10 +151,10 @@ echo $heading3 > ./outputs/$file_particle_position_braid
 # echo "Par1,Par2,P1,P2,P3,P4,Vg11,Vg12,Vg21,Vg22" > ./outputs/$file_nanowire_states
 # echo "Par1,Par2,P1,P2,P3,P4" > ./outputs/$file_particle_position_braid
 python tqc-algorithm-compile.py \
-    ./inputs/$file_nanowire_str\
+    $1/$file_nanowire_str\
     ./outputs/$file_nanowire_vertex\
     ./outputs/$file_nanowire_matrix\
-    ./inputs/$file_braid_sequence\
+    $1/$file_braid_sequence\
     ./outputs/$file_particle_position_nanowire\
     ./outputs/$file_particle_movement\
     ./outputs/$file_nanowire_states\
@@ -160,8 +171,8 @@ file_tqc_measurements="tqc-fusion.csv"
 echo "Measurement (Fusion) started..."
 python tqc-algorithm-measure.py \
     ./outputs/$file_particle_position_nanowire\
-    ./inputs/$file_tqc_fusion_rules\
-    ./inputs/$file_tqc_fusion_channel\
+    $1/$file_tqc_fusion_rules\
+    $1/$file_tqc_fusion_channel\
     ./outputs/$file_nanowire_matrix\
     ./outputs/$file_nanowire_vertex\
     $qubits\
@@ -177,7 +188,7 @@ echo "Braid and Nanowire animation started..."
 python tqc-animate.py \
     ./outputs/$file_nanowire_matrix\
     ./outputs/$file_nanowire_vertex\
-    ./inputs/$file_nanowire_positions\
+    $1/$file_nanowire_positions\
     ./outputs/$file_nanowire_states\
     ./outputs/$file_particle_position_braid\
     $gate
