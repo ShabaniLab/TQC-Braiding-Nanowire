@@ -8,53 +8,34 @@ file_tqc_fusion_rules="fusion-rules.csv"
 file_tqc_fusion_channel="fusion-channel.csv"
 file_nanowire_positions="nanowire-positions.csv"
 
-MSG_NO="Error: Please provide a valid"
-gate=""
-qubits=""
-particles=""
-voltages=""
-
-if [ ! -f ./outputs ]
-then
-    mkdir ./outputs
-fi
-
-# Checks if there is a valid circuit-config file
-if [ ! -f ./inputs/$file_circuit_config ];
-then
-    echo "${MSG_NO} ${file_circuit_config}"
-    exit
-elif [ ! -f ./inputs/$file_nanowire_str ];
-then
-    echo "${MSG_NO} ${file_nanowire_str}"
-    exit
-elif [ ! -f ./inputs/$file_braid_sequence ];
-then
-    echo "${MSG_NO} ${file_braid_sequence}"
-    exit
-elif [ ! -f ./inputs/$file_initial_positions ];
-then
-    echo "${MSG_NO} ${file_initial_positions}"
-    exit
-elif [ ! -f ./inputs/$file_tqc_fusion_rules ];
-then
-    echo "${MSG_NO} ${file_tqc_fusion_rules}"
-    exit
-elif [ ! -f ./inputs/$file_tqc_fusion_channel ];
-then
-    echo "${MSG_NO} ${file_tqc_fusion_channel}"
-    exit
-elif [ ! -f ./inputs/$file_nanowire_positions ];
-then
-    echo "${MSG_NO}${file_nanowire_positions}"
-    exit
-fi
-
-# Extracts the required circuit config data
 key_gate="gate"
 key_particles="particles"
 key_qubits="qubits"
 key_voltages="voltages"
+gate=""
+qubits=""
+particles=""
+voltages=""
+RET_FALSE=0
+
+./validate.sh \
+    $file_circuit_config\
+    $file_nanowire_str\
+    $file_nanowire_positions\
+    $file_initial_positions\
+    $file_braid_sequence\
+    $file_tqc_fusion_rules\
+    $file_tqc_fusion_channel
+check=$?
+if [ "$check" -eq $RET_FALSE ];
+then
+    exit $RET_FALSE
+fi
+
+rm -r outputs
+mkdir ./outputs
+
+# Reads the config data from file
 while IFS= read -r line
 do
     if [[ $line == *"$key_gate"* ]];
@@ -72,17 +53,14 @@ do
     fi
 done < ./inputs/$file_circuit_config
 
-# Checks if there are all the required config data
-if [ -z $gate ] || [ -z $qubits ] || [ -z $particles ] || [ -z $voltages ];
-then
-    echo "${MSG_NO} ${file_circuit_config}"
-    exit
-fi
+echo "\033[0;37m###########################################################################\033[0m"
+echo "\033[0;37m       Constructing a \033[1;36m${qubits}\033[0m\033[0;37m-qubit(s) \033[1;36m${gate}\033[0m\033[0;37m gate, with \033[1;36m${particles}\033[0m\033[0;37m quasi-particles     \033[0m"
+echo "\033[0;37m###########################################################################\033[0m"
 
 echo ""
-echo "##########################################################################"
-echo "#              P R E P R O C E S S I N G    N A N O W I R E              #"
-echo "##########################################################################"
+echo "\033[0;33m###########################################################################\033[0m"
+echo "\033[1;33m#               P R E P R O C E S S I N G    N A N O W I R E              #\033[0m"
+echo "\033[0;33m###########################################################################\033[0m"
 # Files
 file_nanowire_vertex="nanowire-vertices.csv"
 file_nanowire_matrix="nanowire-matrix.csv"
@@ -91,13 +69,16 @@ file_nanowire_matrix="nanowire-matrix.csv"
 echo "Nanowire preprocessing started..."
 : > ./outputs/$file_nanowire_vertex
 : > ./outputs/$file_nanowire_matrix
-python tqc-preprocess-nanowire.py ./inputs/$file_nanowire_str ./outputs/$file_nanowire_vertex ./outputs/$file_nanowire_matrix
+python tqc-preprocess-nanowire.py\
+    ./inputs/$file_nanowire_str\
+    ./outputs/$file_nanowire_vertex\
+    ./outputs/$file_nanowire_matrix
 echo "Nanowire preprocessing completed..."
 
 echo ""
-echo "##########################################################################"
-echo "#        P R E P R O C E S S I N G    B R A I D    S E Q U E N C E       #"
-echo "##########################################################################"
+echo "\033[0;33m###########################################################################\033[0m"
+echo "\033[1;33m#        P R E P R O C E S S I N G    B R A I D    S E Q U E N C E        #\033[0m"
+echo "\033[0;33m###########################################################################\033[0m"
 # Files
 file_particle_position_nanowire="particle-positions-nanowire.csv"
 
@@ -107,9 +88,9 @@ cat ./inputs/$file_initial_positions > ./outputs/$file_particle_position_nanowir
 echo "Braid generation preprocessing completed..."
 
 echo ""
-echo "##########################################################################"
-echo "#       S T A R T I N G     B R A I D I N G    O P E R A T I O N S       #"
-echo "##########################################################################"
+echo "\033[0;36m###########################################################################\033[0m"
+echo "\033[1;36m#       S T A R T I N G     B R A I D I N G    O P E R A T I O N S        #\033[0m"
+echo "\033[0;36m###########################################################################\033[0m"
 # Files
 file_particle_movement="particle-movements.csv"
 file_nanowire_states="nanowire-states.csv"
@@ -158,28 +139,51 @@ echo $heading3 > ./outputs/$file_particle_position_braid
 # echo "Par1,Par2,Particle,Path,Vg11,Vg12,Vg21,Vg22" > ./outputs/$file_particle_movement
 # echo "Par1,Par2,P1,P2,P3,P4,Vg11,Vg12,Vg21,Vg22" > ./outputs/$file_nanowire_states
 # echo "Par1,Par2,P1,P2,P3,P4" > ./outputs/$file_particle_position_braid
-python tqc-algorithm-compile.py ./inputs/$file_nanowire_str ./outputs/$file_nanowire_vertex ./outputs/$file_nanowire_matrix ./inputs/$file_braid_sequence ./outputs/$file_particle_position_nanowire ./outputs/$file_particle_movement ./outputs/$file_nanowire_states ./outputs/$file_particle_position_braid $gate
+python tqc-algorithm-compile.py \
+    ./inputs/$file_nanowire_str\
+    ./outputs/$file_nanowire_vertex\
+    ./outputs/$file_nanowire_matrix\
+    ./inputs/$file_braid_sequence\
+    ./outputs/$file_particle_position_nanowire\
+    ./outputs/$file_particle_movement\
+    ./outputs/$file_nanowire_states\
+    ./outputs/$file_particle_position_braid $gate
 echo "Braiding completed..."
 
 echo ""
-echo "##########################################################################"
-echo "#                    M E A S U R I N G    A N Y O N S                    #"
-echo "##########################################################################"
+echo "\033[0;36m###########################################################################\033[0m"
+echo "\033[1;36m#                     M E A S U R I N G    A N Y O N S                    #\033[0m"
+echo "\033[0;36m###########################################################################\033[0m"
 # Files
 file_tqc_measurements="tqc-fusion.csv"
 
 echo "Measurement (Fusion) started..."
-python tqc-algorithm-measure.py ./outputs/$file_particle_position_nanowire ./inputs/$file_tqc_fusion_rules ./inputs/$file_tqc_fusion_channel ./outputs/$file_nanowire_matrix ./outputs/$file_nanowire_vertex $qubits >> ./outputs/$file_tqc_measurements
+python tqc-algorithm-measure.py \
+    ./outputs/$file_particle_position_nanowire\
+    ./inputs/$file_tqc_fusion_rules\
+    ./inputs/$file_tqc_fusion_channel\
+    ./outputs/$file_nanowire_matrix\
+    ./outputs/$file_nanowire_vertex\
+    $qubits\
+    >> ./outputs/$file_tqc_measurements
 echo "Measurement (Fusion) completed..."
 
 echo ""
-echo "##########################################################################"
-echo "#       A N I M A T I N G    B R A I D    A N D    N A N O W I R E       #"
-echo "##########################################################################"
+echo "\033[0;34m###########################################################################\033[0m"
+echo "\033[1;34m#        A N I M A T I N G    B R A I D    A N D    N A N O W I R E       #\033[0m"
+echo "\033[0;34m###########################################################################\033[0m"
 
 echo "Braid and Nanowire animation started..."
-python tqc-animate.py ./outputs/$file_nanowire_matrix ./outputs/$file_nanowire_vertex ./inputs/$file_nanowire_positions ./outputs/$file_nanowire_states ./outputs/$file_particle_position_braid $gate
+python tqc-animate.py \
+    ./outputs/$file_nanowire_matrix\
+    ./outputs/$file_nanowire_vertex\
+    ./inputs/$file_nanowire_positions\
+    ./outputs/$file_nanowire_states\
+    ./outputs/$file_particle_position_braid\
+    $gate
 echo "Braid and Nanowire animation completed..."
 
 echo ""
-echo "##########################################################################"
+echo "\033[0;32m###########################################################################\033[0m"
+echo "\033[1;32m#    T Q C    B R A I D I N G    A L G O R I T H M    C O M P L E T E D   #\033[0m"
+echo "\033[0;32m###########################################################################\033[0m"
