@@ -13,7 +13,7 @@ from package import validation
 
 from package.compiler import Compiler
 from package.nanowire import Nanowire
-from package.braid import BraidingHadamard
+from package.braid import BraidingPauliX
 from package.utility import Utility
 
 def initialize_compiler():
@@ -56,7 +56,7 @@ def braid_particles(nanowire_obj, compiler_obj):
     Performing braiding on each sequence
     """
     try:
-        braid = BraidingHadamard(nanowire_obj, compiler_obj)
+        braid = BraidingPauliX(nanowire_obj, compiler_obj)
         utility = Utility()
         n = len(compiler_obj.positions)
         line_pos = Utility.get_par_braid_pos(n)
