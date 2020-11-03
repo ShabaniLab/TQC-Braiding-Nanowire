@@ -13,7 +13,7 @@ from package import validation
 
 from package.compiler import Compiler
 from package.nanowire import Nanowire
-from package.braid import BraidingPhaseS
+from package.braid import BraidingCNOT, BraidingHadamard, BraidingPauliX, BraidingPhaseS
 from package.utility import Utility
 
 def initialize_compiler():
@@ -51,12 +51,26 @@ def initialize_nanowire(positions):
     except SyntaxError:
         raise
 
+def get_braid_class(nanowire_obj, compiler_obj):
+    gate = sys.argv[9]
+    braid = None
+    if gate == 'cnot':
+        braid = BraidingCNOT(nanowire_obj, compiler_obj)
+    elif gate == 'hadamard':
+        braid = BraidingHadamard(nanowire_obj, compiler_obj)
+    elif gate == 'pauli-x':
+        braid = BraidingPauliX(nanowire_obj, compiler_obj)
+    elif gate == 'phase-s':
+        braid = BraidingPhaseS(nanowire_obj, compiler_obj)
+    return braid
+
 def braid_particles(nanowire_obj, compiler_obj):
     """
     Performing braiding on each sequence
     """
     try:
-        braid = BraidingPhaseS(nanowire_obj, compiler_obj)
+        braid = get_braid_class(nanowire_obj, compiler_obj)
+        assert(braid is not None)
         utility = Utility()
         n = len(compiler_obj.positions)
         line_pos = Utility.get_par_braid_pos(n)
