@@ -8,53 +8,28 @@ file_tqc_fusion_rules="fusion-rules.csv"
 file_tqc_fusion_channel="fusion-channel.csv"
 file_nanowire_positions="nanowire-positions.csv"
 
-MSG_NO="Error: Please provide a valid"
-gate=""
-qubits=""
-particles=""
-voltages=""
-
-if [ ! -f ./outputs ]
-then
-    mkdir ./outputs
-fi
-
-# Checks if there is a valid circuit-config file
-if [ ! -f ./inputs/$file_circuit_config ];
-then
-    echo "${MSG_NO} ${file_circuit_config}"
-    exit
-elif [ ! -f ./inputs/$file_nanowire_str ];
-then
-    echo "${MSG_NO} ${file_nanowire_str}"
-    exit
-elif [ ! -f ./inputs/$file_braid_sequence ];
-then
-    echo "${MSG_NO} ${file_braid_sequence}"
-    exit
-elif [ ! -f ./inputs/$file_initial_positions ];
-then
-    echo "${MSG_NO} ${file_initial_positions}"
-    exit
-elif [ ! -f ./inputs/$file_tqc_fusion_rules ];
-then
-    echo "${MSG_NO} ${file_tqc_fusion_rules}"
-    exit
-elif [ ! -f ./inputs/$file_tqc_fusion_channel ];
-then
-    echo "${MSG_NO} ${file_tqc_fusion_channel}"
-    exit
-elif [ ! -f ./inputs/$file_nanowire_positions ];
-then
-    echo "${MSG_NO}${file_nanowire_positions}"
-    exit
-fi
-
-# Extracts the required circuit config data
 key_gate="gate"
 key_particles="particles"
 key_qubits="qubits"
 key_voltages="voltages"
+gate=""
+qubits=""
+particles=""
+voltages=""
+RET_FALSE=0
+
+./validate.sh $file_circuit_config $file_nanowire_str $file_nanowire_positions $file_initial_positions $file_braid_sequence $file_tqc_fusion_rules $file_tqc_fusion_channel
+check=$?
+if [ "$check" -eq $RET_FALSE ];
+then
+    echo "validation error"
+    exit $RET_FALSE
+fi
+
+rm -r outputs
+mkdir ./outputs
+
+# Reads the config data from file
 while IFS= read -r line
 do
     if [[ $line == *"$key_gate"* ]];
@@ -71,13 +46,6 @@ do
         voltages=$(echo $line| cut -d'=' -f 2)
     fi
 done < ./inputs/$file_circuit_config
-
-# Checks if there are all the required config data
-if [ -z $gate ] || [ -z $qubits ] || [ -z $particles ] || [ -z $voltages ];
-then
-    echo "${MSG_NO} ${file_circuit_config}"
-    exit
-fi
 
 echo ""
 echo "##########################################################################"
