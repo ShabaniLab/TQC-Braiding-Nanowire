@@ -1,3 +1,4 @@
 gate=cnot
 particles=6
 qubits=2
+voltages=4
