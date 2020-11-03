@@ -8,6 +8,11 @@ qubits=""
 particles=""
 voltages=""
 
+if [ ! -f ./outputs ]
+then
+    mkdir ./outputs
+fi
+
 # Checks if there is a valid circuit-config file
 if [ ! -f $file_config ]
 then
