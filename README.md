@@ -5,10 +5,10 @@ In Topological Quantum Computing (TQC), quasiparticles (such as Majorana fermion
 
 This project is the 1st stage in building a Compiler to perform TQC. It achieves this by generating a matrix representing movements of these particles on the Nanowire, thereby forming braids resulting in Quantum gates. This compiler constructs braid patterns for the following quantum gates:
 
-1. ![Phase S (1 Qubit)](docs/phase-s/README.md)
-1. ![Pauli-X (1 Qubit)](docs/pauli-x/README.md)
-1. ![Hadamard (1 Qubit)](docs/hadamard/README.md)
 1. ![CNOT (2 Qubits)](docs/cnot/README.md)
+1. ![Hadamard (1 Qubit)](docs/hadamard/README.md)
+1. ![Pauli-X (1 Qubit)](docs/pauli-x/README.md)
+1. ![Phase S (1 Qubit)](docs/phase-s/README.md)
 
 ## TQC Compiler structure
 

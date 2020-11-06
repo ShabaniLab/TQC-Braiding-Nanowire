@@ -1,16 +1,51 @@
+# TQC Compiler - Architecture
 
-### Output
+## Structure
 
-8. **Nanowire State matrix** - Generate a Nanowire State matrix, which is a sequence of positions of all particles and the corresponding gate voltage values, capturing each movement for every particle. The nanowire state matrix for the above example is show below.
+### Package
 
-```
-Particle,Path,V11,V12,V21,V22
-2,a'-b,O,O,O,O
-1,a-a'-f',O,O,O,O
-2,b-a'-a,O,O,O,O
-1,f'-a',O,O,O,O
-```
+1. Nanowire
+1. Graph
+1. Exception
+1. Compiler
+1. Braid
+1. Utility
+1. Validation
+1. Metrics
+1. Measurement
+1. Animation
 
-![state-matrix](../cnot/nanowire-state-matrix.png)
+### Implementation
 
-9. **Metrics** - Calculate metrics such as **Number of steps** (both within and between zero modes, and total), **Braiding Concurrency**, **Effective complexity**, etc.
+1. Shell script
+    - Automation
+    - Input validation
+1. Preprocessing Nanowire
+1. Algorithm Compile
+    - Nanowire
+    - Compile
+    - Braid
+1. Algorithm Measure
+1. Animate
+    - Braid
+    - Nanowire
+
+### Inputs
+
+1. Circuit config
+1. Nanowire structure
+1. Nanowire positions
+1. Initial particle positions
+1. Braid sequence
+1. Fusion channel
+1. Fusion rules
+
+### Outputs
+
+1. Nanowire matrix
+1. Nanowire vertices
+1. nanowire states
+1. Particle positions - Nanowire
+1. Particle positions - Braid
+1. Particle movements - Nanowire
+1. Measurements
