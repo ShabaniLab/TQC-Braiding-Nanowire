@@ -1,0 +1,4 @@
+gate=pauli-x
+particles=4
+qubits=1
+voltages=4

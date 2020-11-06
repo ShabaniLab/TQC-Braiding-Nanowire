@@ -1,9 +1,0 @@
-Par1,Par2,Particle,Path,Vg11,Vg12,Vg21,Vg22
-2,3,2,b'-x1-a',O,O,O,O
-2,3,3,f'-x1-m,S,O,O,O
-2,3,2,a'-x1-f',O,S,O,O
-2,3,3,m-x1-b',O,S,O,O
-3,2,3,b'-x1-a',O,O,O,O
-3,2,2,f'-x1-m,S,O,O,O
-3,2,3,a'-x1-f',O,S,O,O
-3,2,2,m-x1-b',O,S,O,O

@@ -1,0 +1,4 @@
+gate=hadamard
+particles=4
+qubits=1
+voltages=4
