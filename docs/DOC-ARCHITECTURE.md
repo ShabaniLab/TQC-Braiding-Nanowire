@@ -70,7 +70,7 @@
 
 ### Inputs
 
-1. Circuit configuration (`circuit-config.csv`) - specifying the gate, number of particles, number of qubits, and total voltage gates
+1. Circuit configuration <sup>csv</sup>
 ```
 gate=cnot
 particles=6
@@ -78,7 +78,7 @@ qubits=2
 voltages=4
 ```
 
-1. Nanowire structure (`nanowire-structure.csv`) (common):
+1. Nanowire structure <sup>csv</sup>
 ```
 b,b'
 a,a'
@@ -92,7 +92,7 @@ d,d'
 x21,x22
 ```
 
-1. Nanowire positions (`nanowire-positions.csv`) (common):
+1. Nanowire positions <sup>csv</sup>
 ```
 Node,X,Y
 b,3,6
@@ -120,12 +120,12 @@ x23,4.5,4.5
 x24,5.5,3.5
 ```
 
-1. Initial particle positions (`initial-positions.csv`):
+1. Initial particle positions <sup>csv</sup>
 ```
 a,a',c,c',d,d'
 ```
 
-1. Braid sequence (`braid-sequence.csv`) (with counter-clockwise braiding direction):
+1. Braid sequence <sup>csv</sup> (with counter-clockwise braiding direction)
 ```
 3,4,0
 3,5,0
@@ -136,7 +136,7 @@ a,a',c,c',d,d'
 5,6,0
 ```
 
-1. Fusion Channel (`fusion-channel.csv`) - this channel is for a 2-qubit gate
+1. Fusion Channel <sup>csv</sup> - this channel is for a 2-qubit gate
 ```
 Q1,Q2,a,b,c
 0,0,1,1,1
@@ -146,7 +146,7 @@ Q1,Q2,a,b,c
 ```
 
 
-1. Fusion rules (`fusion-rules.csv`) (common):
+1. Fusion rules <sup>csv</sup>
 ```
 P1,P2,Res
 o,o,1
@@ -162,12 +162,12 @@ x,o,o
 
 ### Outputs
 
-1. Nanowire matrix
-1. Nanowire vertices
-1. Nanowire state matrix
-1. Particle movements - Nanowire
-1. Particle positions - Nanowire
-1. Particle positions - Braid
-1. Measurements
-1. Braid animation gif
-1. Nanowire animation gif
+1. Nanowire matrix <sup>csv</sup>
+1. Nanowire vertices <sup>csv</sup>
+1. Nanowire state matrix <sup>csv</sup>
+1. Particle movements - Nanowire <sup>csv</sup>
+1. Particle positions - Nanowire <sup>csv</sup>
+1. Particle positions - Braid <sup>csv</sup>
+1. Measurements <sup>csv</sup>
+1. Braid animation <sup>gif</sup>
+1. Nanowire animation <sup>gif</sup>
