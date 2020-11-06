@@ -1,37 +1,46 @@
 # TQC Compiler - Work Done
 
-The work was done in multiple, incremental stages:
-1. Stage 1
-    - Compiler architecture - initial
-    - Preprocessing Nanowire
-    - Algorithm - Rules
-    - Algorithm - Validation phase
-    - Algorithm - Braiding phase
-    - 2-qubit CNOT gate
-1. Stage 2
-    - Voltage regulation
-    - Braiding direction
-1. Stage 3
-    - Animation Nanowire
-    - Animation Braiding
-1. Stage 4
-    - Measurement and Fusion
-1. Stage 5 - Universal gates
-    - Hadamard (1-qubit)
-    - Pauli X (1-qubit)
-    - Phase S (1-qubit)
-1. Stage 6
-    - Compiler architecture - redesign
+## Index
 
 ### Stage 1
+1. Compiler architecture - initial
+1. Preprocessing Nanowire
+1. Algorithm - Rules
+1. Algorithm - Validation phase
+1. Algorithm - Braiding phase
+1. 2-qubit CNOT gate implementation
 
-1. This is the basic implementation, so some of the rules (3, 5, 6 and 7) haven't been included in the algorithm.
+### Stage 2
+1. Voltage regulation
+1. Braiding direction
 
+### Stage 3
+1. Animation Nanowire
+1. Animation Braiding
+
+### Stage 4
+1. Measurement and Fusion
+
+### Stage 5 - Universal gates
+1. Hadamard (1-qubit)
+1. Pauli X (1-qubit)
+1. Phase S (1-qubit)
+
+### Stage 6
+1. Compiler architecture - redesign
+
+## Stage 1
+
+1. In this 1st stage, some of the rules (3, 5, 6, 7 and 8) haven't been implemented from the algorithm. And the program is for the 2-qubit **CNOT** gate.
 2. The entire braiding operations are of 2 basic categories:
-    - The braiding involves 2 particles on the **same branch**. Sequences (3, 4), (1, 2), (4, 5), (3, 6) and (5, 6) belong to this category.
-    - The braiding involves 2 particles on the **different branches** AND one particle is on the **inner position** on one branch AND the other particle is on the **outer position** of the other branch AND another particle on the inner position on the latter branch is blocking the latter particle. Sequences (3, 5) and (4, 6) belong to this category. Voltage regulation is required ONLY in this case.
-
-3. The output, for the given braiding sequence, is displayed below (without the comments in ```particle-movements.csv```):
+    - Braiding involving 2 particles on the **same branch**.
+        - Sequences from the CNOT gate - `[(3, 4), (1, 2), (4, 5), (3, 6), (5, 6)]` belong to this category.
+    - Braiding involving 2 particles on **different branches**
+        - One particle is on the **inner position** on one branch
+        - AND the other particle is on the **outer position** of the other branch
+        - AND another particle on the inner position on the latter branch is blocking the latter particle. Sequences `[(3, 5), (4, 6)]` belong to this category.
+        - **Voltage regulation** is required ONLY in this case.
+3. The output, for the given braiding sequence, is displayed below (without the voltage values in particle-movements.csv):
 ```
 Braiding particles (3, 4)
 4,c'-x2-m
@@ -72,7 +81,7 @@ Braiding particles (5, 6)
 5,e'-x2-c'
 ```
 
-4. The Nanowire state matrix for the braiding sequence ```(3,5)``` is (in ```nanowire-states.csv```):
+4. The Nanowire state matrix for the braiding sequence (3,5)` is (in `nanowire-states.csv`):
 ```
 P1,P2,P3,P4,P5,P6
 a,a',c',c,d,d'
@@ -94,25 +103,26 @@ a,a',d,c,c',x2
 a,a',d,c,c',d'
 ```
 
-### Stage 2
+## Stage 2
 
-5. Rule 3 with voltage regulations (for braiding in the 2nd category).
+5. Rule 3: **Voltage regulations** (for braiding in the 2nd category).
 
 6. In every braiding operation, I extract the particles which are isolated (1 in a branch).
-    - I then verify if these isolated particles are part of the same zero mode, or different. If they are part of the same zero mode, then no voltage regulation is needed.
-    - Otherwise, I check if the particles are part of the (expected) zero modes which might be formed after the braiding is completed. If so, then no voltage regulation is needed.
-    - If both the particles aren't part of either an existing zero mode or an expected zero mode, then the voltage gate between those adjacent branches need to be shut off.
+    - I then verify if these isolated particles are part of the same zero mode, or different.
+    - If they are part of the **same** zero mode, then **no voltage regulation** is needed.
+    - Else, I check if the particles are part of the **expected** zero modes which might be formed after braiding is completed. If so, then **no voltage regulation** is needed.
+    - If both the particles are part of **neither** an **existing** or an **expected** zero mode, then the voltage gate between those respective adjacent branches need to be **shut** off.
 
-7. In the case when a braiding operation involves 5 steps - for sequences ```(3,5)``` and ```(4,6)``` - step 3 (which involves moving particle 5 to position of particle 3 and moving particle 6 to position of particle 4 respectively) requires a toggling of both voltage gate values in the respective intersection.
-    - In the 1st case, step 2 is moving particle 6: ```[d', e']```. The voltage gate values ```x21, x22``` for this are ```S, O```.
-    - In step 3, which is moving particle 5: ```[d, d', c']```, the voltage gate values ```x21, x22``` are ```O, S```.
+7. In the case when a braiding operation involves 5 steps - for sequences `(3, 5)` and `(4, 6)` - the 3rd step (which involves moving particle `5` to position of particle 3 and moving particle 6 to position of particle 4 respectively) requires a toggling of both voltage gate values in the respective intersection.
+    - In the 1st case, step 2 is moving particle 6: `[d', e']`. The voltage gate values `(Vg21, Vg22)` for this are `(S, O)`.
+    - In step 3, which is moving particle `5`: `[d, d', c']`, the voltage gate values `(Vg21, Vg22)` are `(O, S)`.
     - Following this, in steps 4 and 5, as there is no interference between 2 particles from different zero modes, no further voltage regulation is needed.
 
-8. I first generate a nested list of pairs of positions for which voltage gate shut is triggered. For gate ```x21```, the pairs are ```[['c', 'd'], ['c', "d'"], ["c'", 'd'], ["c'", "d'"], ['e', 'm'], ["e'", 'm']]```. So, if a pair of position of particles from different zero modes is in this list, then ```x21``` is triggered to shut. Similar is the case for other gates as well.
+8. I first generate a nested list of pairs of positions for which voltage gate shut is triggered. For gate `Vg21`, the pairs are `[['c', 'd'], ['c', "d'"], ["c'", 'd'], ["c'", "d'"], ['e', 'm'], ["e'", 'm']]`. So, if a pair of position of particles from different zero modes is in this list, then `Vg21` is triggered to shut. Similar is the case for other gates as well.
 
-9. Every time the nanowire structure is updated, the zero mode pairs are also updated. While braiding particles ```(3,5)``` the zero mode pairs are as follows: ```[(1, 2), (5, 6)], [(1, 2)], [(1, 2), (4, 5)], [(1, 2), (4, 5), (3, 6)]```
+9. Every time the nanowire structure is updated, the zero mode pairs are also updated. While braiding particles `(3,5)` the zero mode pairs are as follows: `[(1, 2), (5, 6)], [(1, 2)], [(1, 2), (4, 5)], [(1, 2), (4, 5), (3, 6)]`
 
-10. In every braiding operation, after every successful intermediate braiding, the voltage gates are also updated. While braiding particles ```(3,5)``` the voltage gate values changes as follows: ```['O', 'O', 'O', 'O'], ['O', 'O', 'S', 'O'], ['O', 'O', 'O', 'S'], ['O', 'O', 'O', 'O'], ['O', 'O', 'O', 'O']```. 'O' means a gate is open and 'S' means it is shut. The gate array represents ```[x11,x12,x21,x22]``` in this order.
+10. In every braiding operation, after every successful intermediate braiding, the voltage gates are also updated. While braiding particles `(3,5)` the voltage gate values changes as follows: `['O', 'O', 'O', 'O'], ['O', 'O', 'S', 'O'], ['O', 'O', 'O', 'S'], ['O', 'O', 'O', 'O'], ['O', 'O', 'O', 'O']`. `'O'` means a gate is open and `'S'` means it is shut. The gate array represents `[Vg11, Vg12, Vg21, Vg22]` in this order.
 
 11. The output with the voltage changes are as follows:
     - Particle movements:
@@ -178,9 +188,9 @@ a,a',d,c,c',d'
     a,a',d,c,c',d',O,O,O,O
     ```
 
-12. Rule 7 - Braiding Direction. Here, the particle movement occurs in the opposite (clockwise) direction
+12. Rule 7 - **Braiding Direction**. Here, the particle movement occurs in the opposite (clockwise) direction
 
-13. This rule was implemented by changing the format of the ```braid-sequence.csv``` file.
+13. This rule was implemented by changing the format of the `braid-sequence.csv` file.
     - It was originally of the format:
     ```
     3,4
@@ -191,7 +201,7 @@ a,a',d,c,c',d'
     4,6
     5,6
     ```
-    - I changed this format by adding a bit which indicates the direction of braiding rotation next to the pair or particles. ```1``` represents clockwise braiding and ```0``` represents counter-clockwise braiding (which is the default one). The new format and the corresponding output is as follows:
+    - I changed this format by adding a bit which indicates the direction of braiding rotation next to the pair or particles. `1` represents **clockwise** braiding and `0` represents **counter-clockwise** braiding (which is the default one). The new format and the corresponding output is as follows:
     ```
     3,4,1
     3,5,1
@@ -201,7 +211,7 @@ a,a',d,c,c',d'
     4,6,1
     5,6,1
     ```
-    - Below is the Particle movements output for clockwise braiding. For braiding between ```(3,5)```, after the 1st step, the positions are as follows: ```['a', "a'", "e'", 'c', 'd', 'm']```. The pair ```["e'", 'm']``` represents the particles ```[3,6]``` and ```["e'", 'd']``` represents ```[3,5]```, BOTH of which do NOT belong to a zero mode. Therefore, the gates ```[X21,X22]``` must be shut, to preserve Rule 3.
+    - Below is the Particle movements output for clockwise braiding. For braiding between `(3, 5)`, after the 1st step, the positions are as follows: `['a', "a'", "e'", 'c', 'd', 'm']`. The pair `["e'", 'm']` represents the particles `[3, 6]` and `["e'", 'd']` represents `[3, 5]`, BOTH of which do NOT belong to a zero mode. Therefore, the gates `[Vg21, Vg22]` must be shut, to preserve Rule 3.
     - As a result, this blocks the movement of particle 6. Hence, this braiding cannot proceed in the clockwise direction with the given initial positions.
 
     ```
@@ -212,10 +222,10 @@ a,a',d,c,c',d'
     3,m-x2-c',O,O,O,O
     ----- Braiding particles (3, 5) -----
     3,c'-x2-e',O,O,O,O
-    The Particle (6) with Path [d',x2,m] is blocked by Voltage Gate ['x21']
+    The Particle (6) with Path [d',x2,m] is blocked by Voltage Gate ['Vg21']
     ```
 
-### Stage 3
+## Stage 3
 
 13. Animation - Used Python's Networkx and Pyplot libraries to create animations of the whole CNOT Braiding algorithm
     - Nanowire movement
@@ -224,13 +234,13 @@ a,a',d,c,c',d'
     - Braiding animation
     ![braid-animation](cnot/cnot-braid-table.gif)
 
-### Stage 4
+## Stage 4
 
-14. Documentation and README
+14. Documentation - Following the PEP8 standards, enforced using `PyLint`.
 
 15. Measurement - Fusion
 
-    - Firstly, the Fusion rules are important here, which varies between particle types - Majorana, Fibonacci, etc. The Fusion rules for this project are listed in ```fusion-rules.csv``` as shown below. ```o, x, 1``` represent the anyonic quasiparticles, fermions and vacuum respectively.
+    - Firstly, the Fusion rules are important here, which varies between particle types - Majorana, Fibonacci, etc. The Fusion rules for this project are listed in `fusion-rules.csv` as shown below. `(o, x, 1)` represent the anyons, fermions and vacuum respectively.
     ```
     P1,P2,Res
     o,o,1
@@ -246,7 +256,7 @@ a,a',d,c,c',d'
 
     - Secondly, the Fusuon channels for anyons is as shown in the figure below.
     ![tqc-fusion-channels](cnot/tqc-cnot-fusion-channels.png)
-    The corresponding table is in ```fusion-channel.csv``` as below. The 1st 2 columns represent the 2 qubits and the next (last) 3 columns, the channels, as shown in the figure.
+    The corresponding table is in `fusion-channel.csv` as below. The 1st 2 columns represent the 2 qubits and the next (last) 3 columns, the channels, as shown in the figure.
     ```
     Q1,Q2,a,b,c
     0,0,1,1,1
@@ -255,9 +265,9 @@ a,a',d,c,c',d'
     1,1,x,1,x
     ```
 
-    - Thirdly, The final positions of the particles AFTER braiding is stored and they are paired based on their adjacency positions from the Nanowire Matrix graph. In this case the final positions are ```a',a,d',d,c',c```. And the zero mode pairs are ```(a', a)```, ```(d', d)```, ```(c', c)```.
+    - Thirdly, The final positions of the particles AFTER braiding is stored and they are paired based on their adjacency positions from the Nanowire Matrix graph. In this case the final positions are `a',a,d',d,c',c`. And the zero mode pairs are `(a', a)`, `(d', d)`, `(c', c)`.
 
-    - Finally, measurement happens according to the fusion rules listed earlier. The output is listed in ```tqc-cnot-fusion.csv```. The 1st 3 columns are the channels which we get when measured, and the corresponding Qubit pairs.
+    - Finally, measurement happens according to the fusion rules listed earlier. The output is listed in `tqc-fusion.csv`. The 1st 3 columns are the channels which we get when measured, and the corresponding Qubit pairs.
     ```
     Pair1,Pair2,Pair3,Qubit1,Qtubi2
     x,1,x,1,1
@@ -276,13 +286,17 @@ a,a',d,c,c',d'
 
     - With this stage, the entire Topological Quantum Braiding is complete, from Particle Initialization to Braiding to Measurements.
 
-### Stage 5 - Universal Gate set
+## Stage 5 - Universal Gate set
 
 16. ![Hadamard (1 Qubit)](hadamard/README.md)
 17. ![Pauli-X (1 Qubit)](pauli-x/README.md)
 18. ![Phase S (1 qubit)](phase-s/README.md)
 
-### Stage 6
+For all of these 1-qubit gates, there is a slight change in the category 2 braiding.
+* Braiding involving 2 particles on **different branches**
+* Here, there is no 3rd particle involved, just the 2 particles. As a result, the just follow the algorithm rules and follows a similar staged execution of category 1.
+* The polymorphic class structure of `braid.py` module allows this flexibility in an elegant manner.
 
-19. Redesign Compiler architecture
-20. Preprocessing - Generating Braid sequence for a given circuit
+## Stage 6
+
+19. ![Redesign Compiler architecture](DOC-ARCHITECTURE.md)

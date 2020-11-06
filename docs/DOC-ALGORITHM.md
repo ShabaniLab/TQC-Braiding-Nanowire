@@ -11,7 +11,7 @@ The algorithm consists of the following steps:
 
 ### TQC Compiler - Preprocessing Nanowire
 
-1. Given a Nanowire structure, an **Adjacency matrix** is constructed, which is used to determine the paths that the particles take in order to form a braid. In the program, ```nanowire.py``` along with ```graph.py``` performs this preprocessing. The input to this module is specified in ```nanowire-structure.csv```, in a certain format. The outputs, the adjacency matrix is saved into ```nanowire-matrix.csv``` and the nanowire vertices into ```nanowire-vertices.csv```.
+1. Given a Nanowire structure, an **Adjacency matrix** is constructed, which is used to determine the paths that the particles take in order to form a braid. In the program, `nanowire.py` along with `graph.py` performs this preprocessing. The input to this module is specified in `nanowire-structure.csv`, in a certain format. The outputs, the adjacency matrix is saved into `nanowire-matrix.csv` and the nanowire vertices into `nanowire-vertices.csv`.
 
 2. Representation of the Nanowire must follow certain **rules**:
     - Sequence of the branches is **Counter-clockwise** and starts from the **Topmost** branch
@@ -21,7 +21,7 @@ The algorithm consists of the following steps:
 
 ![nanowire-2x](nanowire.png)
 
-3. This is a Double-X junction Nanowire. It would be represented in (```nanowire-structure.csv```) as:
+3. This is a Double-X junction Nanowire. It would be represented in (`nanowire-structure.csv`) as:
 ```
 b,b'
 a,a'
@@ -35,9 +35,9 @@ d,d'
 x21,x22
 ```
 
-4. One of the outputs of this preprocessing stage is a sequence of vertices of the Nanowire, which is saved in ```nanowire-vertices.csv```. One of the sequence for the given nanowire above is ```m,d',a',b',a,c,b,f',e,c',f,d,x2,e',x1```.
+4. One of the outputs of this preprocessing stage is a sequence of vertices of the Nanowire, which is saved in `nanowire-vertices.csv`. One of the sequence for the given nanowire above is `m,d',a',b',a,c,b,f',e,c',f,d,x2,e',x1`.
 
-5. The other output is the adjacency matrix of the Nanowire, saved in ```nanowire-matrix.csv```. The matrix for the above sequence and the given nanowire structure is
+5. The other output is the adjacency matrix of the Nanowire, saved in `nanowire-matrix.csv`. The matrix for the above sequence and the given nanowire structure is
 ```
 1,0,0,0,0,0,0,0,0,0,0,0,1,0,1
 0,1,0,0,0,0,0,0,0,0,0,1,1,0,0
@@ -66,7 +66,7 @@ Given a Braid pattern for a Quantum gate, it needs to be processed into a sequen
 
 ![braid-cnot](../cnot/braid-pattern.png)
 
-This is the Braiding pattern for a 2-Qubit CNOT gate, and the braid sequence (saved in ```braid-sequence.csv```) is:
+This is the Braiding pattern for a 2-Qubit CNOT gate, and the braid sequence (saved in `braid-sequence.csv`) is:
 ```
 3,4
 3,5
@@ -79,7 +79,7 @@ This is the Braiding pattern for a 2-Qubit CNOT gate, and the braid sequence (sa
 
 ### TQC Compiler - Preprocessing Initial positions
 
-A file, ```initial-positions.csv```, contains the initial positions of the particles on the Nanowire. In the above case, it is ```a,a',c,c',d,d'```.
+A file, `initial-positions.csv`, contains the initial positions of the particles on the Nanowire. In the above case, it is `a,a',c,c',d,d'`.
 
 ## TQC Compiler Phase
 
@@ -120,7 +120,7 @@ A file, ```initial-positions.csv```, contains the initial positions of the parti
     - Retrieve the **expected final positions** for the participating particles, AFTER the Braiding operation is completed.
     - get **empty positions** on adjacent empty branches which returns both nearest and farthest locations on the branch
     - There can be **multiple** final positions, if there are more than one free branches.
-    - If there are no empty branches available, then a ```NoEmptyPositionException``` exception is raised and the **braiding stops**
+    - If there are no empty branches available, then a `NoEmptyPositionException` exception is raised and the **braiding stops**
     - These positions are then **ranked** based on their
         - Nanowire Validity score,
         - Number of steps, and
@@ -128,19 +128,19 @@ A file, ```initial-positions.csv```, contains the initial positions of the parti
 
 2. **Retrieve Intermediate Positions**
     - Retrieve the **potential intermediate positions** for the participating particles, for the current Braiding operation.
-    - If there are no empty branches available, then a ```NoEmptyPositionException``` exception is raised and the **braiding stops**
+    - If there are no empty branches available, then a `NoEmptyPositionException` exception is raised and the **braiding stops**
     - Once the positions and their validity is confirmed, the particles are moved to their intermediate positions
     - 1st particle that moves gets the 1st empty branch (for now). Later, any rules/restrictions to move particles to certain branches can be specified
 
 3. **Validate Resulting State** - **Nanowire validation algorithm**
-    - The algorithm returns a ```score (>= 0)``` for every expected final position.
-    - If ```score = 0```, then the state is **invalid**, and ```InvalidNanowireStateException``` is raised and the **braiding stops**.
-    - If ```score > 0```, then the state is **valid** and it's safe to continue with the braiding.
+    - The algorithm returns a `score (>= 0)` for every expected final position.
+    - If `score = 0`, then the state is **invalid**, and `InvalidNanowireStateException` is raised and the **braiding stops**.
+    - If `score > 0`, then the state is **valid** and it's safe to continue with the braiding.
     - Rating the Nanowire states -
-        - Initially, ```score = 0```.
-        - If the resulting state has **at least 2** empty branches in the participating intersection, ```score += 1```.
-        - If the resulting states do not interfere in the movement of the 2nd particle involved in the braiding, ```score += 1```.
-        - If the resulting states do not interfere in the further braiding operations, ```score += 1```.
+        - Initially, `score = 0`.
+        - If the resulting state has **at least 2** empty branches in the participating intersection, `score += 1`.
+        - If the resulting states do not interfere in the movement of the 2nd particle involved in the braiding, `score += 1`.
+        - If the resulting states do not interfere in the further braiding operations, `score += 1`.
 
 ### Algorithm - Braiding Phases
 
@@ -158,4 +158,4 @@ A file, ```initial-positions.csv```, contains the initial positions of the parti
 
 7. **Update Particle Positions**
     - Generate a sequence of position-voltage pair, for every step of the particle being braided.
-    - It is updated in the file ```particle-movements.csv```, as shown:
+    - It is updated in the file `particle-movements.csv`, as shown:
