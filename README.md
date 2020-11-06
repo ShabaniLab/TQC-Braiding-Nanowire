@@ -21,6 +21,7 @@ This documentation is structured into multiple segments:
 ## Installation and execution
 
 1. `git clone https://github.com/ShabaniLab/TQC-Braiding-Nanowire`
+1. `cd TQC-Braiding-Nanowire`
 1. `pip install -r requirements`
 1. `cd gate`
 1. `./run.sh inputs/cnot` to construct a 2-qubit CNOT Quantum gate
