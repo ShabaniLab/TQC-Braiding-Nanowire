@@ -10,8 +10,6 @@ Objectives:
     1. Extracts the Adjacency matrix
     2. Calculates the shortest path using Dijkstra's algorithm
 
-Class: Nanowire
-
 Functions:
     1. adjacency_matrix
     2. validate_matrix

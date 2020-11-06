@@ -1,76 +1,127 @@
 # TQC Compiler - Architecture
 
-## Structure
+## Package
 
-### Package
-
-1. Nanowire <sup>C</sup> <sup>M</sup>
+### Nanowire <sup>M</sup> <sup>C</sup>
+1. **Module**: Nanowire
+1. **Class**: Nanowire
+1. Objectives:
     - This is the Nanowire Preprocessing stage
     - Constructs the Adjacency matrix from the given Nanowire structure
     - Constructs the list of vertices in the graph
     - Generates the Nanowire graph data structure
     - Extracts cutoff position pairs for voltage gates
-1. Graph <sup>M</sup>
+
+### Graph <sup>M</sup>
+1. **Module**: Graph
+1. Objectives:
     - Adjacency matrix
     - Dijkstra's routing
-1. Exception <sup>M</sup>
-    - NoEmptyPositionException<sup>C</sup>
-    - InvalidNanowireStateException<sup>C</sup>
-    - NoEmptyBranchException<sup>C</sup>
-    - MultiModalCrossingException<sup>C</sup>
-    - PathBlockedException<sup>C</sup>
-1. Compiler <sup>C</sup> <sup>M</sup>
+
+### Exception <sup>M</sup> <sup>C</sup>
+1. **Module**: Exception
+1. **Classes**:
+    - NoEmptyPositionException <sup>C</sup>
+    - InvalidNanowireStateException <sup>C</sup>
+    - NoEmptyBranchException <sup>C</sup>
+    - MultiModalCrossingException <sup>C</sup>
+    - PathBlockedException <sup>C</sup>
+
+### Compiler <sup>M</sup> <sup>C</sup>
+1. **Module**: Compiler
+1. **Class**: Compiler
+1. Objectives
     - Stores initial particle positions
     - Stores Braid sequence and direction for the given gate
-1. Braiding <sup>C</sup>
-    - Category 1 - Braiding particles on same branch
-    - Category 2 - Braiding particles on different branches
-    - Braid1Qubit<sup>C</sup>
-        - BraidHadamard<sup>C</sup>
-        - BraidPauliX<sup>C</sup>
-        - BraidPhaseS<sup>C</sup>
-    - Braid2Qubits<sup>C</sup>
-        - BraidCNOT<sup>C</sup>
-1. Utility <sup>M</sup>
-1. Validation <sup>M</sup>
+
+### Braiding <sup>M</sup> <sup>C</sup>
+1. **Module**: Braiding
+1. **Class**: Braiding
+    - Braid1Qubit <sup>C</sup>
+        - BraidHadamard <sup>C</sup>
+        - BraidPauliX <sup>C</sup>
+        - BraidPhaseS <sup>C</sup>
+    - Braid2Qubits <sup>C</sup>
+        - BraidCNOT <sup>C</sup>
+1. Objectives
+    - Category 1 braiding - Braiding particles on same branch
+    - Category 2 braiding - Braiding particles on different branches
+
+### Utility <sup>M</sup> <sup>C</sup>
+1. **Module**: Utility
+1. **Class**: Utility
+1. Objectives: Braiding helper functions
+1. Methods:
+    - Update Zero modes - a list of Zero mode pairs DURING a braiding operation
+    - Refresh Zero modes - a list of Zero mode pairs AFTER a braiding operation
+    - Get Isolated particles - get isolated particles which are NOT part of any zero mode (in the middle of a braiding operation)
+    - Update voltages - get Voltage Gate Changes if braiding involves particles from different zero modes.
+    - Check pair zmode - checks if the pair is a zero mode
+    - Check particle zmode - checks if at least 1 particle in the pair is part of a zero mode
+1. Functions:
+    - Get Final positions - expected final (swapped) positions of the particles to be braided
+    - Update nanowire - update Nanowire with new Positions
+    - Get steps - returns # steps from initial to final position
+    - Comparator - _Ranks_ the positions based on **Validity Score** and **# steps**
+    - Get Intermediate positions - the potential intermediate positions of the particles to be braided
+    - Get Empty positions - the empty positions on adjacent empty branches
+
+### Validation <sup>M</sup>
+1. **Module**: Validation
+1. Objectives:
     - Validate Nanowire State - Nanowire Validation Algorithm (returns a score)
         - Validate Empty Branches
         - Validate multi modal crossing
     - Validate path particle - Checks if any other particle blocks the path
     - Validate path gates - Checks if a shut voltage gate blocks the path
     - Check unibranch validity - Checks if the pair is in the same branch
-1. Metrics <sup>M</sup>
-    - Saves output generated into respective files
-1. Measurement <sup>M</sup>
-    - Measures outcomes based on the given Fusion rules and channels
-1. Animation <sup>C</sup>
+
+### Metrics <sup>M</sup>
+1. **Module**: Metrics
+1. Objective: Saves output generated into respective files
+1. Functions:
+    - Update Particle movements - update particle positions by generating a sequence of positions steps for the particles.
+    - Update Nanowire states - update the Nanowire state matrix
+    - Update Particles' Braid positions - update the particle position in the Braid sequence
+    - Update Final particle positions - update the final particle positions on the Nanowire
+
+### Measurement <sup>M</sup>
+1. **Module**: Measurement
+1. Objective: Measures outcomes based on the given Fusion rules and channels
+
+### Animation <sup>M</sup> <sup>C</sup>
+1. **Module**: Animation
+1. **Class**: Animation
+1. Objectives:
     - Braid-table animation
     - Nanowire particle movement animation
 
-### Implementation
+## Implementation
 
 1. Shell script
-    - Automation
-    - Input validation
-1. Preprocessing Nanowire
+    - `run.sh` - executes the TQC braiding algorithm, from preprocessing to measurement and animation
+    - `validate.sh` - robust input validation
+    - Automation - the required data is specified in `circuit-config.csv`, there is no manual modification for different gates.
+    - Colour-coded log outputs based on algorithm stages
+1. Preprocessing - Nanowire
     - Read Nanowire structure
     - Construct adjacency matrix
     - Extract graph vertices
-1. Algorithm Compile
+1. Algorithm - Compile
     - Nanowire
     - Compile
-    - Braid
-1. Algorithm Measure
+    - Braid - The custom classes are selected based on the `gate` in `circuit-config.csv`
+1. Algorithm- Measure
     - Read Fusion rules
     - Read Fusion channels
     - Measure
-1. Animate
-    - Braid
-    - Nanowire
+1. Animation
+    - Gate Braid animation
+    - Nanowire particles' movement animation
 
-### Inputs
+## Inputs
 
-1. Circuit configuration <sup>csv</sup>
+### Circuit configuration <sup>csv</sup>
 ```
 gate=cnot
 particles=6
@@ -78,7 +129,7 @@ qubits=2
 voltages=4
 ```
 
-1. Nanowire structure <sup>csv</sup>
+### Nanowire structure <sup>csv</sup>
 ```
 b,b'
 a,a'
@@ -92,7 +143,7 @@ d,d'
 x21,x22
 ```
 
-1. Nanowire positions <sup>csv</sup>
+### Nanowire positions <sup>csv</sup>
 ```
 Node,X,Y
 b,3,6
@@ -120,12 +171,17 @@ x23,4.5,4.5
 x24,5.5,3.5
 ```
 
-1. Initial particle positions <sup>csv</sup>
+### Initial particle positions <sup>csv</sup>
+
+It changes for every gate.
 ```
 a,a',c,c',d,d'
 ```
 
-1. Braid sequence <sup>csv</sup> (with counter-clockwise braiding direction)
+### Braid sequence <sup>csv</sup> (with braiding direction)
+
+Below is the sequence for a 2-qubit CNOT gate and it changes for every gate
+
 ```
 3,4,0
 3,5,0
@@ -136,7 +192,8 @@ a,a',c,c',d,d'
 5,6,0
 ```
 
-1. Fusion Channel <sup>csv</sup> - this channel is for a 2-qubit gate
+### Fusion Channel <sup>csv</sup>
+This channel is for a 2-qubit gate
 ```
 Q1,Q2,a,b,c
 0,0,1,1,1
@@ -146,7 +203,7 @@ Q1,Q2,a,b,c
 ```
 
 
-1. Fusion rules <sup>csv</sup>
+### Fusion rules <sup>csv</sup>
 ```
 P1,P2,Res
 o,o,1
@@ -160,14 +217,14 @@ x,x,1
 x,o,o
 ```
 
-### Outputs
+## Outputs
 
-1. Nanowire matrix <sup>csv</sup>
-1. Nanowire vertices <sup>csv</sup>
-1. Nanowire state matrix <sup>csv</sup>
-1. Particle movements - Nanowire <sup>csv</sup>
-1. Particle positions - Nanowire <sup>csv</sup>
-1. Particle positions - Braid <sup>csv</sup>
-1. Measurements <sup>csv</sup>
-1. Braid animation <sup>gif</sup>
-1. Nanowire animation <sup>gif</sup>
+1. Nanowire matrix <sup>csv</sup> - Nanowire graph adjacency matrix
+1. Nanowire vertices <sup>csv</sup> - Nanowire graph vertices list
+1. Nanowire state matrix <sup>csv</sup> - Sequence of Nanowire positions
+1. Particle movements (Nanowire) <sup>csv</sup> - a sequence of steps for every braiding
+1. Particle positions (Nanowire) <sup>csv</sup> - Initial and Final particle positions on the Nanowire
+1. Particle positions (Braid) <sup>csv</sup> - Particle positions in the braid sequence
+1. Measurements <sup>csv</sup> - Qubit values after Fusion
+1. Braid animation <sup>gif</sup> - A `gif` of the braid sequence
+1. Nanowire animation <sup>gif</sup> - A `gif` of the particle movements on Nanowire
