@@ -255,7 +255,7 @@ a,a',d,c,c',d'
     ```
 
     - Secondly, the Fusuon channels for anyons is as shown in the figure below.
-    ![tqc-fusion-channels](cnot/tqc-cnot-fusion-channels.png)
+    ![tqc-fusion-channels](tqc-fusion-channels.png)
     The corresponding table is in `fusion-channel.csv` as below. The 1st 2 columns represent the 2 qubits and the next (last) 3 columns, the channels, as shown in the figure.
     ```
     Q1,Q2,a,b,c
