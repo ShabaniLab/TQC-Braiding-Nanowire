@@ -436,8 +436,22 @@ class Animation:
                         mapping[key] = val
                 Animation.labels_old = labels
             if mapping:
-                nx.relabel_nodes(G, mapping, copy=True)
-                if len(mapping.keys()) is 2:
+                # if len(mapping) == 2:
+                #     k1 = list(mapping.keys())[0]
+                #     k2 = list(mapping.keys())[1]
+                #     map1 = {}
+                #     map2 = {}
+                #     if isinstance(k1, int):
+                #         map1[k1] = mapping[k1]
+                #         map2[k2] = mapping[k2]
+                #     else:
+                #         map1[k2] = mapping[k2]
+                #         map2[k1] = mapping[k1]
+                #     G = nx.relabel_nodes(G, map1)
+                #     G = nx.relabel_nodes(G, map2)
+                # else:
+                #     G = nx.relabel_nodes(G, mapping)
+                if len(mapping.keys()) == 2:
                     for k in mapping.keys():
                         if isinstance(k, int):
                             par = k
