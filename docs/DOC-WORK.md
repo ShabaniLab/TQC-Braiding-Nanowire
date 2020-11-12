@@ -286,7 +286,7 @@ a,a',d,c,c',d'
 
     - With this stage, the entire Topological Quantum Braiding is complete, from Particle Initialization to Braiding to Measurements.
 
-## Stage 5 - Universal Gate set
+## Stage 5 - Single qubit Gate set
 
 16. ![Hadamard (1 Qubit)](hadamard/README.md)
 17. ![Pauli-X (1 Qubit)](pauli-x/README.md)

@@ -64,7 +64,7 @@ Below is the graphical reconstruction of the Nanowire...
 
 Given a Braid pattern for a Quantum gate, it needs to be processed into a sequence of braids between 2 particles. Orderly execution of these sequences result in the braid pattern.
 
-![braid-cnot](../cnot/braid-pattern.png)
+![braid-cnot](cnot/cnot-braid-pattern.png)
 
 This is the Braiding pattern for a 2-Qubit CNOT gate, and the braid sequence (saved in `braid-sequence.csv`) is:
 ```
@@ -77,9 +77,27 @@ This is the Braiding pattern for a 2-Qubit CNOT gate, and the braid sequence (sa
 5,6
 ```
 
-### TQC Compiler - Preprocessing Initial positions
+### TQC Compiler - Preprocessing Particle positions
 
 A file, `initial-positions.csv`, contains the initial positions of the particles on the Nanowire. In the above case, it is `a,a',c,c',d,d'`.
+
+This stage is triggered before the execution of the algorithm for every gate. It checks if the positions of particles on the branch and intersections are in a valid state to perform the required braiding. If not, it tries to move the necessary particles into a valid state. If it cannot move, then it returns with an exit status 1 and the program stops.
+
+This step is important in 2 scenarios:
+1. **Gates** - Each gate requires a certain arrangement of the particle-populated branches.
+    - **Hadamard** and **Pauli-X** gates need them to be on **opposite** branches in an intersection.
+    - **CNOT** gate need them to be on **adjacent** branches in **clockwise** order.
+    - Therefore, given any random arrangement of particles on the Nanowire, this step moves them into these valid positions on the branches.
+1. **Circuits** - Here, the output of one gate feeds into another.
+    - Some of the particles may need to be moved before the execution of the next gate, as mentioned previously.
+
+##### Entanglement circuit
+
+In the case of an entanglement circuit, we have a **Hadamard** gate followed by a **CNOT** gate. The 1st 4 particles are on the **1st intersection** for the Hadamard gate. For the CNOT braiding to happen, we need the latter two particles from the Hadamard braiding. We therefore need to move them into the **2nd intersection** where the remaining 2 particles are.
+
+With the given initial positions `[b,b',f',f]` for the Hadamard gate, the final position after the Hadamard braiding is `[f',b',b,f]`. Now, we need particles `(2, 3)`, which are at positions `(b', b)`, for the CNOT braiding. These need to be moved into the 2nd intersection onto a valid branch. Given the remaining 2 particles occupy positions `(d, d')` then they need to be moved into positions `(c, c')`. The path for particle `2` is `[b', x1, m, x2, c', c]` and for particle `3` is `[b, b', x1, m, x2, c']`.
+
+Now, the CNOT braiding can commence.
 
 ## TQC Compiler Phase
 
