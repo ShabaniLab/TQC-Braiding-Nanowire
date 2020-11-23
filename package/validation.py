@@ -18,6 +18,8 @@ Functions:
     6. verify_cutoff_pair
     7. get_voltage_gate_values
     8. check_unibranch_validity
+    9. validate_particle_positions
+    10. validate_branch_config
 """
 
 from . import exception
@@ -172,3 +174,69 @@ def check_unibranch_validity(pair, positions, intersection):
     if check[0] == check[1]:
         return True
     return False
+
+
+    def validate_particle_positions(nanowire_obj, nanowire_b, positions, branch_cfg, group):
+        """Checks if the given particle positions conform to the given valid gate branch config"""
+        check = True
+        n_branches = -1
+        intersections = []
+        branches = []
+
+        for pos in positions:
+            inter = Utility.get_intersection(nanowire_obj.nanowire, pos)
+            intersections.append(nanowire_obj.nanowire.index(inter))
+            if n_branches == -1:
+                n_branches = len(inter)
+
+        # check if the particles belong to the same intersection
+        i = 0
+        for idx in group.split(','):
+            j = int(idx)
+            inter = intersections[i:i+j]
+            if len(set(inter)) > 1:
+                check = False
+                break
+            i = j
+
+        # Check if branch config is valid
+        if check:
+            for pos in positions:
+                for branch in nanowire_b:
+                    if str(pos) in branch:
+                        branches.append(nanowire_b.index(branch)%n_branches)
+
+            i = 0
+            for idx in group.split(','):
+                j = int(idx)
+                branch = branches[i:i+j]
+                if not validate_branch_config(branch_cfg, branch, n_branches):
+                    check = False
+                    break
+                i = j
+
+        return check
+
+    def validate_branch_config(branch_cfg, branch, n):
+        """Checks if the particles within an intersection conform the branch config"""
+        if len(branch) == 4:
+            if "double" in branch_cfg:
+                diff1 = branch[0]-branch[1]
+                diff3 = branch[2]-branch[3]
+                if diff1 == diff3 != 0:
+                    return False
+                diff2 = branch[1]%n-branch[2]%n
+                diff_adj_clk = [-3, 1]
+                diff_adj_clk_ctr = [-e for e in diff_adj_clk]
+                diff_opp = [2, -2]
+                if "adjacent" and "clockwise" in branch_cfg and diff2 in diff_adj_clk:
+                    return True
+                elif "adjacent" and "counter clockwise" in branch_cfg and diff2 in diff_adj_clk_ctr:
+                    return True
+                elif "opposite" in branch_cfg and diff2 in diff_opp:
+                    return True
+                return False
+            return False
+        elif len(branch) == 2:
+            return True
+        return False
