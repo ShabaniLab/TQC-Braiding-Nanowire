@@ -1,4 +1,6 @@
 gate=pauli-x
-particles=4
 qubits=1
+particles=4
 voltages=4
+group=4
+branches=double,opposite

@@ -1,8 +1,8 @@
 #!/bin/sh
 
 MSG_NO="Error: Please provide valid"
-RET_TRUE=1
-RET_FALSE=0
+RET_TRUE=0
+RET_FALSE=1
 
 ###########################################################################
 validate_inputs_dir() {
@@ -18,10 +18,14 @@ validate_circuit_config() {
     KEY_PARTICLES="particles"
     KEY_QUBITS="qubits"
     KEY_VOLTAGES="voltages"
+    KEY_BRANCHES="branches"
+    KEY_GROUP="group"
     gate=""
     qubits=""
     particles=""
     voltages=""
+    group=""
+    branches=""
 
     # Checks if the file exists
     if [ ! -f $1/$2 ];
@@ -32,23 +36,30 @@ validate_circuit_config() {
     # Reads the config data from file
     while IFS= read -r line
     do
+        value=$(echo $line| cut -d '=' -f 2)
         if [[ $line == *"$KEY_GATE"* ]];
         then
-            gate=$(echo $line| cut -d'=' -f 2)
+            gate=$value
         elif [[ $line == *"$KEY_PARTICLES"* ]];
         then
-            particles=$(echo $line| cut -d'=' -f 2)
+            particles=$value
         elif [[ $line == *"$KEY_QUBITS"* ]];
         then
-            qubits=$(echo $line| cut -d'=' -f 2)
+            qubits=$value
         elif [[ $line == *"$KEY_VOLTAGES"* ]];
         then
-            voltages=$(echo $line| cut -d'=' -f 2)
+            voltages=$value
+        elif [[ $line == *"$KEY_BRANCHES"* ]];
+        then
+            branches=$value
+        elif [[ $line == *"$KEY_GROUP"* ]];
+        then
+            group=$value
         fi
     done < $1/$2
 
     # Checks if there are all the required config data
-    if [ -z $gate ] || [ -z $qubits ] || [ -z $particles ] || [ -z $voltages ];
+    if [ -z $gate ] || [ -z $qubits ] || [ -z $particles ] || [ -z $voltages ] || [ -z $branches ] || [ -z $group ];
     then
         return $RET_FALSE
     fi

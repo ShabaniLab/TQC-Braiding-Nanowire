@@ -4,6 +4,7 @@ sys.path.append(os.path.abspath('../'))
 from package import measurement
 
 if __name__ == '__main__':
+    res = 1
     try:
         positions_initial, positions_final = measurement.read_positions(sys.argv[1])
         rules = measurement.read_fusion_rules(sys.argv[2])
@@ -12,5 +13,8 @@ if __name__ == '__main__':
 
         chl, qb = measurement.measure_particles(pairs,rules,channels)
         measurement.save_measurements(chl, qb)
+        res = 0
     except IOError as err:
         print(err)
+    finally:
+        exit(res)
