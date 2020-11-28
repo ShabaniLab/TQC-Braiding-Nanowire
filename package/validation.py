@@ -177,18 +177,26 @@ def check_unibranch_validity(pair, positions, intersection):
 
 def validate_particle_positions(nanowire_obj, nanowire_b, positions, branch_cfg, group):
     """Checks if the given particle positions conform to the given valid gate branch config"""
-    check = True
     n_branches = -1
+    check = True
     intersections = []
     branches = []
+    particles = []
 
+    # 1. extracting the intersections of the particles
     for pos in positions:
         inter = Utility.get_intersection(nanowire_obj.nanowire, pos)
         intersections.append(nanowire_obj.nanowire.index(inter))
         if n_branches == -1:
             n_branches = len(inter)
 
-    # check if the particles belong to the same intersection
+    # 2. extracting the branches of the particles
+    for pos in positions:
+        for branch in nanowire_b:
+            if str(pos) in branch:
+                branches.append(nanowire_b.index(branch))
+
+    # 3. Ccheck if the particles belong to the same intersection
     i = 0
     for idx in group.split(','):
         j = int(idx)
@@ -198,23 +206,22 @@ def validate_particle_positions(nanowire_obj, nanowire_b, positions, branch_cfg,
             break
         i = j
 
-    # Check if branch config is valid
+    # 4. check if branch config is valid
     if check:
-        for pos in positions:
-            for branch in nanowire_b:
-                if str(pos) in branch:
-                    branches.append(nanowire_b.index(branch)%n_branches)
-
         i = 0
         for idx in group.split(','):
             j = int(idx)
             branch = branches[i:i+j]
-            if not validate_branch_config(branch_cfg, branch, n_branches):
+            pars = [e+1 for e in range(i,i+j)]
+            if len(branch) != 2*len(set(branch)):
+                msg = "The particles {} are not a valid zero-mode pair".format(pars)
+                raise exception.InvalidNanowireStateException(msg)
+            elif not validate_branch_config(branch_cfg, branch, n_branches):
                 check = False
-                break
+                particles.extend(pars)
             i = j
 
-    return check
+    return check, intersections, branches, particles
 
 def validate_branch_config(branch_cfg, branch, n):
     """Checks if the particles within an intersection conform the branch config"""
@@ -233,6 +240,8 @@ def validate_branch_config(branch_cfg, branch, n):
                 res = True
             elif "opposite" in branch_cfg and diff1 == diff3 == 0 and diff2 in diff_opp:
                 res = True
+        elif "single" in branch_cfg:
+            res = True
     elif len(branch) == 2:
         res = True
     return res

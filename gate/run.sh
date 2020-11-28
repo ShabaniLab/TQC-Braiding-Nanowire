@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# --------------------------------------------------------------------------------------------------
-
 file_circuit_config="circuit-config.csv"
 file_nanowire_str="nanowire-structure.csv"
 file_braid_sequence="braid-sequence.csv"
@@ -9,6 +7,14 @@ file_initial_positions="initial-positions.csv"
 file_tqc_fusion_rules="fusion-rules.csv"
 file_tqc_fusion_channel="fusion-channel.csv"
 file_nanowire_positions="nanowire-positions.csv"
+file_tqc_measurements="tqc-fusion.csv"
+file_nanowire_vertex="nanowire-vertices.csv"
+file_nanowire_matrix="nanowire-matrix.csv"
+file_particle_position_current="particle-positions-current.csv"
+file_particle_movement="particle-movements.csv"
+file_nanowire_states="nanowire-states.csv"
+file_particle_position_braid="particle-positions-braid.csv"
+file_particle_position_nanowire="particle-positions-nanowire.csv"
 
 KEY_GATE="gate"
 KEY_QUBITS="qubits"
@@ -26,6 +32,13 @@ RET_FALSE=1
 RET_TRUE=0
 MSG_NO_IP_OP="\033[0;31mError:\033[0m Please provide \033[0;31minputs\033[0m and \033[0;31moutputs\033[0m directories of your choice as arguments"
 MSG_EX_IP_OP="\033[0;33mLike so:\033[0m ./run.sh \033[0;33m./inputs/hadamard\033[0m \033[0;33m./outputs/hadamard\033[0m"
+
+# --------------------------------------------------------------------------------------------------
+
+echo ""
+echo "###########################################################################"
+echo "#                    P R O C E S S I N G    I N P U T S                   #"
+echo "###########################################################################"
 
 # --------------------------------------------------------------------------------------------------
 # Checks for an inputs and outputs dir
@@ -56,7 +69,7 @@ then
 fi
 
 # --------------------------------------------------------------------------------------------------
-# Reads the config data from file
+# Read the config data from file
 # --------------------------------------------------------------------------------------------------
 while IFS= read -r line
 do
@@ -83,17 +96,15 @@ do
 done < $1/$file_circuit_config
 
 # --------------------------------------------------------------------------------------------------
-# Creates a new outputs dir
+# Create a new outputs dir
 # --------------------------------------------------------------------------------------------------
 OUTPUT=./outputs
 OUTPUTS="${OUTPUT}/${gate}"
-MSG_OP_ALT="All your outputs will be saved at \033[0;36m${OUTPUTS}\033[0m instead"
+MSG_OP_ALT="All the outputs will be saved at \033[0;36m${OUTPUTS}\033[0m instead"
 if [ -z $2 ];
 then
-    echo $MSG_NO_IP_OP
-    echo $MSG_EX_IP_OP
+    echo "No output dir provided..."
     echo $MSG_OP_ALT
-
     if [ -d $OUTPUT ];
     then
         rm -r -d $OUTPUT
@@ -109,63 +120,8 @@ fi
 mkdir $OUTPUTS
 
 # --------------------------------------------------------------------------------------------------
-
-echo "\033[0;37m###########################################################################\033[0m"
-echo "\033[0;37m    Constructing a \033[1;36m${qubits}\033[0m\033[0;37m-qubit(s) \033[1;36m${gate}\033[0m\033[0;37m gate by braiding \033[1;36m${particles}\033[0m\033[0;37m quasi-particles\033[0m"
-echo "\033[0;37m###########################################################################\033[0m"
-
-echo ""
-echo "\033[0;33m###########################################################################\033[0m"
-echo "\033[1;33m#               P R E P R O C E S S I N G    N A N O W I R E              #\033[0m"
-echo "\033[0;33m###########################################################################\033[0m"
-# Files
-file_nanowire_vertex="nanowire-vertices.csv"
-file_nanowire_matrix="nanowire-matrix.csv"
-
-# Constructing the Adjacency Matrix for the given Nanowire structure
-echo "Nanowire preprocessing started..."
-: > $OUTPUTS/$file_nanowire_vertex
-: > $OUTPUTS/$file_nanowire_matrix
-python tqc-preprocess-nanowire.py\
-    $1/$file_nanowire_str\
-    $OUTPUTS/$file_nanowire_vertex\
-    $OUTPUTS/$file_nanowire_matrix
-check=$?
-if [ "$check" -eq $RET_FALSE ];
-then
-    echo "\033[0;31mNanowire preprocessing failed...\033[0m"
-    exit $RET_FALSE
-fi
-echo "\033[0;32mNanowire preprocessing completed...\033[0m"
-
+# Generate headers for output files
 # --------------------------------------------------------------------------------------------------
-
-echo ""
-echo "\033[0;33m###########################################################################\033[0m"
-echo "\033[1;33m#        P R E P R O C E S S I N G    B R A I D    S E Q U E N C E        #\033[0m"
-echo "\033[0;33m###########################################################################\033[0m"
-# Files
-file_particle_position_nanowire="particle-positions-nanowire.csv"
-
-echo "Braid generation preprocessing started..."
-# python tqc-preprocess-braid.py
-echo "\033[0;32mBraid generation preprocessing completed...\033[0m"
-
-# --------------------------------------------------------------------------------------------------
-
-echo ""
-echo "\033[0;33m###########################################################################\033[0m"
-echo "\033[1;33m#              P R E P R O C E S S I N G    P O S I T I O N S             #\033[0m"
-echo "\033[0;33m###########################################################################\033[0m"
-# Files
-file_nanowire_vertex="nanowire-vertices.csv"
-file_nanowire_matrix="nanowire-matrix.csv"
-file_particle_position_current="particle-positions-current.csv"
-file_particle_movement="particle-movements.csv"
-file_nanowire_states="nanowire-states.csv"
-file_particle_position_braid="particle-positions-braid.csv"
-
-echo "Positions preprocessing started..."
 cat $1/$file_initial_positions > $OUTPUTS/$file_particle_position_nanowire
 tail -n 1 $OUTPUTS/$file_particle_position_nanowire > $OUTPUTS/$file_particle_position_current
 
@@ -206,6 +162,53 @@ echo $heading1 > $OUTPUTS/$file_particle_movement
 echo $heading2 > $OUTPUTS/$file_nanowire_states
 echo $heading3 > $OUTPUTS/$file_particle_position_braid
 
+# --------------------------------------------------------------------------------------------------
+
+echo ""
+echo "\033[0;37m###########################################################################\033[0m"
+echo "\033[0;37m    Constructing a \033[1;36m${qubits}\033[0m\033[0;37m-qubit(s) \033[1;36m${gate}\033[0m\033[0;37m gate by braiding \033[1;36m${particles}\033[0m\033[0;37m quasi-particles\033[0m"
+echo "\033[0;37m###########################################################################\033[0m"
+
+echo ""
+echo "\033[0;33m###########################################################################\033[0m"
+echo "\033[1;33m#               P R E P R O C E S S I N G    N A N O W I R E              #\033[0m"
+echo "\033[0;33m###########################################################################\033[0m"
+
+echo "Nanowire preprocessing started..."
+: > $OUTPUTS/$file_nanowire_vertex
+: > $OUTPUTS/$file_nanowire_matrix
+python tqc-preprocess-nanowire.py\
+    $1/$file_nanowire_str\
+    $OUTPUTS/$file_nanowire_vertex\
+    $OUTPUTS/$file_nanowire_matrix
+
+check=$?
+if [ "$check" -eq $RET_FALSE ];
+then
+    echo "\033[0;31mNanowire preprocessing failed...\033[0m"
+    exit $RET_FALSE
+fi
+echo "\033[0;32mNanowire preprocessing completed...\033[0m"
+
+# --------------------------------------------------------------------------------------------------
+
+echo ""
+echo "\033[0;33m###########################################################################\033[0m"
+echo "\033[1;33m#        P R E P R O C E S S I N G    B R A I D    S E Q U E N C E        #\033[0m"
+echo "\033[0;33m###########################################################################\033[0m"
+
+echo "Braid generation preprocessing started..."
+# python tqc-preprocess-braid.py
+echo "\033[0;32mBraid generation preprocessing completed...\033[0m"
+
+# --------------------------------------------------------------------------------------------------
+
+echo ""
+echo "\033[0;33m###########################################################################\033[0m"
+echo "\033[1;33m#              P R E P R O C E S S I N G    P O S I T I O N S             #\033[0m"
+echo "\033[0;33m###########################################################################\033[0m"
+
+echo "Positions preprocessing started..."
 python tqc-preprocess-positions.py\
     $1/$file_nanowire_str\
     $OUTPUTS/$file_nanowire_vertex\
@@ -217,6 +220,7 @@ python tqc-preprocess-positions.py\
     $branches\
     $group\
     $gate
+
 check=$?
 if [ "$check" -eq $RET_FALSE ];
 then
@@ -243,6 +247,7 @@ python tqc-algorithm-compile.py \
     $OUTPUTS/$file_nanowire_states\
     $OUTPUTS/$file_particle_position_braid\
     $gate
+
 check=$?
 if [ "$check" -eq $RET_FALSE ];
 then
@@ -257,8 +262,6 @@ echo ""
 echo "\033[0;36m###########################################################################\033[0m"
 echo "\033[1;36m#                     M E A S U R I N G    A N Y O N S                    #\033[0m"
 echo "\033[0;36m###########################################################################\033[0m"
-# Files
-file_tqc_measurements="tqc-fusion.csv"
 
 echo "Measurement (Fusion) started..."
 python tqc-algorithm-measure.py \
@@ -269,6 +272,7 @@ python tqc-algorithm-measure.py \
     $OUTPUTS/$file_nanowire_vertex\
     $qubits\
     >> $OUTPUTS/$file_tqc_measurements
+
 check=$?
 if [ "$check" -eq $RET_FALSE ];
 then
@@ -293,6 +297,7 @@ python tqc-animate.py \
     $OUTPUTS/$file_particle_position_braid\
     $gate\
     $OUTPUTS
+
 check=$?
 if [ "$check" -eq $RET_FALSE ];
 then
@@ -300,14 +305,6 @@ then
     exit $RET_FALSE
 fi
 echo "\033[0;32mBraid and Nanowire animation completed...\033[0m"
-
-# --------------------------------------------------------------------------------------------------
-
-# echo ""
-# echo "\033[0;32m###########################################################################\033[0m"
-# echo "\033[1;32m#    T Q C    B R A I D I N G    A L G O R I T H M    C O M P L E T E D   #\033[0m"
-# echo "\033[0;32m###########################################################################\033[0m"
-
 exit $RET_TRUE
 
 # --------------------------------------------------------------------------------------------------
