@@ -33,7 +33,7 @@ def read_particle_positions(file):
     """
     try:
         fr = open(file, 'r')
-        line = fr.readline()
+        line = fr.readlines()[-1]
         positions = line.split(',')
         positions = [e.strip() for e in positions]
         fr.close()

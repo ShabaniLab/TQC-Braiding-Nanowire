@@ -122,9 +122,6 @@ mkdir $OUTPUTS
 # --------------------------------------------------------------------------------------------------
 # Generate headers for output files
 # --------------------------------------------------------------------------------------------------
-cat $1/$file_initial_positions > $OUTPUTS/$file_particle_position_nanowire
-tail -n 1 $OUTPUTS/$file_particle_position_nanowire > $OUTPUTS/$file_particle_position_current
-
 key_pair="Par1,Par2"
 key_par="Particle"
 key_path="Path"
@@ -207,6 +204,8 @@ echo ""
 echo "\033[0;33m###########################################################################\033[0m"
 echo "\033[1;33m#              P R E P R O C E S S I N G    P O S I T I O N S             #\033[0m"
 echo "\033[0;33m###########################################################################\033[0m"
+cat $1/$file_initial_positions > $OUTPUTS/$file_particle_position_nanowire
+tail -n 1 $OUTPUTS/$file_particle_position_nanowire > $OUTPUTS/$file_particle_position_current
 
 echo "Positions preprocessing started..."
 python tqc-preprocess-positions.py\
