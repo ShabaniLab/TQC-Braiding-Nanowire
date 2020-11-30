@@ -1,0 +1,18 @@
+application: tqc-braiding-nanowire
+instances: 1
+gates:
+    - hadamard
+    - cnot
+qubits: 2
+particles: 6
+initial_positions:
+    - b
+    - b'
+    - c'
+    - c
+    - e
+    - e'
+measure: true
+animations:
+    - braid
+    - nanowire

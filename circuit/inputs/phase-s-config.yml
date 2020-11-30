@@ -1,0 +1,10 @@
+gate: phase-s
+qubits: 1
+particles: 4
+voltages: 4
+groups:
+    - 4
+branch_config:
+    - single
+braid_sequence:
+    - 1,2,0
