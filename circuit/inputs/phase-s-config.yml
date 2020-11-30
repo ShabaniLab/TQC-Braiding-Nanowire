@@ -1,7 +1,6 @@
 gate: phase-s
 qubits: 1
 particles: 4
-voltages: 4
 groups:
     - 4
 branch_config:

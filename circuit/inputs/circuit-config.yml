@@ -5,6 +5,7 @@ gates:
     - cnot
 qubits: 2
 particles: 6
+nanowire: double-x
 initial_positions:
     - b
     - b'

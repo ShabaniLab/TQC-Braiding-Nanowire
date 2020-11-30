@@ -1,3 +1,11 @@
+type: double-x
+intersections: 2
+branches: 8
+voltages: 4
+positions: 13
+naming:
+    direction: counter-clockwise
+    sequence: inwards
 structure:
     0:
         - b,b'

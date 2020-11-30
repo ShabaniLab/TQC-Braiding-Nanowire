@@ -1,7 +1,6 @@
 gate: cnot
 qubits: 2
 particles: 6
-voltages: 4
 groups:
     - 2
     - 4
