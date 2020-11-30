@@ -36,7 +36,8 @@ def validate_nanowire_state(nw, positions, utility, positions_single, voltages, 
         elif type==1:
             min_free_branch = 2
         score = validate_empty_branches(nw, min_free_branch, msg)
-        validate_multi_modal_crossing(positions, positions_single, voltages, utility, nanowire,msg)
+        if score>0:
+            validate_multi_modal_crossing(positions, positions_single, voltages, utility, nanowire,msg)
         return score
     except exception.InvalidNanowireStateException:
         raise
@@ -67,8 +68,8 @@ def validate_empty_branches(nanowire, min_free_branch, msg):
 
     if valid:
         score += 1
-    if score==0:
-        raise exception.NoEmptyBranchException(msg)
+    # if score==0:
+    #     raise exception.NoEmptyBranchException(msg)
     return score
 
 def validate_multi_modal_crossing(positions, positions_single, voltages, utility, nanowire, msg):
@@ -180,7 +181,9 @@ def validate_particle_positions(nanowire_obj, nanowire_b, positions, branch_cfg,
     n_branches = -1
     check = True
     intersections = []
+    intersections_final = []
     branches = []
+    branches_final = []
     particles = []
 
     # 1. extracting the intersections of the particles
@@ -201,14 +204,19 @@ def validate_particle_positions(nanowire_obj, nanowire_b, positions, branch_cfg,
     for idx in group.split(','):
         j = int(idx)
         inter = intersections[i:i+j]
-        if len(set(inter)) > 1:
+        pars = [e+1 for e in range(i,i+j)]
+        if len(set(inter)) > 1 and not "single" in branch_cfg:
             check = False
+            particles.extend(pars)
+            intersections_final = inter
+            branches_final = branches[i:i+j]
             break
         i = j
 
     # 4. check if branch config is valid
     if check:
         i = 0
+        particles = []
         for idx in group.split(','):
             j = int(idx)
             branch = branches[i:i+j]
@@ -219,9 +227,11 @@ def validate_particle_positions(nanowire_obj, nanowire_b, positions, branch_cfg,
             elif not validate_branch_config(branch_cfg, branch, n_branches):
                 check = False
                 particles.extend(pars)
+                branches_final = branch
+                intersections_final = intersections[i:i+j]
             i = j
 
-    return check, intersections, branches, particles
+    return check, intersections_final, branches_final, particles
 
 def validate_branch_config(branch_cfg, branch, n):
     """Checks if the particles within an intersection conform the branch config"""

@@ -218,7 +218,8 @@ python tqc-preprocess-positions.py\
     $OUTPUTS/$file_nanowire_states\
     $branches\
     $group\
-    $gate
+    $gate\
+    $OUTPUTS/$file_particle_position_braid
 
 check=$?
 if [ "$check" -eq $RET_FALSE ];

@@ -24,6 +24,14 @@ Methods:
     1. braid_particles_same_branch
     2. braid_particles_diff_branch
     3. move_particles
+
+    4. code_block_validation
+    5. code_block_inter_positions
+    6. code_block_path
+    7. code_block_update_states
+    8. code_block_save_path_output
+    9. code_block_target_branch_config
+    10. code_block_target_position_config
 """
 
 import copy
@@ -38,6 +46,7 @@ class Braiding:
 
     TYPE_FINAL = 1
     TYPE_INTER = 2
+    TYPE_MOVE  = 0
 
     def __init__(self, nanowire, compiler):
         self.nanowire = nanowire
@@ -58,15 +67,9 @@ class Braiding:
             f_nw, final_positions, positions_single = self.code_block_validation(pair, voltages, utility)
 
             # 1.
-            # Once final positions are validated, move the particles to their intermediate pos
-            # 1st particle that moves gets the 1st empty branch (for now)
-            # --Can later specify any rule/restriction to move particles to certain branches
-            # intermediate_positions = []
             pair = self.get_1st_pair_sequence(pair)
             for par in pair:
                 pos_start = self.compiler.positions[par-1]
-                pos_end = None
-                f_nw = None
                 positions_temp = copy.copy(self.compiler.positions)
 
                 # getting the list of positions on free branches (intermediate positions)
@@ -75,11 +78,11 @@ class Braiding:
                     inter_positions = list(reversed(inter_positions))
 
                 f_nw, pos_end = self.code_block_inter_positions(inter_positions, positions_temp,
-                    pair, par, voltages, utility, pos_start, pos_end)
+                    pair, par, voltages, utility, pos_start)
 
                 if pos_end is not None and f_nw is not None:
                     self.code_block_path(pos_start, pos_end, par, f_nw, utility, voltages,
-                        pair0, file_mvmt, file_state, False, f_nw)
+                        pair0, file_mvmt, file_state, False, f_nw, True, True)
 
             # 2.
             p_pair = self.get_2nd_pair_sequence(pair)
@@ -87,7 +90,7 @@ class Braiding:
                 pos_start = self.compiler.positions[par-1]
                 pos_end = final_positions[par-1]
                 self.code_block_path(pos_start, pos_end, par, f_nw, utility, voltages,
-                    pair0, file_mvmt, file_state, True, None)
+                    pair0, file_mvmt, file_state, True, None, True, True)
 
         except exception.NoEmptyPositionException:
             raise
@@ -104,7 +107,6 @@ class Braiding:
         # par2 = pair[1]
         pos1 = self.compiler.positions[par1-1]
         # pos2 = self.compiler.positions[par2-1]
-        # inner = ["a'", "b'", "f'", "c'", "d'", "e'"]
         if pos1 in self.nanowire.inner:
             return list(pair)
         return list(reversed(list(pair)))
@@ -140,11 +142,13 @@ class Braiding:
             raise
 
     def code_block_inter_positions(self, inter_pos, positions_temp, pair, par,
-        voltages, utility, pos_start, pos_end):
+            voltages, utility, pos_start):
         """getting the best (least # steps) intermediate position in the list"""
         p_pos = None
         # p_score = 0
         p_steps = 10
+        pos_end = None
+        f_nw = None
         try:
             for pos in inter_pos:
                 positions_temp[par-1] = pos
@@ -162,7 +166,6 @@ class Braiding:
 
                 if p_pos is not None:
                     pos_end = p_pos
-                    # intermediate_positions = inter_pos
                     if p_pos==pos:
                         # p_score = score
                         p_steps = steps
@@ -174,9 +177,8 @@ class Braiding:
             raise
 
     def code_block_path(self, pos_start, pos_end, par, f_nw, utility, voltages, pair,
-        file_mvmt, file_state, pos_update, f_nw_update):
-        """Dijkstra's algorithm gives the shortest path for a particle
-        from its current position to its final position."""
+            file_mvmt, file_state, pos_update, f_nw_update, update_zm, update_volt):
+        """Dijkstra's algorithm gives the shortest path for a particle"""
         path = graph.route(self.nanowire.matrix,
                 self.nanowire.vertices.index(pos_start),
                 self.nanowire.vertices.index(pos_end))
@@ -185,22 +187,23 @@ class Braiding:
         if len(block)==0:
             if pos_update:
                 self.compiler.positions[par-1] = pos_end
-            self.code_block_update_states(f_nw_update, utility)
+            self.code_block_update_states(f_nw_update, utility, update_zm, update_volt)
             Braiding.code_block_save_path_output(self.nanowire, voltages,
                 self.compiler.positions, pair, par, path, file_mvmt, file_state)
 
-    def code_block_update_states(self, f_nw, utility):
+    def code_block_update_states(self, f_nw, utility, update_zm, update_volt):
         """Updates the necessary states after a braiding op"""
         if f_nw is None:
             f_nw = Utility.update_nanowire(self.nanowire.nanowire, self.compiler.positions)
-
         self.nanowire.nanowire = copy.deepcopy(f_nw)
-        utility.update_zero_modes(f_nw)
-        utility.update_voltages(self.compiler.positions, self.nanowire.cutoff_pairs_adj)
+        if update_zm:
+            utility.update_zero_modes(f_nw)
+        if update_volt:
+            utility.update_voltages(self.compiler.positions, self.nanowire.cutoff_pairs_adj)
 
     @classmethod
     def code_block_save_path_output(cls, nanowire_obj, voltages, positions,
-        pair, par, path, file_mvmt, file_state):
+            pair, par, path, file_mvmt, file_state):
         """Function calls to metrics """
         if validation.validate_path_gates(par, path, nanowire_obj.vertices,
                 voltages, nanowire_obj.cutoff_pairs_adj, nanowire_obj.cutoff_pairs_opp):
@@ -209,8 +212,7 @@ class Braiding:
             metrics.update_nanowire_state(file_state, pair,
                 positions, path, nanowire_obj.vertices, par, voltages)
 
-    @classmethod
-    def move_particles(cls, *args):
+    def move_particles(self, *args):
         """
         Particle position preprocessing
         1. If the zero modes are on different intersections
@@ -220,149 +222,314 @@ class Braiding:
         1. Preserving the order - outer to outer
         2. Reversing the order  - inner to outer
         """
-        nanowire_obj  = args[0]
-        positions     = args[1]
-        intersections = args[2]
-        branches      = args[3]
-        particles     = args[4]
-        file_pos      = args[5]
-        file_mvmt     = args[6]
-        file_state    = args[7]
-        branch_cfg    = args[8]
+        try:
+            utility       = args[0]
+            intersections = args[1]
+            branches      = args[2]
+            particles     = args[3]
+            branch_cfg    = args[4]
+            file_mvmt     = args[5]
+            file_state    = args[6]
+            gate          = args[7]
 
-        par1 = particles[0]
-        par2 = particles[1]
-        par3 = particles[2]
-        par4 = particles[3]
-        pair1 = [par1, par2]
-        pair2 = [par3, par4]
+            inter_initial, inter_target, branch_initial, branch_target = \
+                self.code_block_target_branch_config(intersections, branches, branch_cfg)
+            # print(inter_initial, inter_target, branch_initial, branch_target)
 
+            final_positions, dir, par_inner, par_outer = \
+                self.code_block_target_position_config(gate, utility,
+                particles, branches, inter_initial, inter_target, branch_initial, branch_target)
+            # print(self.compiler.positions, final_positions, dir, par_inner, par_outer)
+            pair = (par_inner, par_outer)
+            pair_ret = ()
+
+            # Reverse order
+            if dir == 0:
+                print("----- Moving particles {} -----".format(pair))
+                # 1. Move initial inner to target outer position
+                positions_temp = copy.copy(self.compiler.positions)
+                positions_temp[par_inner-1] = final_positions[par_inner-1]
+                f_nw = Utility.update_nanowire(self.nanowire.nanowire, positions_temp)
+                self.code_block_path(self.compiler.positions[par_inner-1], final_positions[par_inner-1], par_inner,
+                    f_nw, utility, utility.voltages, pair, file_mvmt, file_state, True, f_nw, False, False)
+
+                # 2. Move initial outer to target inner position
+                positions_temp = copy.copy(self.compiler.positions)
+                positions_temp[par_outer-1] = final_positions[par_outer-1]
+                f_nw = Utility.update_nanowire(self.nanowire.nanowire, positions_temp)
+                self.code_block_path(self.compiler.positions[par_outer-1], final_positions[par_outer-1], par_outer,
+                    f_nw, utility, utility.voltages, pair, file_mvmt, file_state, True, f_nw, True, True)
+
+            # Same order
+            if dir == 1:
+                print("----- Braiding particles {} -----".format(pair))
+                pair_ret = pair
+                # a. getting the intermediate positions for par_inner
+                inter_positions = Utility.get_intermediate_positions(self.nanowire.nanowire, self.compiler.positions[par_inner-1])
+                middle = ['m']
+                pos_mid2 = None
+                for position in inter_positions:
+                    if inter_initial == inter_target and position in middle:
+                        # if the intersection is the same then move the inner particle onto
+                        # the middle branch, which is (m) in this case
+                        pos_mid2 = position
+                        break
+                    elif inter_initial != inter_target and position in self.nanowire.inner:
+                        # else move it into the other branch, so this doesn't block the path
+                        # to the other intersection
+                        pos_mid2 = position
+                        break
+
+                if pos_mid2 is None:
+                    msg = "The initial positions of particles are in an invalid state to move them"
+                    raise exception.InvalidMovementException(msg)
+
+                # 1. Move par_inner to pos_mid2
+                positions_temp = copy.copy(self.compiler.positions)
+                positions_temp[par_inner-1] = pos_mid2
+                f_nw = Utility.update_nanowire(self.nanowire.nanowire, positions_temp)
+                self.code_block_path(self.compiler.positions[par_inner-1], pos_mid2, par_inner,
+                    f_nw, utility, utility.voltages, pair, file_mvmt, file_state, True, f_nw, False, False)
+
+                # 2. Move the par_outer to outer position on target branch
+                positions_temp = copy.copy(self.compiler.positions)
+                positions_temp[par_outer-1] = final_positions[par_outer-1]
+                f_nw = Utility.update_nanowire(self.nanowire.nanowire, positions_temp)
+                self.code_block_path(self.compiler.positions[par_outer-1], final_positions[par_outer-1], par_outer,
+                    f_nw, utility, utility.voltages, pair, file_mvmt, file_state, True, f_nw, False, False)
+
+                # 3. Move par_inner from pos_mid2 to inner position on target branch
+                positions_temp = copy.copy(self.compiler.positions)
+                positions_temp[par_inner-1] = final_positions[par_inner-1]
+                f_nw = Utility.update_nanowire(self.nanowire.nanowire, positions_temp)
+                self.code_block_path(pos_mid2, final_positions[par_inner-1], par_inner, f_nw,
+                    utility, utility.voltages, pair, file_mvmt, file_state, True, f_nw, True, True)
+
+            if self.compiler.positions == final_positions:
+                return final_positions, pair_ret
+            msg = "There was an error in movement: {}".format(self.compiler.positions)
+            raise exception.InvalidMovementException(msg)
+        except exception.NoEmptyPositionException:
+            raise
+        except exception.InvalidNanowireStateException:
+            raise
+        except exception.InvalidMovementException:
+            raise
+        except exception.PathBlockedException:
+            raise
+
+    def code_block_target_branch_config(self, intersections, branches, branch_cfg):
+        """returns the initial and final intersections and branches"""
         inter_initial  = 0
         inter_target   = 0
         branch_initial = 0
         branch_target  = 0
-        n_branches = len(nanowire_obj.nanowire[0])
+        n_branches = len(self.nanowire.nanowire[0])
+        opp_allowed = [(0,0), (0,2), (1,0), (1,2)]
+        adj_clk_allowed = [(0,1), (0,2), (1,0), (1,3)]
+        adj_clk_2_allowed = [(0,0), (0,1), (1,3), (1,2)]
+        adj_ctr_clk_allowed = [(0,0), (0,1), (1,2), (1,3)]
+        adj_ctr_clk_2_allowed = [(0,1), (0,2), (1,3), (1,0)]
 
-        if len(set(intersections)) == 1:
-            inter_initial = intersections[0]
-            inter_target  = intersections[0]
-        else:
-            inter_initial = intersections[0]
-            inter_target  = intersections[2]
+        # getting the initial and target intersections
+        si = list(set(intersections))
+        if len(si) == 1:
+            inter_initial = si[0]
+            inter_target  = si[0]
+        elif len(si) == 2:
+            inter_initial = si[0]
+            inter_target  = si[1]
 
-        paired_branch = branches[2]
-        if "adjacent" and "clockwise" in branch_cfg:
-            branch_target = paired_branch + 1
-        elif "adjacent" and "counter clockwise" in branch_cfg:
-            branch_target = paired_branch - 1
-        elif "opposite" in branch_cfg:
-            branch_target = paired_branch + n_branches/2
-        branch_target = branch_target%n_branches
+        if len(branches) > 4:
+            msg = "With the given positions, {}, it isn't possible to move the particles into a valid gate branch config"\
+                .format(branches)
+            raise exception.InvalidMovementException(msg)
 
-        ########################################################################################
-        ## 1. Get target branch from intersection along with respective positions
-        voltages = utility.voltages
-        branch = inter_target[branch_target]
-        tgt_pos_out = branch
-        tgt_pos_in  = branch
+        bi = list(set(branches))
+        if len(bi) > 2:
+            msg = "With the given positions, {}, it isn't possible to move the particles into a valid gate branch config"\
+                .format(bi)
+            raise exception.InvalidMovementException(msg)
 
-        ## 2. Map start to end positions in reverse order
-        tgt_pos_par1 = tgt_pos_in
-        tgt_pos_par2 = tgt_pos_out
+        # getting the initial and target branches
+        b1 = bi[0]
+        b2 = bi[1]
+        ib1 = (inter_initial, b1%n_branches)
+        ib2 = (inter_target, b2%n_branches)
+        msg = "With the current positions of ({}, {}) it isn't possible to move them into a valid gate branch config"\
+            .format(b1, b2)
 
-        ## 3. Check if the movement causes the nanowire state to be invalid
-        pair = pair1
-        final_positions = copy.copy(positions)
-        final_positions[par1-1] = tgt_pos_par1
-        final_positions[par2-1] = tgt_pos_par2
-        f_nw = Utility.update_nanowire(self.nanowire.nanowire, final_positions)
+        try:
+            tup_cur1 = self.nanowire.nanowire[inter_initial][b1%n_branches][-1]
+            pos_cur1 = list(tup_cur1.keys())[0]
+            free_positions1 = Utility.get_intermediate_positions(self.nanowire.nanowire, pos_cur1)
+            free_branches1 = int(len(free_positions1)/2)+1
 
-        # getting the list of isolated particles
-        positions_single = utility.get_isolated_particles(final_positions)
+            tup_cur2 = self.nanowire.nanowire[inter_target][b2%n_branches][-1]
+            pos_cur2 = list(tup_cur2.keys())[0]
+            free_positions2 = Utility.get_intermediate_positions(self.nanowire.nanowire, pos_cur2)
+            free_branches2 = int(len(free_positions2)/2)+1
 
-        # validating final positions before moving forward with the braiding operation
-        msg = "Error while trying to move {}: {} is an invalid state"\
-                .format(pair, final_positions)
-        validation.validate_nanowire_state(f_nw, final_positions, utility,
-                positions_single, voltages, self.nanowire, Braiding.TYPE_FINAL, msg)
+            if "opposite" in branch_cfg:
+                min_free_branch = 3
+                if inter_initial == inter_target:
+                    min_free_branch = 2
+                if ib1 in opp_allowed and free_branches1 >= min_free_branch:
+                    branch_initial = b2
+                    branch_target = (b1 + n_branches/2)%n_branches
+                    if inter_target != inter_initial:
+                        inter_target, inter_initial = inter_initial, inter_target
+                elif ib2 in opp_allowed and free_branches2 >= min_free_branch:
+                    branch_initial = b1
+                    branch_target = (b2 + n_branches/2)%n_branches
+                    # if inter_target != inter_initial:
+                    #     inter_target, inter_initial = inter_initial, inter_target
+                else:
+                    raise exception.InvalidMovementException(msg)
+            elif "adjacent" and "clockwise" in branch_cfg:
+                min_free_branch = 3
+                if inter_initial == inter_target:
+                    min_free_branch = 2
+                if free_branches1 >= min_free_branch and ib1 in adj_clk_allowed:
+                    branch_initial = b2
+                    if ib1 in adj_clk_allowed:
+                        branch_target = (b1 - 1)%n_branches
+                    if inter_target != inter_initial:
+                        inter_target, inter_initial = inter_initial, inter_target
+                elif free_branches2 >= min_free_branch and ib2 in adj_clk_2_allowed:
+                    branch_initial = b1
+                    if ib2 in adj_clk_2_allowed:
+                        branch_target = (b2 + 1)%n_branches
+                    # if inter_target != inter_initial:
+                    #     inter_target, inter_initial = inter_initial, inter_target
+                else:
+                    raise exception.InvalidMovementException(msg)
+            elif "adjacent" and "counter clockwise" in branch_cfg:
+                min_free_branch = 3
+                if inter_initial == inter_target:
+                    min_free_branch = 2
+                if free_branches1 >= min_free_branch and\
+                    (ib1 in adj_ctr_clk_allowed or ib1 in adj_ctr_clk_2_allowed):
+                    branch_initial = b2
+                    if ib1 in adj_ctr_clk_allowed:
+                        branch_target = (b1 + 1)%n_branches
+                    elif ib1 in adj_ctr_clk_2_allowed:
+                        branch_target = (b1 - 1)%n_branches
+                    if inter_target != inter_initial:
+                        inter_target, inter_initial = inter_initial, inter_target
+                elif free_branches2 >= min_free_branch and\
+                    (ib2 in adj_ctr_clk_allowed or ib2 in adj_ctr_clk_2_allowed):
+                    branch_initial = b1
+                    if ib2 in adj_ctr_clk_2_allowed:
+                        branch_target = (b2 - 1)%n_branches
+                    elif ib2 in adj_ctr_clk_allowed:
+                        branch_target = (b2 + 1)%n_branches
+                    # if inter_target != inter_initial:
+                    #     inter_target, inter_initial = inter_initial, inter_target
+                else:
+                    raise exception.InvalidMovementException(msg)
+        except exception.NoEmptyPositionException:
+            raise
+        return inter_initial, inter_target, branch_initial, int(branch_target)
 
-        ########################################################################################
-        # Reverse order:
-        ########################################################################################
-        ## 4. Extract the path and move them in reverse order
-        path2 = graph.route(nanowire_obj.matrix, positions[par2-1], tgt_pos_par2)
-        path1 = graph.route(nanowire_obj.matrix, positions[par1-1], tgt_pos_par1)
+    def code_block_target_position_config(self, gate, utility, particles, branches,
+            inter_initial, inter_target, branch_initial, branch_target):
+        """get particles to be moved, final positions, zero mode order"""
+        try:
+            # i. getting the particles to be moved
+            pars = []
+            branch_idx = [i for i in range(len(branches)) if branches[i] == branch_initial]
+            pars = [particles[i] for i in branch_idx]
+            if len(pars) != 2:
+                msg = "Invalid number of particles for the movement"
+                raise exception.InvalidMovementException(msg)
+            par1 = pars[0]
+            par2 = pars[1]
 
-        # checking if the path is not blocked
-        block2 = validation.validate_path_particle(path2, final_positions, nanowire_obj.vertices, par2)
-        block1 = validation.validate_path_particle(path1, final_positions, nanowire_obj.vertices, par1)
-        if len(block1) == 0 and len(block2) == 0:
-            f_nw = Utility.update_nanowire(nanowire_obj.nanowire, self.compiler.positions)
-            nanowire_obj.nanowire = copy.deepcopy(f_nw)
+            # ii. getting the positions on target branch
+            target_branch = self.nanowire.nanowire[inter_target][branch_target]
+            pos_end_inner = None
+            pos_end_outer = None
+            for tup in target_branch:
+                if not isinstance(tup, dict):
+                    continue
+                pos = list(tup.keys())[0]
+                if pos in self.nanowire.inner:
+                    pos_end_inner = pos
+                elif pos in self.nanowire.outer:
+                    pos_end_outer = pos
 
-            # checks if the voltage gate changes doesn't block the movement path
-            Braiding.save_path_output(nanowire_obj, voltages,
-                positions, pair, par2, path2, file_mvmt, file_state)
-            Braiding.save_path_output(nanowire_obj, voltages,
-                positions, pair, par1, path1, file_mvmt, file_state)
+            if pos_end_outer is None or pos_end_inner is None:
+                msg = "Invalid final positions ({}, {}) of particles for the movement"\
+                    .format(pos_end_outer, pos_end_inner)
+                raise exception.InvalidMovementException(msg)
 
-        ########################################################################################
-        # Same order
-        ########################################################################################
-        # 4. Move inner particle to temporary position on the middle branch
-        # depending on the initial and finak intersections
-        inter_positions = Utility.get_intermediate_positions(nanowire_obj.nanowire, positions[par1-1])
-        pos = None
-        middle = ['m']
-        inner = ["a'", "b'", "f'", "c'", "d'", "e'"]
+            # 1. getting the order of the final zero mode positions
+            dir = None
+            dir_rev_gates  = ["hadamard", "pauli-x"]
+            dir_same_gates = ["cnot", "phase-s"]
+            if gate in dir_rev_gates:
+                dir = 0
+            elif gate in dir_same_gates:
+                dir = 1
+            else:
+                msg = "There is not zero mode alignment for {} gate".format(gate)
+                raise exception.InvalidMovementException(msg)
 
-        for position in inter_positions:
-            if inter_initial == inter_target and position in moddle:
-                # if the intersection is the same then move the inner particle onto
-                # the middle of the nanowire, which is (m) in this case
-                pos = position
-                break
-            elif inter_initial != inter_target and\
-                position not in moddle and position is inner:
-                # else move it into the other branch, so this doesn't block the path
-                # to the other intersection
-                pos = position
-                break
+            final_positions = copy.copy(self.compiler.positions)
+            if dir == 1:
+                final_positions[par1-1] = pos_end_outer
+                final_positions[par2-1] = pos_end_inner
+            else:
+                final_positions[par1-1] = pos_end_inner
+                final_positions[par2-1] = pos_end_outer
 
-        if pos is None:
-            msg = "The initial positions of particles are in an invalid state to commence braiding"
-            raise exception.InvalidNanowireStateException(msg)
+            # 1a. validating final positions before moving forward with the braiding operation
+            msg = "Error while trying to move {}: {} is an invalid state"\
+                .format((par1, par2), final_positions)
+            f_nw = Utility.update_nanowire(self.nanowire.nanowire, final_positions)
+            positions_single = utility.get_isolated_particles(final_positions)
+            validation.validate_nanowire_state(f_nw, final_positions, utility,
+                positions_single, utility.voltages, self.nanowire, Braiding.TYPE_FINAL, msg)
 
-        path = graph.route(nanowire_obj.matrix, positions[par2-1], pos)
-        block = validation.validate_path_particle(path, final_positions, nanowire_obj.vertices, par2)
+            # 2. getting order (dir) of movement
+            pos_start1 = self.compiler.positions[par1-1]
+            pos_start2 = self.compiler.positions[par2-1]
+            pos_end1 = final_positions[par1-1]
+            pos_end2 = final_positions[par2-1]
+            dir = None
+            if (pos_start1 in self.nanowire.outer and pos_end1 in self.nanowire.outer) or\
+                (pos_start2 in self.nanowire.outer and pos_end2 in self.nanowire.outer) or\
+                (pos_start1 in self.nanowire.inner and pos_end1 in self.nanowire.inner) or\
+                (pos_start2 in self.nanowire.inner and pos_end2 in self.nanowire.inner):
+                dir = 1
+            elif (pos_start1 in self.nanowire.outer and pos_end1 in self.nanowire.inner) or\
+                (pos_start1 in self.nanowire.inner and pos_end1 in self.nanowire.outer) or\
+                (pos_start2 in self.nanowire.outer and pos_end2 in self.nanowire.inner) or\
+                (pos_start2 in self.nanowire.inner and pos_end2 in self.nanowire.outer):
+                dir = 0
 
-        positions_temp = copy.copy(positions)
-        positions_temp[par2-1] = pos
-        i_nw = Utility.update_nanowire(self.nanowire.nanowire, positions_temp)
-        positions_single = utility.get_isolated_particles(positions_temp)
+            # 3. getting the par_inner, par_outer
+            par_inner = None
+            par_outer = None
+            if self.compiler.positions[par1-1] in self.nanowire.inner:
+                par_inner = par1
+            elif self.compiler.positions[par1-1] in self.nanowire.outer:
+                par_outer = par1
 
-        # 5. Move outer particle to same position on target branch
-        path1 = graph.route(nanowire_obj.matrix, positions[par1-1], tgt_pos_par1)
-        block1 = validation.validate_path_particle(path1, final_positions, nanowire_obj.vertices, par1)
+            if self.compiler.positions[par2-1] in self.nanowire.inner:
+                par_inner = par2
+            elif self.compiler.positions[par2-1] in self.nanowire.outer:
+                par_outer = par2
 
-        # 6. Move particle from #2 to inner position on target branch
-        path2 = graph.route(nanowire_obj.matrix, positions[par2-1], tgt_pos_par2)
-        block2 = validation.validate_path_particle(path2, final_positions, nanowire_obj.vertices, par2)
+            if par_inner is None or par_outer is None or par_inner == par_outer:
+                msg = "Error in position of the particles' to be moved: ({}, {})"\
+                    .format(par_inner, par_outer)
+                raise exception.InvalidMovementException(msg)
 
-        # updating all 3 movements
-        if len(block) == 0 and len(block1) == 0 and len(block2) == 0:
-            nanowire_obj.nanowire = copy.deepcopy(f_nw)
-
-            Braiding.save_path_output(nanowire_obj, voltages,
-                positions, pair, par2, path, file_mvmt, file_state)
-            Braiding.save_path_output(nanowire_obj, voltages,
-                positions, pair, par1, path1, file_mvmt, file_state)
-            Braiding.save_path_output(nanowire_obj, voltages,
-                positions, pair, par2, path2, file_mvmt, file_state)
-
-        msg = "The initial positions of particles are in an invalid state to commence braiding"
-        raise exception.InvalidNanowireStateException(msg)
-
+            return final_positions, dir, par_inner, par_outer
+        except exception.InvalidNanowireStateException:
+            raise
 
 class Braiding1Qubit(Braiding):
     """
@@ -380,12 +547,9 @@ class Braiding1Qubit(Braiding):
             f_nw, final_positions, positions_single = self.code_block_validation(pair, voltages, utility)
 
             # 1.
-            # intermediate_positions = []
             for par in pair:
                 pos_start = self.compiler.positions[par-1]
                 positions_temp = copy.copy(self.compiler.positions)
-                pos_end = None
-                f_nw = None
 
                 # getting the list of positions on free branches
                 inter_positions = Utility.get_intermediate_positions(self.nanowire.nanowire, pos_start)
@@ -393,11 +557,11 @@ class Braiding1Qubit(Braiding):
                     inter_positions = list(reversed(inter_positions))
 
                 f_nw, pos_end = self.code_block_inter_positions(inter_positions, positions_temp,
-                    pair, par, voltages, utility, pos_start, pos_end)
+                    pair, par, voltages, utility, pos_start)
 
                 if pos_end is not None and f_nw is not None:
                     self.code_block_path(pos_start, pos_end, par, f_nw, utility, voltages,
-                        pair, file_mvmt, file_state, False, f_nw)
+                        pair, file_mvmt, file_state, False, f_nw, True, True)
 
             # 2.
             p_pair = pair
@@ -405,7 +569,7 @@ class Braiding1Qubit(Braiding):
                 pos_start = self.compiler.positions[par-1]
                 pos_end = final_positions[par-1]
                 self.code_block_path(pos_start, pos_end, par, f_nw, utility, voltages,
-                    pair, file_mvmt, file_state, True, None)
+                    pair, file_mvmt, file_state, True, None, True, True)
 
         except exception.NoEmptyPositionException:
             raise
@@ -440,12 +604,9 @@ class BraidingCNOT(Braiding2Qubits):
             f_nw, final_positions, positions_single = self.code_block_validation(pair, voltages, utility)
 
             # 1.
-            # intermediate_positions = []
             pair2 = particles[:2]
             for par in pair2:
                 pos_start = self.compiler.positions[par-1]
-                pos_end = None
-                f_nw = None
                 positions_temp = copy.copy(self.compiler.positions)
 
                 # getting the list of positions on free branches
@@ -454,11 +615,11 @@ class BraidingCNOT(Braiding2Qubits):
                     inter_positions = list(reversed(inter_positions))
 
                 f_nw, pos_end = self.code_block_inter_positions(inter_positions, positions_temp,
-                    pair, par, voltages, utility, pos_start, pos_end)
+                    pair, par, voltages, utility, pos_start)
 
                 if pos_end is not None and f_nw is not None:
                     self.code_block_path(pos_start, pos_end, par, f_nw, utility, voltages,
-                        pair0, file_mvmt, file_state, False, f_nw)
+                        pair0, file_mvmt, file_state, False, f_nw, True, True)
 
             # 2.
             par = particles[2]
@@ -466,7 +627,7 @@ class BraidingCNOT(Braiding2Qubits):
             pos_end = final_positions[pair[1]-1]
             self.compiler.positions[par-1] = final_positions[par-1]
             self.code_block_path(pos_start, pos_end, par, f_nw, utility, voltages,
-                pair0, file_mvmt, file_state, False, None)
+                pair0, file_mvmt, file_state, False, None, True, True)
 
             # 3.
             p_pair = pair2
@@ -474,7 +635,7 @@ class BraidingCNOT(Braiding2Qubits):
                 pos_start = self.compiler.positions[par-1]
                 pos_end = final_positions[par-1]
                 self.code_block_path(pos_start, pos_end, par, f_nw, utility, voltages,
-                    pair0, file_mvmt, file_state, True, None)
+                    pair0, file_mvmt, file_state, True, None, True, True)
 
         except exception.NoEmptyPositionException:
             raise
@@ -491,7 +652,6 @@ class BraidingCNOT(Braiding2Qubits):
         3. the 2 particles back to their respective positions
         """
         particles = []
-        # inner = ["a'", "b'", "f'", "c'", "d'", "e'"]
         if self.compiler.positions[pair[0]-1] in self.nanowire.inner:
             particles.append(pair[0])
             inter = Utility.get_intersection(self.nanowire.nanowire, self.compiler.positions[pair[1]-1])

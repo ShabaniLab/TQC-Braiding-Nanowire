@@ -365,7 +365,7 @@ class Animation:
                 title = "TQC Braiding Nanowire - {}".format(self.gate.upper())
             index += 1
             index = index%len(self.states)
-
+            
             ## Nanowire positions
             nx.draw_networkx_edges(G, positions, style='solid',
                                     edgelist=edges_par,
@@ -461,7 +461,7 @@ class Animation:
                             pos1 = mapping[k]
 
             # Updating Braid table
-            if par is not None:
+            if par is not None and pair in sequence:
                 row = sequence.index(pair)
                 braid_table[(row+1, 0)].get_text().set_color('red')
                 braid_table[(row+1, 1)].get_text().set_color('red')
