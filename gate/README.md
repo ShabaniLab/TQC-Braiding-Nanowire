@@ -13,6 +13,11 @@
 1. Construct adjacency matrix
 1. Extract graph vertices
 
+### Preprocessing - Positions
+1. Given the current positions and nanowire config for a gate
+1. This verifies if the positions on branches conforms to the provided config
+1. If not, it moves the particles to the respective valid positions
+
 ### Algorithm - Compile
 1. **Initialize Nanowire** - Nanowire data structure, positions, voltage cutoff pairs
 1. **Initialize Compiler** - Extract braid sequences, initial particle positions
