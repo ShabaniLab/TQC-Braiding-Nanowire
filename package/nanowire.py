@@ -34,6 +34,7 @@ Functions:
     9. update_matrix
     10. construct_adj_matrix
     11. print_adj_matrix
+    12. nanowire_yaml_to_structure_branches
 """
 
 class Nanowire:
@@ -393,3 +394,13 @@ def get_opposite_cutoff_pairs(c):
             pair = [ti,tj]
             opposite.append(pair)
     return opposite
+
+def nanowire_yaml_to_structure_branches(structure):
+    "convert the yaml object to the acceptable structure"
+    x1 = structure.get('x1')
+    x2 = structure.get('x2')
+    x1.extend(x2)
+    nanowire_structure = []
+    for b in x1:
+        nanowire_structure.append(b.split(','))
+    return nanowire_structure
