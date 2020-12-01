@@ -1,4 +1,4 @@
-application: tqc-braiding-nanowire
+application: entanglement
 instances: 1
 gates:
     - hadamard

@@ -6,19 +6,18 @@ positions: 13
 naming:
     direction: counter-clockwise
     sequence: inwards
+vertices: b,b',a,a',f,f',x1,m,x2,c,c',e,e',d,d'
 structure:
-    0:
+    x1:
         - b,b'
         - a,a'
         - f,f'
         - m
-        - x11,x12
-    1:
+    x2:
         - c,c'
         - m
         - e,e'
         - d,d'
-        - x21,x22
 positions:
     b: 3,6
     b': 3,5
