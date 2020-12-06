@@ -15,6 +15,7 @@ Class: Compiler
 Functions:
     1. read_particle_positions
     2. read_braid_sequence
+    3. yaml_to_structure_sequence
 """
 
 class Compiler:
@@ -66,3 +67,29 @@ def read_braid_sequence(file):
         return data, dir
     except IOError:
         raise
+
+def read_braid_positions(file):
+    """
+    Read initial particle positions
+    """
+    try:
+        fr = open(file, 'r')
+        line = fr.readlines()[-1]
+        positions = line.strip().split(',')
+        positions = positions[2:]
+        fr.close()
+        return positions
+    except IOError:
+        raise
+
+def yaml_to_structure_sequence(gate):
+    sequence = []
+    direction = []
+    braid_sequence = gate.get('braid_sequence')
+    for seq in braid_sequence:
+        slist = seq.split(',')
+        s = (int(slist[0]), int(slist[1]))
+        sequence.append(s)
+        d = int(slist[2])
+        direction.append(d)
+    return sequence, direction

@@ -21,6 +21,7 @@ Methods:
     6. check_particle_pair_zmode
     7. check_pair_zmode
     8. check_particle_zmode
+    9. get_positions_from_braids
 
     @classmethod
     9. get_par_braid_pos
@@ -192,6 +193,23 @@ class Utility():
                 Utility.gate_flag = True
             return True
         return False
+
+    def get_positions_from_braids(self, nanowire, braid_positions):
+        """
+        Returns the position on the nanowire from the braiding positions
+        """
+        positions = []
+        for braid_par in braid_positions:
+            for intersection in nanowire:
+                for branch in intersection:
+                    for tup in branch:
+                        if not isinstance(tup, dict):
+                            continue
+                        par = list(tup.values())[0]
+                        pos = list(tup.keys())[0]
+                        if par == int(braid_par):
+                            positions.append(pos)
+        return positions
 
     @classmethod
     def get_par_braid_pos(cls, n):

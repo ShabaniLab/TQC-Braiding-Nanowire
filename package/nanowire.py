@@ -35,6 +35,7 @@ Functions:
     10. construct_adj_matrix
     11. print_adj_matrix
     12. nanowire_yaml_to_structure_branches
+    13. nanowire_yaml_to_structure_intersections
 """
 
 class Nanowire:
@@ -396,11 +397,38 @@ def get_opposite_cutoff_pairs(c):
     return opposite
 
 def nanowire_yaml_to_structure_branches(structure):
-    "convert the yaml object to the acceptable structure"
+    """convert the yaml object to the acceptable structure"""
     x1 = structure.get('x1')
     x2 = structure.get('x2')
     x1.extend(x2)
     nanowire_structure = []
     for b in x1:
         nanowire_structure.append(b.split(','))
+    return nanowire_structure
+
+def nanowire_yaml_to_structure_intersections(structure):
+    """convert the yaml object to the acceptable structure"""
+    nanowire_structure = []
+    x1 = structure.get('x1')
+    inter = []
+    for b in x1:
+        bl = []
+        for t in b.split(','):
+            g = {}
+            g[t] = 0
+            bl.append(g)
+        inter.append(bl)
+    nanowire_structure.append(inter)
+
+    x2 = structure.get('x2')
+    inter = []
+    for b in x2:
+        bl = []
+        for t in b.split(','):
+            g = {}
+            g[t] = 0
+            bl.append(g)
+        inter.append(bl)
+    nanowire_structure.append(inter)
+
     return nanowire_structure

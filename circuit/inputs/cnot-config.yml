@@ -1,9 +1,7 @@
 gate: cnot
 qubits: 2
 particles: 6
-groups:
-    - 2
-    - 4
+groups: 2,4
 branch_config:
     - double
     - adjacent
