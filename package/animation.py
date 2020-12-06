@@ -491,8 +491,8 @@ class Animation:
                             pos1 = mapping[k]
 
             # Updating Braid table
-            if par is not None and pair in sequence:
-                row = sequence.index(pair)
+            if par is not None and pair in self.seq:
+                row = self.seq.index(pair)
                 braid_table[(row+1, 0)].get_text().set_color('red')
                 braid_table[(row+1, 1)].get_text().set_color('red')
                 braid_table[(row+1, 0)].get_text().set_fontweight('bold')
@@ -532,12 +532,15 @@ class Animation:
         ax2 = fig.add_subplot(122)
         ax = fig.add_subplot(121)
         heading = ("Particle 1", "Particle 2")
+        self.seq = copy.copy(self.sequence)
+        if self.seq[0] == self.seq[1]:
+            self.seq.pop(0)
         braid_table = ax2.table(loc='center', cellLoc='center',
-                                cellText=sequence, colLabels=heading)
+                                cellText=self.seq, colLabels=heading)
         braid_table.scale(1, 2)
         # braid_table.set_fontsize(16)
-        for i in range(n_seq):
-            for j in range(len(sequence[i])):
+        for i in range(len(self.seq)):
+            for j in range(len(self.seq[i])):
                 if i==0:
                     braid_table[(i, j)].get_text().set_fontweight('bold')
                 braid_table[(i+1, j)].get_text().set_color('gray')
