@@ -29,6 +29,7 @@ Functions:
 
 """
 
+import re
 import copy
 import numpy as np
 import networkx as nx
@@ -183,8 +184,8 @@ class Animation:
                     line = line.strip()
                     row = line.split(',')
                     sequence.append(row[:2])
-                    sequence.append(row[:2])
-                    braid_pos.append(row[2:])
+                    # sequence.append(row[:2])
+                    # braid_pos.append(row[2:])
                     braid_pos.append(row[2:])
             file_read.close()
             self.sequence = sequence
@@ -193,6 +194,26 @@ class Animation:
         except IOError:
             raise IOError
 
+    def nanowire_yaml_to_structure_graph(self, structure):
+        """
+        3a. Yaml to Nanowire Node positions
+        """
+        pos_par = dict()
+        pos_volt = dict()
+        for key, val in structure.items():
+            pos = val.split(',')
+            pos_arr = None
+            if re.search('\d\.\d', pos[0]):
+                pos_arr = np.array([float(pos[0]), float(pos[1])])
+            elif re.search('\d', pos[0]):
+                pos_arr = np.array([int(pos[0]), int(pos[1])])
+            if len(key) == 3 and 'x' in key:
+                pos_volt[key] = pos_arr
+            else:
+                pos_par[key] = pos_arr
+            self.pos_par = pos_par
+            self.pos_volt = pos_volt
+
     ################################################################################
     # A. Braiding animation using Pyplot
     def animate_braid(self):
@@ -200,12 +221,17 @@ class Animation:
         A. Braid pattern animation
         """
         index = 0
-        positions = copy.copy(self.positions)
-        seq = [self.sequence[0]]
-        for el in self.sequence:
-            if el not in seq:
-                seq.append(el)
-        n_seq = len(seq)
+        # sequence = copy.copy(self.sequence)
+        sequence = []
+        for seq in self.sequence:
+            sequence.append(seq)
+            sequence.append(seq)
+        positions = []
+        for pos in self.positions:
+            positions.append(pos)
+            positions.append(pos)
+
+        n_seq = len(sequence)
         pos_n = len(positions)
         pos_initial = positions[0]
         pos_final = positions[pos_n-1]
@@ -227,18 +253,18 @@ class Animation:
             braid_list.append(braid)
 
         heading = ("Particle 1", "Particle 2")
-        braid_table = ax2.table(cellText=seq, colLabels=heading, loc='center', cellLoc='center')
+        braid_table = ax2.table(cellText=sequence, colLabels=heading, loc='center', cellLoc='center')
         braid_table.scale(1, 2)
         # braid_table.set_fontsize(16)
         for i in range(n_seq):
-            for j in range(len(seq[i])):
+            for j in range(len(sequence[i])):
                 if i==0:
                     braid_table[(i, j)].get_text().set_fontweight('bold')
                 braid_table[(i+1, j)].get_text().set_color('gray')
         ax2.set_title("{} Braid table".format(self.gate), fontweight="bold")
         ax2.axis('off')
 
-        def update_braid(index, ax, braid_table, positions, time, braid_list):
+        def update_braid(index, ax, braid_table, positions, time, braid_list, sequence):
             i = -1
             for braid in braid_list:
                 i += 1
@@ -281,7 +307,7 @@ class Animation:
                 title = 'TQC - {} Braid Pattern'.format(self.gate.upper())
             else:
                 title = 'Braiding Particles ({}, {})'.format(
-                    int(self.sequence[index][0]), int(self.sequence[index][1])
+                    int(sequence[index][0]), int(sequence[index][1])
                 )
             ax.set_title(title, fontweight="bold")
 
@@ -290,7 +316,7 @@ class Animation:
             return braid_list
 
         ani = anima.FuncAnimation(fig, update_braid, frames=pos_n, interval=1000,
-                                  fargs=(ax, braid_table, positions, time, braid_list))
+                                  fargs=(ax, braid_table, positions, time, braid_list, sequence))
         fn = '{}-braid-table.gif'.format(self.gate)
         ani.save(self.output+'/'+fn, writer='imagemagick')
 
@@ -312,10 +338,11 @@ class Animation:
         G = self.graph
         BASE_WEIGHT = 1
         index = 0
-        sequence = [self.sequence[0]]
-        for el in self.sequence:
-            if el not in sequence:
-                sequence.append(el)
+        # sequence = copy.copy(self.sequence)
+        sequence = []
+        for seq in self.sequence:
+            sequence.append(seq)
+            sequence.append(seq)
         n_seq = len(sequence)
 
         # Nanowire network graph - positions
@@ -365,7 +392,7 @@ class Animation:
                 title = "TQC Braiding Nanowire - {}".format(self.gate.upper())
             index += 1
             index = index%len(self.states)
-            
+
             ## Nanowire positions
             nx.draw_networkx_edges(G, positions, style='solid',
                                     edgelist=edges_par,

@@ -37,24 +37,12 @@ def initiate_nanowire(nanowire_obj, positions):
     nanowire_obj.initiate_cutoff_voltage_pairs_adj()
     nanowire_obj.initiate_cutoff_voltage_pairs_opp()
 
-def initialize_positions(nanowire_obj, groups):
+def initialize_positions(nanowire_obj):
     try:
         positions = compiler.read_particle_positions(sys.argv[6])
-        braids = compiler.read_braid_positions(sys.argv[7])
-        braid_positions = []
-        braid_rem = []
-        i = 0
-        if groups is not None and 'P' not in braids[0]:
-            for idx in groups.split(','):
-                j = int(idx)
-                braid_pos_group = braids[i:i+j]
-                braid_rem = braids[i+j:]
-                braid_pos_group = braid_pos_group[::-1]
-                braid_positions.extend(braid_pos_group)
-                i = j
-            braid_positions.extend(braid_rem)
-            if len(braid_positions) == len(positions):
-                positions = utility.get_positions_from_braids(nanowire_obj.nanowire, braid_positions)
+        braid_positions = compiler.read_braid_positions(sys.argv[7])
+        if len(braid_positions) == len(positions) and 'P' not in braid_positions[0]:
+            positions = utility.get_positions_from_braids(nanowire_obj.nanowire, braid_positions)
         return positions
     except IOError:
         raise
@@ -98,9 +86,9 @@ def preprocess_positions(gate, nanowire_obj, nanowire_b, compiler_obj, braid_obj
 
             # if len(pair) > 0:
             #     n = len(compiler_obj.positions)
-            #     line_pos = Utility.get_par_braid_pos(n)
-            #     line_pos = Utility.update_par_braid_pos(line_pos, pair)
-            #     metrics.update_particle_line_positions(sys.argv[7], pair, line_pos)
+            #     braid_positions = Utility.get_par_braid_pos(n)
+            #     braid_positions = Utility.update_par_braid_pos(braid_positions, pair)
+            #     metrics.update_particle_line_positions(sys.argv[7], pair, braid_positions)
     except IOError:
         raise
     except SyntaxError:
@@ -111,15 +99,18 @@ def preprocess_positions(gate, nanowire_obj, nanowire_b, compiler_obj, braid_obj
         raise
 
 #
-def braid_particles(nanowire_obj, compiler_obj, braid_obj, utility):
+def braid_particles(nanowire_obj, compiler_obj, braid_obj, utility, groups):
     """
     Performing braiding on each sequence
     """
     try:
         # assert(braid is not None)
         n = len(compiler_obj.positions)
-        line_pos = Utility.get_par_braid_pos(n)
-        metrics.update_particle_line_positions(sys.argv[7], compiler_obj.sequence[0], line_pos)
+        # braid_positions = compiler.read_braid_positions(sys.argv[7])
+        # if len(braid_positions) == 0 or 'P' in braid_positions[0]:
+        braid_positions = Utility.get_par_braid_pos(n)
+        # if groups is not None:
+        metrics.update_particle_line_positions(sys.argv[7], compiler_obj.sequence[0], braid_positions)
         for i in range(len(compiler_obj.sequence)):
             pair = compiler_obj.sequence[i]
             dir  = compiler_obj.direction[i]
@@ -135,8 +126,8 @@ def braid_particles(nanowire_obj, compiler_obj, braid_obj, utility):
             else:
                 braid_obj.braid_particles_diff_branch(pair, utility, sys.argv[8], sys.argv[9])
 
-            line_pos = Utility.update_par_braid_pos(line_pos, pair)
-            metrics.update_particle_line_positions(sys.argv[7], pair, line_pos)
+            braid_positions = Utility.update_par_braid_pos(braid_positions, pair)
+            metrics.update_particle_line_positions(sys.argv[7], pair, braid_positions)
 
         metrics.update_final_particle_positions(sys.argv[6], compiler_obj.positions)
     except exception.NoEmptyPositionException:
@@ -169,19 +160,20 @@ if __name__ == '__main__':
                 gate_file = input_dir + gate + gate_ext
                 with open(gate_file) as stream:
                     gate_config = yaml.safe_load(stream)
-                    positions = initialize_positions(nanowire_obj, groups)
+                    positions = initialize_positions(nanowire_obj)
                     if i == 0:
                         initiate_nanowire(nanowire_obj, positions)
                     compiler_obj = initialize_compiler(gate_config, positions)
                     braid_obj = get_braid_class(nanowire_obj, compiler_obj, gate)
                     utility = Utility()
 
-                    print('\n\033[0;36mStarted {} preprocessing...\033[0m'.format(gate))
+                    print('\n\033[1;36mStarted {} preprocessing...\033[0m'.format(gate))
                     preprocess_positions(gate_config, nanowire_obj, nanowire_b, compiler_obj, braid_obj, positions, utility)
-                    print('\n\033[0;36mStarted {} braiding...\033[0m'.format(gate))
-                    braid_particles(nanowire_obj, compiler_obj, braid_obj, utility)
+                    print('\n\033[1;36mStarted {} braiding...\033[0m'.format(gate))
+                    braid_particles(nanowire_obj, compiler_obj, braid_obj, utility, groups)
                     print("\033[0;32m----- {} braiding completed -----\033[0m".format(gate))
                     groups = str(gate_config.get('groups'))
+
         res = 0
     except IOError as err:
         print(err)

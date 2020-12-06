@@ -15,7 +15,8 @@ Class: Compiler
 Functions:
     1. read_particle_positions
     2. read_braid_sequence
-    3. yaml_to_structure_sequence
+    3. read_braid_positions
+    4. yaml_to_structure_sequence
 """
 
 class Compiler:

@@ -305,6 +305,11 @@ then
     exit $RET_FALSE
 fi
 echo "\033[0;32mBraid and Nanowire animation completed...\033[0m"
+
+rm $OUTPUTS/$file_nanowire_matrix
+rm $OUTPUTS/$file_nanowire_vertex
+rm $OUTPUTS/$file_particle_position_current
+
 exit $RET_TRUE
 
 # --------------------------------------------------------------------------------------------------
