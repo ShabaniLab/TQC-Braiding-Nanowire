@@ -253,11 +253,14 @@ class Animation:
             braid_list.append(braid)
 
         heading = ("Particle 1", "Particle 2")
-        braid_table = ax2.table(cellText=sequence, colLabels=heading, loc='center', cellLoc='center')
+        seq = copy.copy(self.sequence)
+        if seq[0] == seq[1]:
+            seq.pop(0)
+        braid_table = ax2.table(cellText=seq, colLabels=heading, loc='center', cellLoc='center')
         braid_table.scale(1, 2)
         # braid_table.set_fontsize(16)
-        for i in range(n_seq):
-            for j in range(len(sequence[i])):
+        for i in range(len(seq)):
+            for j in range(len(seq[i])):
                 if i==0:
                     braid_table[(i, j)].get_text().set_fontweight('bold')
                 braid_table[(i+1, j)].get_text().set_color('gray')
@@ -274,6 +277,7 @@ class Animation:
             if index==pos_n-1:
                 ax2=ax.twinx()
                 ax2.set_yticklabels(pos_final)
+                ax2.set_ylabel('Final Particle positions')
                 if self.par_n == 6:
                     ax2.yaxis.set_ticks(np.arange(1, 3*self.par_n, 3))
                 elif self.par_n == 4:
@@ -285,8 +289,7 @@ class Animation:
                     elif self.gate.lower() == 'phase-s':
                         factor = 1.5
                     ax2.yaxis.set_ticks(np.arange(1, 2*self.par_n, factor*2/3))
-                ax2.set_ylabel('Final Particle positions')
-                ax2.set_ylim(ax.get_xlim())
+                    ax2.set_ylim(ax.get_xlim())
 
             # Updating Braid table
             row = int(index/2)
