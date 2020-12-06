@@ -157,6 +157,7 @@ class Animation:
             file_read = open(file, 'r')
             line = file_read.readline()
             line = line.strip()
+            i = 0
             while line:
                 line = file_read.readline()
                 if line:
@@ -254,7 +255,7 @@ class Animation:
 
         heading = ("Particle 1", "Particle 2")
         seq = copy.copy(self.sequence)
-        if seq[0] == seq[1]:
+        if seq[0] == seq[1] or seq[0] == ['0', '0']:
             seq.pop(0)
         braid_table = ax2.table(cellText=seq, colLabels=heading, loc='center', cellLoc='center')
         braid_table.scale(1, 2)
@@ -341,12 +342,13 @@ class Animation:
         G = self.graph
         BASE_WEIGHT = 1
         index = 0
-        # sequence = copy.copy(self.sequence)
         sequence = []
         for seq in self.sequence:
             sequence.append(seq)
             sequence.append(seq)
         n_seq = len(sequence)
+        self.pair0 = None
+        self.idx = 0
 
         # Nanowire network graph - positions
         for node1, node2, weight in list(G.edges(data=True)):
@@ -491,17 +493,23 @@ class Animation:
                             pos1 = mapping[k]
 
             # Updating Braid table
-            if par is not None and pair in self.seq:
-                row = self.seq.index(pair)
-                braid_table[(row+1, 0)].get_text().set_color('red')
-                braid_table[(row+1, 1)].get_text().set_color('red')
-                braid_table[(row+1, 0)].get_text().set_fontweight('bold')
-                braid_table[(row+1, 1)].get_text().set_fontweight('bold')
-                if row>0:
-                    braid_table[(row, 0)].get_text().set_color('black')
-                    braid_table[(row, 1)].get_text().set_color('black')
-                    braid_table[(row, 0)].get_text().set_fontweight('regular')
-                    braid_table[(row, 1)].get_text().set_fontweight('regular')
+            if par is not None and pair in self.sequence:
+                if pair != self.pair0:
+                    self.idx += 1
+                    self.pair0 = pair
+                    print('Animating Nanowire movements for particles ({}, {})'\
+                        .format(self.pair0[0], self.pair0[1]))
+                row = self.idx
+
+                braid_table[(row, 0)].get_text().set_color('red')
+                braid_table[(row, 1)].get_text().set_color('red')
+                braid_table[(row, 0)].get_text().set_fontweight('bold')
+                braid_table[(row, 1)].get_text().set_fontweight('bold')
+                if row > 1:
+                    braid_table[(row-1, 0)].get_text().set_color('black')
+                    braid_table[(row-1, 1)].get_text().set_color('black')
+                    braid_table[(row-1, 0)].get_text().set_fontweight('regular')
+                    braid_table[(row-1, 1)].get_text().set_fontweight('regular')
 
             # Output
             if pair is not None:
@@ -532,15 +540,12 @@ class Animation:
         ax2 = fig.add_subplot(122)
         ax = fig.add_subplot(121)
         heading = ("Particle 1", "Particle 2")
-        self.seq = copy.copy(self.sequence)
-        if self.seq[0] == self.seq[1]:
-            self.seq.pop(0)
         braid_table = ax2.table(loc='center', cellLoc='center',
-                                cellText=self.seq, colLabels=heading)
+                                cellText=self.sequence, colLabels=heading)
         braid_table.scale(1, 2)
         # braid_table.set_fontsize(16)
-        for i in range(len(self.seq)):
-            for j in range(len(self.seq[i])):
+        for i in range(len(self.sequence)):
+            for j in range(len(self.sequence[i])):
                 if i==0:
                     braid_table[(i, j)].get_text().set_fontweight('bold')
                 braid_table[(i+1, j)].get_text().set_color('gray')

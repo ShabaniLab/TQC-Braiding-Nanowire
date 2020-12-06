@@ -246,6 +246,7 @@ class Braiding:
             # Reverse order
             if dir == 0:
                 print("\033[0;33m----- Moving particles {} -----\033[0m".format(pair))
+                pair = (0,0)
                 # 1. Move initial inner to target outer position
                 positions_temp = copy.copy(self.compiler.positions)
                 positions_temp[par_inner-1] = final_positions[par_inner-1]
@@ -264,6 +265,7 @@ class Braiding:
             if dir == 1:
                 print("\033[0;33m----- Moving particles {} -----\033[0m".format(pair))
                 pair_ret = pair
+                pair = (0,0)
                 # a. getting the intermediate positions for par_inner
                 inter_positions = Utility.get_intermediate_positions(self.nanowire.nanowire, self.compiler.positions[par_inner-1])
                 middle = ['m']

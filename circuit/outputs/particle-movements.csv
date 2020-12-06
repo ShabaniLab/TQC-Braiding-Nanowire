@@ -1,7 +1,7 @@
 Par1,Par2,Particle,Path,Vg11,Vg12,Vg21,Vg22
-3,4,3,c'-x2-d',O,O,O,O
-3,4,4,c-c'-x2-m-x1-f'-f,O,O,O,O
-3,4,3,d'-x2-m-x1-f',O,O,O,O
+0,0,3,c'-x2-d',O,O,O,O
+0,0,4,c-c'-x2-m-x1-f'-f,O,O,O,O
+0,0,3,d'-x2-m-x1-f',O,O,O,O
 3,4,3,f'-x1-a',O,O,O,O
 3,4,4,f-f'-x1-m,O,O,O,O
 3,4,3,a'-x1-f'-f,O,O,O,O
@@ -14,8 +14,8 @@ Par1,Par2,Particle,Path,Vg11,Vg12,Vg21,Vg22
 2,3,3,f-f'-x1-m,O,O,O,O
 2,3,2,a'-x1-f'-f,O,O,O,O
 2,3,3,m-x1-f',O,O,O,O
-3,4,3,f'-x1-m-x2-d'-d,O,O,O,O
-3,4,4,f-f'-x1-m-x2-d',O,O,O,O
+0,0,3,f'-x1-m-x2-d'-d,O,O,O,O
+0,0,4,f-f'-x1-m-x2-d',O,O,O,O
 3,4,4,d'-x2-c',O,O,O,O
 3,4,3,d-d'-x2-m,O,O,O,O
 3,4,4,c'-x2-d'-d,O,O,O,O

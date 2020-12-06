@@ -74,7 +74,7 @@ def braid_particles(nanowire_obj, compiler_obj):
         utility = Utility()
         n = len(compiler_obj.positions)
         line_pos = Utility.get_par_braid_pos(n)
-        metrics.update_particle_line_positions(sys.argv[8], compiler_obj.sequence[0], line_pos)
+        metrics.update_particle_line_positions(sys.argv[8], (0,0), line_pos)
         for i in range(len(compiler_obj.sequence)):
             pair = compiler_obj.sequence[i]
             dir  = compiler_obj.direction[i]
