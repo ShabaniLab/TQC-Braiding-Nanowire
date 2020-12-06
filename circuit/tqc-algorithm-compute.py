@@ -169,7 +169,6 @@ if __name__ == '__main__':
                 gate_file = input_dir + gate + gate_ext
                 with open(gate_file) as stream:
                     gate_config = yaml.safe_load(stream)
-                    # positions = compiler.read_particle_positions(sys.argv[6])
                     positions = initialize_positions(nanowire_obj, groups)
                     if i == 0:
                         initiate_nanowire(nanowire_obj, positions)
