@@ -224,16 +224,16 @@ class Utility():
         """
         Update Particle locations in the braiding pattern
         """
-        pos1 = pair[0]-1
-        pos2 = pair[1]-1
-        positions[pos1], positions[pos2] = positions[pos2], positions[pos1]
-        return positions
-        # if isinstance(positions[0], str):
-        #     positions = [int(e) for e in positions]
-        # idx1 = positions.index(pair[0])
-        # idx2 = positions.index(pair[1])
-        # positions[idx1], positions[idx2] = positions[idx2], positions[idx1]
+        # pos1 = pair[0]-1
+        # pos2 = pair[1]-1
+        # positions[pos1], positions[pos2] = positions[pos2], positions[pos1]
         # return positions
+        if isinstance(positions[0], str):
+            positions = [int(e) for e in positions]
+        idx1 = positions.index(pair[0])
+        idx2 = positions.index(pair[1])
+        positions[idx1], positions[idx2] = positions[idx2], positions[idx1]
+        return positions
 
     @classmethod
     def get_final_positions(cls, positions, pair):

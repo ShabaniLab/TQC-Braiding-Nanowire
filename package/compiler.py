@@ -78,6 +78,7 @@ def read_braid_positions(file):
         line = fr.readlines()[-1]
         positions = line.strip().split(',')
         positions = positions[2:]
+        positions = [int(e) for e in positions]
         fr.close()
         return positions
     except IOError:
