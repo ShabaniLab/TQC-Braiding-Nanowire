@@ -9,8 +9,8 @@ if __name__ == '__main__':
     try:
         anima = Animation(sys.argv[6], sys.argv[7])
         anima.initiate_file_io(sys.argv)
-        print('Animating braid...')
-        anima.animate_braid()
+        # print('Animating braid...')
+        # anima.animate_braid()
         print('Animating nanowire...')
         anima.initialize_network_graph()
         anima.animate_nanowire()
