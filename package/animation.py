@@ -59,6 +59,7 @@ class Animation:
         self.pos_volt = None
         self.states = None
         self.sequence = None
+        self.sequence_states = None
         self.positions = None
         self.par_n = 0
         self.graph = None
@@ -153,6 +154,8 @@ class Animation:
         4. Reading the Nanowire states
         """
         nanowire_states = []
+        sequence_states = []
+        pair = None
         try:
             file_read = open(file, 'r')
             line = file_read.readline()
@@ -164,8 +167,12 @@ class Animation:
                     line = line.strip()
                     row = line.split(',')
                     nanowire_states.append(row)
+                    if pair != row[:2]:
+                        pair = row[:2]
+                        sequence_states.append(pair)
             file_read.close()
             self.states = nanowire_states
+            self.sequence_states = sequence_states
         except IOError:
             raise IOError
 
@@ -184,10 +191,12 @@ class Animation:
                 if line:
                     line = line.strip()
                     row = line.split(',')
-                    sequence.append(row[:2])
+                    temp = [int(e) for e in row[:2]]
+                    sequence.append(temp)
                     # sequence.append(row[:2])
                     # braid_pos.append(row[2:])
-                    braid_pos.append(row[2:])
+                    temp = [int(e) for e in row[2:]]
+                    braid_pos.append(temp)
             file_read.close()
             self.sequence = sequence
             self.positions = braid_pos
@@ -222,23 +231,26 @@ class Animation:
         A. Braid pattern animation
         """
         index = 0
-        # sequence = copy.copy(self.sequence)
         sequence = []
-        for seq in self.sequence:
-            sequence.append(seq)
-            sequence.append(seq)
         positions = []
-        for pos in self.positions:
+        braid_pos_mapping = {}
+        pos0 = self.positions[0]
+        pos_ini = [i+1 for i in range(self.par_n)]
+        i = 0
+        for i in range(len(self.sequence)):
+            seq = self.sequence[i]
+            sequence.append(seq)
+            sequence.append(seq)
+            pos = self.positions[i]
             positions.append(pos)
             positions.append(pos)
 
-        n_seq = len(sequence)
         pos_n = len(positions)
         pos_initial = positions[0]
         pos_final = positions[pos_n-1]
         a = np.array(positions)
         positions = a.transpose()
-        time = [(i+1) for i in range(pos_n)]
+        time = [i for i in range(pos_n)]
 
         fig = plt.figure(figsize=(12, 6))
         ax2 = fig.add_subplot(122)
@@ -247,6 +259,7 @@ class Animation:
         ax.set_xlabel('Time')
         ax.set_ylabel('Initial Particle positions')
         ax.set_yticklabels(pos_initial)
+        ax.yaxis.set_ticks(np.arange(1, self.par_n+1))
 
         braid_list = []
         for i in range(self.par_n):
@@ -255,7 +268,7 @@ class Animation:
 
         heading = ("Particle 1", "Particle 2")
         seq = copy.copy(self.sequence)
-        if seq[0] == seq[1] or seq[0] == ['0', '0']:
+        if seq[0] == seq[1] or seq[0] == [0,0]:
             seq.pop(0)
         braid_table = ax2.table(cellText=seq, colLabels=heading, loc='center', cellLoc='center')
         braid_table.scale(1, 2)
@@ -272,25 +285,16 @@ class Animation:
             i = -1
             for braid in braid_list:
                 i += 1
-                braid.set_data(time[:index+1], positions[i][:index+1])
+                braid.set_xdata(time[:index+1])
+                braid.set_ydata(positions[i][:index+1])
 
             # plot
-            if index==pos_n-1:
-                ax2=ax.twinx()
-                ax2.set_yticklabels(pos_final)
-                ax2.set_ylabel('Final Particle positions')
-                if self.par_n == 6:
-                    ax2.yaxis.set_ticks(np.arange(1, 3*self.par_n, 3))
-                elif self.par_n == 4:
-                    factor = 1.5
-                    if self.gate.lower() == 'hadamard':
-                        factor = 3.499
-                    elif self.gate.lower() == 'pauli-x':
-                        factor = 2.5
-                    elif self.gate.lower() == 'phase-s':
-                        factor = 1.5
-                    ax2.yaxis.set_ticks(np.arange(1, 2*self.par_n, factor*2/3))
-                    ax2.set_ylim(ax.get_xlim())
+            if index == pos_n-1:
+                ax3=ax.twinx()
+                ax3.set_yticklabels(pos_final)
+                ax3.set_ylabel('Final Particle positions')
+                ax3.yaxis.set_ticks(np.arange(1, self.par_n+1))
+                ax3.set_ylim(ax.get_ylim())
 
             # Updating Braid table
             row = int(index/2)
@@ -342,11 +346,6 @@ class Animation:
         G = self.graph
         BASE_WEIGHT = 1
         index = 0
-        sequence = []
-        for seq in self.sequence:
-            sequence.append(seq)
-            sequence.append(seq)
-        n_seq = len(sequence)
         self.pair0 = None
         self.idx = 0
 
@@ -493,7 +492,7 @@ class Animation:
                             pos1 = mapping[k]
 
             # Updating Braid table
-            if par is not None and pair in self.sequence:
+            if par is not None and pair in self.sequence_states:
                 if pair != self.pair0:
                     self.idx += 1
                     self.pair0 = pair
@@ -541,11 +540,11 @@ class Animation:
         ax = fig.add_subplot(121)
         heading = ("Particle 1", "Particle 2")
         braid_table = ax2.table(loc='center', cellLoc='center',
-                                cellText=self.sequence, colLabels=heading)
+                                cellText=self.sequence_states, colLabels=heading)
         braid_table.scale(1, 2)
         # braid_table.set_fontsize(16)
-        for i in range(len(self.sequence)):
-            for j in range(len(self.sequence[i])):
+        for i in range(len(self.sequence_states)):
+            for j in range(len(self.sequence_states[i])):
                 if i==0:
                     braid_table[(i, j)].get_text().set_fontweight('bold')
                 braid_table[(i+1, j)].get_text().set_color('gray')

@@ -27,8 +27,8 @@ if __name__ == '__main__':
             anima = Animation(circuit_config.get('application'), sys.argv[7])
             initiate_file_io(anima, nanowire_config)
 
-            print('Animating braid...')
-            anima.animate_braid()
+            # print('Animating braid...')
+            # anima.animate_braid()
             print('Animating nanowire...')
             anima.initialize_network_graph()
             anima.animate_nanowire()
