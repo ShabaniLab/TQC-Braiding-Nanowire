@@ -226,32 +226,37 @@ class Animation:
 
     ################################################################################
     # A. Braiding animation using Pyplot
-    def animate_braid(self):
-        """
-        A. Braid pattern animation
-        """
-        index = 0
+    def get_braid_sequence_positions(self):
+        """getting the correct braid sequence and positions"""
         sequence = []
-        positions = []
-        braid_pos_mapping = {}
-        pos0 = self.positions[0]
-        pos_ini = [i+1 for i in range(self.par_n)]
+        positions1 = []
+        mapping = None
         i = 0
         for i in range(len(self.sequence)):
             seq = self.sequence[i]
             sequence.append(seq)
             sequence.append(seq)
+
+            # if seq == [0,0]:
+            #     self.pos0 = self.positions[i]
+            #     pos_ini = [i+1 for i in range(self.par_n)]
+            #     mapping = dict(zip(self.pos0, pos_ini))
+            # else:
+            #     self.pos0 = [mapping[e] for e in self.positions[i]]
+            #     # pair = seq
+            #     # pair = [mapping[seq[0]], mapping[seq[1]]]
+            #     # pos[pair[0]-1], pos[pair[1]-1] = pos[pair[1]-1], pos[pair[0]-1]
+            #     # self.pos0 = pos
             pos = self.positions[i]
-            positions.append(pos)
-            positions.append(pos)
+            positions1.append(pos)
+            positions1.append(pos)
 
-        pos_n = len(positions)
-        pos_initial = positions[0]
-        pos_final = positions[pos_n-1]
-        a = np.array(positions)
-        positions = a.transpose()
-        time = [i for i in range(pos_n)]
+        return sequence, positions1, mapping
 
+    def get_animation_plots(self, time, positions, pos_initial):
+        """Initializing the plot variables:
+        ax, ax2, braid_list, braid_table"""
+        # initialising plots [ax, ax2]
         fig = plt.figure(figsize=(12, 6))
         ax2 = fig.add_subplot(122)
         ax = fig.add_subplot(121)
@@ -261,11 +266,13 @@ class Animation:
         ax.set_yticklabels(pos_initial)
         ax.yaxis.set_ticks(np.arange(1, self.par_n+1))
 
+        # creating braid_list
         braid_list = []
         for i in range(self.par_n):
             braid, = ax.plot(time, positions[i])
             braid_list.append(braid)
 
+        # creating braid_table
         heading = ("Particle 1", "Particle 2")
         seq = copy.copy(self.sequence)
         if seq[0] == seq[1] or seq[0] == [0,0]:
@@ -281,7 +288,25 @@ class Animation:
         ax2.set_title("{} Braid table".format(self.gate), fontweight="bold")
         ax2.axis('off')
 
-        def update_braid(index, ax, braid_table, positions, time, braid_list, sequence):
+        return fig, ax, ax2, braid_list, braid_table
+
+    def animate_braid(self):
+        """
+        A. Braid pattern animation
+        """
+        index = 0
+        sequence, positions, mapping = self.get_braid_sequence_positions()
+        pos_n = len(positions)
+        pos_ini = positions[0]
+        pos_final = positions[pos_n-1]
+        if mapping is not None and len(mapping) == self.par_n:
+            pos_final = [mapping[e] for e in pos_final]
+        a = np.array(positions)
+        positions = a.transpose()
+        time = [i for i in range(pos_n)]
+        fig, ax, ax2, braid_list, braid_table = self.get_animation_plots(time, positions, pos_ini)
+
+        def update_braid(index, ax, braid_table, positions, time, braid_list, sequence, pos_n):
             i = -1
             for braid in braid_list:
                 i += 1
@@ -324,7 +349,7 @@ class Animation:
             return braid_list
 
         ani = anima.FuncAnimation(fig, update_braid, frames=pos_n, interval=1000,
-                                  fargs=(ax, braid_table, positions, time, braid_list, sequence))
+                            fargs=(ax, braid_table, positions, time, braid_list, sequence, pos_n))
         fn = '{}-braid-table.gif'.format(self.gate)
         ani.save(self.output+'/'+fn, writer='imagemagick')
 
@@ -418,7 +443,7 @@ class Animation:
             nodes_volt_shut = []
             label_gates = dict()
             for i in range(len(gates)):
-                key, lbl = get_voltage_gate_labels(i)
+                key, lbl = self.get_voltage_gate_labels(i)
                 if gates[i] is 'O':
                     edges_volt_open.append(edges_volt_pairs[i])
                     label_gates[key] = ''
@@ -518,7 +543,7 @@ class Animation:
             for i in range(len(gates)):
                 volt = gates[i]
                 if volt is 'S':
-                    key, gate = get_voltage_gate_labels(i)
+                    key, gate = self.get_voltage_gate_labels(i)
                     gt = "Voltage Gate {} is SHUT".format(gate)
                     if par is None:
                         title = "{}\n{}".format(title, gt)
@@ -555,22 +580,22 @@ class Animation:
         fn = '{}-nanowire-table.gif'.format(self.gate)
         ani.save(self.output+'/'+fn, writer='imagemagick')
 
-def get_voltage_gate_labels(flag):
-    """
-    7. Returns voltage node labels
-    """
-    key = None
-    gate = None
-    if flag is 0:
-        key = 'x11'
-        gate = 'Vg11'
-    elif flag is 1:
-        key = 'x13'
-        gate = 'Vg12'
-    elif flag is 2:
-        key = 'x21'
-        gate = 'Vg21'
-    elif flag is 3:
-        key = 'x23'
-        gate = 'Vg22'
-    return key, gate
+    def get_voltage_gate_labels(self, flag):
+        """
+        7. Returns voltage node labels
+        """
+        key = None
+        gate = None
+        if flag is 0:
+            key = 'x11'
+            gate = 'Vg11'
+        elif flag is 1:
+            key = 'x13'
+            gate = 'Vg12'
+        elif flag is 2:
+            key = 'x21'
+            gate = 'Vg21'
+        elif flag is 3:
+            key = 'x23'
+            gate = 'Vg22'
+        return key, gate
