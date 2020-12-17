@@ -9,9 +9,10 @@ Module: Exception
 Class:
     1. NoEmptyPositionException
     2. InvalidNanowireStateException
-    3. NoEmptyBranchException
-    4. MultiModalCrossingException
-    5. PathBlockedException
+        1. NoEmptyBranchException
+        2. MultiModalCrossingException
+    3. InvalidMovementException
+        1. PathBlockedException
 
 """
 
@@ -35,7 +36,12 @@ class MultiModalCrossingException(InvalidNanowireStateException):
     When Rule 3 is violated
     """
 
-class PathBlockedException(Exception):
+class InvalidMovementException(Exception):
+    """
+    When the Preprocess movement isn't possible
+    """
+
+class PathBlockedException(InvalidMovementException):
     """
     When the path is blocked by another particle
     """

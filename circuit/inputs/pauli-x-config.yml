@@ -1,0 +1,10 @@
+gate: pauli-x
+qubits: 1
+particles: 4
+groups: 4
+branch_config:
+    - double
+    - opposite
+braid_sequence:
+    - 2,3,0
+    - 3,2,0

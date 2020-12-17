@@ -71,7 +71,7 @@ def update_final_particle_positions(file, positions):
     try:
         fw = open(file, 'a')
         line = ','.join(positions)
-        fw.write(line)
+        fw.write(line+'\n')
         fw.close()
     except IOError as err:
         print(err)

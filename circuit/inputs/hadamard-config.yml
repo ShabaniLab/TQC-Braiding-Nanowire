@@ -1,0 +1,11 @@
+gate: hadamard
+qubits: 1
+particles: 4
+groups: 4
+branch_config:
+    - double
+    - opposite
+braid_sequence:
+    - 3,4,0
+    - 2,4,0
+    - 2,3,0

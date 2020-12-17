@@ -1,0 +1,19 @@
+application: entanglement
+instances: 1
+gates:
+    - hadamard
+    - cnot
+qubits: 2
+particles: 6
+nanowire: double-x
+initial_positions:
+    - b
+    - b'
+    - c'
+    - c
+    - e
+    - e'
+measure: true
+animations:
+    # - braid
+    - nanowire

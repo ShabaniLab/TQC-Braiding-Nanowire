@@ -16,6 +16,8 @@ Functions:
     4. extract_pairs
     5. measure_particles
     6. save_measurements
+    7. yaml_to_structure_rules
+    8. yaml_to_structure_channels
 """
 
 import random
@@ -133,3 +135,29 @@ def save_measurements(chl, qb):
         qb_lst = ','.join([str(e) for e in qb])
         line = "{},{}".format(chl_lst, qb_lst)
         print(line)
+
+def yaml_to_structure_rules(yaml):
+    "convert the rules from yaml to current format"
+    rules = yaml.get('rules')
+    group = {}
+    for rule in rules:
+        lst = rule.split(',')
+        key = str(lst[0])+'-'+str(lst[1])
+        val = lst[2]
+        if key in group:
+            group[key].append(val)
+        else:
+            group[key] = [val]
+    return group
+
+def yaml_to_structure_channels(yaml, qubits):
+    "convert channels from yaml to current format"
+    channels = yaml.get('channels').get('qubits').get(qubits)
+    group = {}
+    for row in channels:
+        lst = row.split(',')
+        qb = lst[:qubits]
+        ch = lst[qubits:]
+        key = '-'.join(ch)
+        group[key] = tuple(qb)
+    return group

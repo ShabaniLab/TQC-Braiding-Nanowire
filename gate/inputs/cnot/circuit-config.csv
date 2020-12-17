@@ -1,4 +1,6 @@
 gate=cnot
-particles=6
 qubits=2
+particles=6
 voltages=4
+group=2,4
+branches=double,adjacent,clockwise

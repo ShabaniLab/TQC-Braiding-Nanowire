@@ -74,7 +74,7 @@ def braid_particles(nanowire_obj, compiler_obj):
         utility = Utility()
         n = len(compiler_obj.positions)
         line_pos = Utility.get_par_braid_pos(n)
-        metrics.update_particle_line_positions(sys.argv[8], compiler_obj.sequence[0], line_pos)
+        metrics.update_particle_line_positions(sys.argv[8], (0,0), line_pos)
         for i in range(len(compiler_obj.sequence)):
             pair = compiler_obj.sequence[i]
             dir  = compiler_obj.direction[i]
@@ -106,10 +106,12 @@ def braid_particles(nanowire_obj, compiler_obj):
         raise
 
 if __name__ == '__main__':
+    res = 1
     try:
         compiler_obj = initialize_compiler()
         nanowire_obj = initialize_nanowire(compiler_obj.positions)
         braid_particles(nanowire_obj, compiler_obj)
+        res = 0
     except IOError as err:
         print(err)
     except SyntaxError as err:
@@ -120,3 +122,5 @@ if __name__ == '__main__':
         print(err)
     except exception.PathBlockedException as err:
         print(err)
+    finally:
+        exit(res)

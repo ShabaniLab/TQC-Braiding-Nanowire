@@ -29,6 +29,7 @@ Functions:
 
 """
 
+import re
 import copy
 import numpy as np
 import networkx as nx
@@ -58,6 +59,7 @@ class Animation:
         self.pos_volt = None
         self.states = None
         self.sequence = None
+        self.sequence_states = None
         self.positions = None
         self.par_n = 0
         self.graph = None
@@ -152,18 +154,25 @@ class Animation:
         4. Reading the Nanowire states
         """
         nanowire_states = []
+        sequence_states = []
+        pair = None
         try:
             file_read = open(file, 'r')
             line = file_read.readline()
             line = line.strip()
+            i = 0
             while line:
                 line = file_read.readline()
                 if line:
                     line = line.strip()
                     row = line.split(',')
                     nanowire_states.append(row)
+                    if pair != row[:2]:
+                        pair = row[:2]
+                        sequence_states.append(pair)
             file_read.close()
             self.states = nanowire_states
+            self.sequence_states = sequence_states
         except IOError:
             raise IOError
 
@@ -182,10 +191,12 @@ class Animation:
                 if line:
                     line = line.strip()
                     row = line.split(',')
-                    sequence.append(row[:2])
-                    sequence.append(row[:2])
-                    braid_pos.append(row[2:])
-                    braid_pos.append(row[2:])
+                    temp = [int(e) for e in row[:2]]
+                    sequence.append(temp)
+                    # sequence.append(row[:2])
+                    # braid_pos.append(row[2:])
+                    temp = [int(e) for e in row[2:]]
+                    braid_pos.append(temp)
             file_read.close()
             self.sequence = sequence
             self.positions = braid_pos
@@ -193,26 +204,59 @@ class Animation:
         except IOError:
             raise IOError
 
+    def nanowire_yaml_to_structure_graph(self, structure):
+        """
+        3a. Yaml to Nanowire Node positions
+        """
+        pos_par = dict()
+        pos_volt = dict()
+        for key, val in structure.items():
+            pos = val.split(',')
+            pos_arr = None
+            if re.search('\d\.\d', pos[0]):
+                pos_arr = np.array([float(pos[0]), float(pos[1])])
+            elif re.search('\d', pos[0]):
+                pos_arr = np.array([int(pos[0]), int(pos[1])])
+            if len(key) == 3 and 'x' in key:
+                pos_volt[key] = pos_arr
+            else:
+                pos_par[key] = pos_arr
+            self.pos_par = pos_par
+            self.pos_volt = pos_volt
+
     ################################################################################
     # A. Braiding animation using Pyplot
-    def animate_braid(self):
-        """
-        A. Braid pattern animation
-        """
-        index = 0
-        positions = copy.copy(self.positions)
-        seq = [self.sequence[0]]
-        for el in self.sequence:
-            if el not in seq:
-                seq.append(el)
-        n_seq = len(seq)
-        pos_n = len(positions)
-        pos_initial = positions[0]
-        pos_final = positions[pos_n-1]
-        a = np.array(positions)
-        positions = a.transpose()
-        time = [(i+1) for i in range(pos_n)]
+    def get_braid_sequence_positions(self):
+        """getting the correct braid sequence and positions"""
+        sequence = []
+        positions1 = []
+        mapping = None
+        i = 0
+        for i in range(len(self.sequence)):
+            seq = self.sequence[i]
+            sequence.append(seq)
+            sequence.append(seq)
 
+            # if seq == [0,0]:
+            #     self.pos0 = self.positions[i]
+            #     pos_ini = [i+1 for i in range(self.par_n)]
+            #     mapping = dict(zip(self.pos0, pos_ini))
+            # else:
+            #     self.pos0 = [mapping[e] for e in self.positions[i]]
+            #     # pair = seq
+            #     # pair = [mapping[seq[0]], mapping[seq[1]]]
+            #     # pos[pair[0]-1], pos[pair[1]-1] = pos[pair[1]-1], pos[pair[0]-1]
+            #     # self.pos0 = pos
+            pos = self.positions[i]
+            positions1.append(pos)
+            positions1.append(pos)
+
+        return sequence, positions1, mapping
+
+    def get_animation_plots(self, time, positions, pos_initial):
+        """Initializing the plot variables:
+        ax, ax2, braid_list, braid_table"""
+        # initialising plots [ax, ax2]
         fig = plt.figure(figsize=(12, 6))
         ax2 = fig.add_subplot(122)
         ax = fig.add_subplot(121)
@@ -220,17 +264,23 @@ class Animation:
         ax.set_xlabel('Time')
         ax.set_ylabel('Initial Particle positions')
         ax.set_yticklabels(pos_initial)
+        ax.yaxis.set_ticks(np.arange(1, self.par_n+1))
 
+        # creating braid_list
         braid_list = []
         for i in range(self.par_n):
             braid, = ax.plot(time, positions[i])
             braid_list.append(braid)
 
+        # creating braid_table
         heading = ("Particle 1", "Particle 2")
+        seq = copy.copy(self.sequence)
+        if seq[0] == seq[1] or seq[0] == [0,0]:
+            seq.pop(0)
         braid_table = ax2.table(cellText=seq, colLabels=heading, loc='center', cellLoc='center')
         braid_table.scale(1, 2)
         # braid_table.set_fontsize(16)
-        for i in range(n_seq):
+        for i in range(len(seq)):
             for j in range(len(seq[i])):
                 if i==0:
                     braid_table[(i, j)].get_text().set_fontweight('bold')
@@ -238,29 +288,38 @@ class Animation:
         ax2.set_title("{} Braid table".format(self.gate), fontweight="bold")
         ax2.axis('off')
 
-        def update_braid(index, ax, braid_table, positions, time, braid_list):
+        return fig, ax, ax2, braid_list, braid_table
+
+    def animate_braid(self):
+        """
+        A. Braid pattern animation
+        """
+        index = 0
+        sequence, positions, mapping = self.get_braid_sequence_positions()
+        pos_n = len(positions)
+        pos_ini = positions[0]
+        pos_final = positions[pos_n-1]
+        if mapping is not None and len(mapping) == self.par_n:
+            pos_final = [mapping[e] for e in pos_final]
+        a = np.array(positions)
+        positions = a.transpose()
+        time = [i for i in range(pos_n)]
+        fig, ax, ax2, braid_list, braid_table = self.get_animation_plots(time, positions, pos_ini)
+
+        def update_braid(index, ax, braid_table, positions, time, braid_list, sequence, pos_n):
             i = -1
             for braid in braid_list:
                 i += 1
-                braid.set_data(time[:index+1], positions[i][:index+1])
+                braid.set_xdata(time[:index+1])
+                braid.set_ydata(positions[i][:index+1])
 
             # plot
-            if index==pos_n-1:
-                ax2=ax.twinx()
-                ax2.set_yticklabels(pos_final)
-                if self.par_n == 6:
-                    ax2.yaxis.set_ticks(np.arange(1, 3*self.par_n, 3))
-                elif self.par_n == 4:
-                    factor = 1.5
-                    if self.gate.lower() == 'hadamard':
-                        factor = 3.499
-                    elif self.gate.lower() == 'pauli-x':
-                        factor = 2.5
-                    elif self.gate.lower() == 'phase-s':
-                        factor = 1.5
-                    ax2.yaxis.set_ticks(np.arange(1, 2*self.par_n, factor*2/3))
-                ax2.set_ylabel('Final Particle positions')
-                ax2.set_ylim(ax.get_xlim())
+            if index == pos_n-1:
+                ax3=ax.twinx()
+                ax3.set_yticklabels(pos_final)
+                ax3.set_ylabel('Final Particle positions')
+                ax3.yaxis.set_ticks(np.arange(1, self.par_n+1))
+                ax3.set_ylim(ax.get_ylim())
 
             # Updating Braid table
             row = int(index/2)
@@ -281,7 +340,7 @@ class Animation:
                 title = 'TQC - {} Braid Pattern'.format(self.gate.upper())
             else:
                 title = 'Braiding Particles ({}, {})'.format(
-                    int(self.sequence[index][0]), int(self.sequence[index][1])
+                    int(sequence[index][0]), int(sequence[index][1])
                 )
             ax.set_title(title, fontweight="bold")
 
@@ -290,7 +349,7 @@ class Animation:
             return braid_list
 
         ani = anima.FuncAnimation(fig, update_braid, frames=pos_n, interval=1000,
-                                  fargs=(ax, braid_table, positions, time, braid_list))
+                            fargs=(ax, braid_table, positions, time, braid_list, sequence, pos_n))
         fn = '{}-braid-table.gif'.format(self.gate)
         ani.save(self.output+'/'+fn, writer='imagemagick')
 
@@ -312,11 +371,8 @@ class Animation:
         G = self.graph
         BASE_WEIGHT = 1
         index = 0
-        sequence = [self.sequence[0]]
-        for el in self.sequence:
-            if el not in sequence:
-                sequence.append(el)
-        n_seq = len(sequence)
+        self.pair0 = None
+        self.idx = 0
 
         # Nanowire network graph - positions
         for node1, node2, weight in list(G.edges(data=True)):
@@ -387,7 +443,7 @@ class Animation:
             nodes_volt_shut = []
             label_gates = dict()
             for i in range(len(gates)):
-                key, lbl = get_voltage_gate_labels(i)
+                key, lbl = self.get_voltage_gate_labels(i)
                 if gates[i] is 'O':
                     edges_volt_open.append(edges_volt_pairs[i])
                     label_gates[key] = ''
@@ -436,8 +492,22 @@ class Animation:
                         mapping[key] = val
                 Animation.labels_old = labels
             if mapping:
-                nx.relabel_nodes(G, mapping, copy=True)
-                if len(mapping.keys()) is 2:
+                # if len(mapping) == 2:
+                #     k1 = list(mapping.keys())[0]
+                #     k2 = list(mapping.keys())[1]
+                #     map1 = {}
+                #     map2 = {}
+                #     if isinstance(k1, int):
+                #         map1[k1] = mapping[k1]
+                #         map2[k2] = mapping[k2]
+                #     else:
+                #         map1[k2] = mapping[k2]
+                #         map2[k1] = mapping[k1]
+                #     G = nx.relabel_nodes(G, map1)
+                #     G = nx.relabel_nodes(G, map2)
+                # else:
+                #     G = nx.relabel_nodes(G, mapping)
+                if len(mapping.keys()) == 2:
                     for k in mapping.keys():
                         if isinstance(k, int):
                             par = k
@@ -447,17 +517,23 @@ class Animation:
                             pos1 = mapping[k]
 
             # Updating Braid table
-            if par is not None:
-                row = sequence.index(pair)
-                braid_table[(row+1, 0)].get_text().set_color('red')
-                braid_table[(row+1, 1)].get_text().set_color('red')
-                braid_table[(row+1, 0)].get_text().set_fontweight('bold')
-                braid_table[(row+1, 1)].get_text().set_fontweight('bold')
-                if row>0:
-                    braid_table[(row, 0)].get_text().set_color('black')
-                    braid_table[(row, 1)].get_text().set_color('black')
-                    braid_table[(row, 0)].get_text().set_fontweight('regular')
-                    braid_table[(row, 1)].get_text().set_fontweight('regular')
+            if par is not None and pair in self.sequence_states:
+                if pair != self.pair0:
+                    self.idx += 1
+                    self.pair0 = pair
+                    print('Animating Nanowire movements for particles ({}, {})'\
+                        .format(self.pair0[0], self.pair0[1]))
+                row = self.idx
+
+                braid_table[(row, 0)].get_text().set_color('red')
+                braid_table[(row, 1)].get_text().set_color('red')
+                braid_table[(row, 0)].get_text().set_fontweight('bold')
+                braid_table[(row, 1)].get_text().set_fontweight('bold')
+                if row > 1:
+                    braid_table[(row-1, 0)].get_text().set_color('black')
+                    braid_table[(row-1, 1)].get_text().set_color('black')
+                    braid_table[(row-1, 0)].get_text().set_fontweight('regular')
+                    braid_table[(row-1, 1)].get_text().set_fontweight('regular')
 
             # Output
             if pair is not None:
@@ -467,7 +543,7 @@ class Animation:
             for i in range(len(gates)):
                 volt = gates[i]
                 if volt is 'S':
-                    key, gate = get_voltage_gate_labels(i)
+                    key, gate = self.get_voltage_gate_labels(i)
                     gt = "Voltage Gate {} is SHUT".format(gate)
                     if par is None:
                         title = "{}\n{}".format(title, gt)
@@ -489,11 +565,11 @@ class Animation:
         ax = fig.add_subplot(121)
         heading = ("Particle 1", "Particle 2")
         braid_table = ax2.table(loc='center', cellLoc='center',
-                                cellText=sequence, colLabels=heading)
+                                cellText=self.sequence_states, colLabels=heading)
         braid_table.scale(1, 2)
         # braid_table.set_fontsize(16)
-        for i in range(n_seq):
-            for j in range(len(sequence[i])):
+        for i in range(len(self.sequence_states)):
+            for j in range(len(self.sequence_states[i])):
                 if i==0:
                     braid_table[(i, j)].get_text().set_fontweight('bold')
                 braid_table[(i+1, j)].get_text().set_color('gray')
@@ -504,22 +580,22 @@ class Animation:
         fn = '{}-nanowire-table.gif'.format(self.gate)
         ani.save(self.output+'/'+fn, writer='imagemagick')
 
-def get_voltage_gate_labels(flag):
-    """
-    7. Returns voltage node labels
-    """
-    key = None
-    gate = None
-    if flag is 0:
-        key = 'x11'
-        gate = 'Vg11'
-    elif flag is 1:
-        key = 'x13'
-        gate = 'Vg12'
-    elif flag is 2:
-        key = 'x21'
-        gate = 'Vg21'
-    elif flag is 3:
-        key = 'x23'
-        gate = 'Vg22'
-    return key, gate
+    def get_voltage_gate_labels(self, flag):
+        """
+        7. Returns voltage node labels
+        """
+        key = None
+        gate = None
+        if flag is 0:
+            key = 'x11'
+            gate = 'Vg11'
+        elif flag is 1:
+            key = 'x13'
+            gate = 'Vg12'
+        elif flag is 2:
+            key = 'x21'
+            gate = 'Vg21'
+        elif flag is 3:
+            key = 'x23'
+            gate = 'Vg22'
+        return key, gate
