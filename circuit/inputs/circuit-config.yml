@@ -15,5 +15,5 @@ initial_positions:
     - e'
 measure: true
 animations:
-    - braid
+    # - braid
     - nanowire

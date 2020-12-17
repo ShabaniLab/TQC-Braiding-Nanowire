@@ -9,6 +9,7 @@ This project is the 1st stage in building a Compiler to perform TQC. It achieves
 1. ![Hadamard (1 Qubit)](docs/hadamard/README.md)
 1. ![Pauli-X (1 Qubit)](docs/pauli-x/README.md)
 1. ![Phase S (1 Qubit)](docs/phase-s/README.md)
+1. ![Entanglement circuit](docs/circuit/README.md)
 
 ## TQC Compiler structure
 
@@ -20,11 +21,15 @@ This documentation is structured into multiple segments:
 
 ## Installation and execution
 
-1. `git clone https://github.com/ShabaniLab/TQC-Braiding-Nanowire`
-1. `cd TQC-Braiding-Nanowire`
-1. `pip install -r requirements`
-1. `cd gate`
-1. `./run.sh inputs/cnot` to construct a 2-qubit CNOT Quantum gate
-1. `./run.sh inputs/hadamard` to construct a 1-qubit Hadamard Quantum gate
-1. `./run.sh inputs/pauli-x` to construct a 1-qubit Pauli-X Quantum gate
-1. `./run.sh inputs/phase-s` to construct a 1-qubit Phase-S Quantum gate
+```
+1. git clone https://github.com/ShabaniLab/TQC-Braiding-Nanowire
+2. cd TQC-Braiding-Nanowire
+3. pip install -r requirements
+4. cd gate
+    1. ./run.sh inputs/cnot` to construct a 2-qubit CNOT Quantum gate
+    2. ./run.sh inputs/hadamard` to construct a 1-qubit Hadamard Quantum gate
+    3. ./run.sh inputs/pauli-x` to construct a 1-qubit Pauli-X Quantum gate
+    4. ./run.sh inputs/phase-s` to construct a 1-qubit Phase-S Quantum gate
+5. cd circuit
+    1. ./run.sh inputs to construct a 2-qubit entanglement circuit
+```

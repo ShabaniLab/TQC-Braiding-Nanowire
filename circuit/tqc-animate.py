@@ -26,12 +26,14 @@ if __name__ == '__main__':
             nanowire_config = yaml.safe_load(stream2)
             anima = Animation(circuit_config.get('application'), sys.argv[7])
             initiate_file_io(anima, nanowire_config)
-
-            # print('Animating braid...')
-            # anima.animate_braid()
-            print('Animating nanowire...')
-            anima.initialize_network_graph()
-            anima.animate_nanowire()
+            if circuit_config.get('animations') is not None:
+                if "braid" in circuit_config.get('animations'):
+                    print('Animating braid...')
+                    anima.animate_braid()
+                if "nanowire" in circuit_config.get('animations'):
+                    print('Animating nanowire...')
+                    anima.initialize_network_graph()
+                    anima.animate_nanowire()
         res = 0
     except IOError as err:
         print(err)
