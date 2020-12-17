@@ -29,6 +29,10 @@
 ### Stage 6
 1. Compiler architecture - redesign
 
+### Stage 7
+1. Preprocess - Positions
+1. Circuit
+
 ## Stage 1
 
 1. In this 1st stage, some of the rules (3, 5, 6, 7 and 8) haven't been implemented from the algorithm. And the program is for the 2-qubit **CNOT** gate.
@@ -300,3 +304,7 @@ For all of these 1-qubit gates, there is a slight change in the category 2 braid
 ## Stage 6
 
 19. ![Redesign Compiler architecture](DOC-ARCHITECTURE.md)
+
+## Stage 7
+20. [Preprocess - Positions](circuit/README.md)
+21. [Circuit](circuit/README.md)
